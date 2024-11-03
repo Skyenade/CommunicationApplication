@@ -72,6 +72,36 @@ body{
     font-weight: 600;
 }
 
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 30px;
+    background-color: white;
+    font-size: large;
+    height: 100px;
+    width: 100vw;
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: black;
+    font-size: large;
+    transition: color 0.3s;
+    padding: 30px 40px;
+}
+
+.nav-item:hover {
+    background-color: #769db8;
+    padding: 30px 40px;
+    color: black;
+}
+
 @media (max-width: 768px) {
     .home-container, .home-form {
         grid-column: span 12;
