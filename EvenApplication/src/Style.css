@@ -1,0 +1,79 @@
+body{
+    background-color: rgb(237, 234, 234); 
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    align-items: center;
+    margin-top: 30px;
+    
+}
+
+.home-container, .home-form {
+    grid-column: span 6;
+}
+
+.home-heading{
+    color: #0a66c2;
+}
+
+.home-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.home-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 70%;
+    padding: 30px;
+    background-color: rgb(255, 255, 255);
+}
+
+.home-input{
+    height: 20px;
+    width: 60%;
+    padding: 5px;
+    border-radius: 5px;
+    border: solid 1px gray;
+}
+
+.home-login-button{
+    width: 60%;
+    padding: 15px;
+    background-color: #2A6F97;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+}
+
+.home-forgot-password{
+    color: rgb(60, 60, 236);
+}
+
+.home-create-account-button{
+    width: 60%;
+    padding: 15px;
+    background-color: #01497C;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .home-container, .home-form {
+        grid-column: span 12;
+    }
+}
