@@ -80,12 +80,12 @@ body{
     background-color: white;
     font-size: large;
     height: 100px;
-    width: 100vw;
+    width: 96vw;
 }
 
 .nav-links {
     display: flex;
-    gap: 40px;
+    gap: 30px;
 }
 
 .nav-item {
@@ -100,6 +100,100 @@ body{
     background-color: #769db8;
     padding: 30px 40px;
     color: black;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+.btnSignOut{
+    background-color: #013A63;
+    color: white;
+    border: none;
+    padding: 20px 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-user-profile{
+    background-color: #2A6F97;
+    color: white;
+    border: none;
+    padding: 20px 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.create-event-input{
+    height: 20px;
+    width: 200px;
+    padding: 5px;
+    border-radius: 5px;
+    border: solid 1px gray;
+    margin-right: 20px;
+}
+
+.create-event-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 80%;
+    padding: 30px;
+    background-color: rgb(255, 255, 255);    
+}
+
+.create-event{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.create-event-input-container{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 40px;
+}
+
+.create-event-label{
+    height: 20px;
+    padding: 5px;
+}
+
+.create-event-textarea{
+    width: 500px;
+}
+
+.create-event-button{
+    width: 20%;
+    padding: 15px;
+    background-color: #01497C;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.moderator-home-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.main-content-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
 @media (max-width: 768px) {

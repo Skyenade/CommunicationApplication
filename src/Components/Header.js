@@ -66,13 +66,14 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
-                <a className='nav-item' onClick={() => navigate("/services")}>Events Feed</a>
-                <a className='nav-item' onClick={() => navigate("/aboutus")}>My Events</a>
-                <a className='nav-item' onClick={() => navigate("/contact")}>My Followers</a>
+                <a className='nav-item' >Events Feed</a>
+                <a className='nav-item' >My Events</a>
+                <a className='nav-item' >My Followers</a>
             </div>
 
             <div className="auth-buttons">
-                <button onClick={handleSignOut} className="btnSignIn">Sign Out</button>
+                <button className="btn-user-profile">User Profile</button>
+                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>
     );
