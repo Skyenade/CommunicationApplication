@@ -85,7 +85,7 @@ body{
 
 .nav-links {
     display: flex;
-    gap: 40px;
+    gap: 30px;
 }
 
 .nav-item {
@@ -102,8 +102,25 @@ body{
     color: black;
 }
 
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
 .btnSignOut{
     background-color: #013A63;
+    color: white;
+    border: none;
+    padding: 20px 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-user-profile{
+    background-color: #2A6F97;
     color: white;
     border: none;
     padding: 20px 50px;
@@ -163,6 +180,20 @@ body{
     color: white;
     font-weight: 600;
     cursor: pointer;
+}
+
+.moderator-home-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.main-content-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
 @media (max-width: 768px) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../Style.css';
 import Header from './Header';
-import { GoogleMap, LoadScript, Autocomplete, Marker } from '@react-google-maps/api';
+import { LoadScript, Autocomplete } from '@react-google-maps/api';
 import { ref, set } from "firebase/database";
 import { database } from '../firebase';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";

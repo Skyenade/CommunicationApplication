@@ -1,6 +1,7 @@
 import React from "react";
-import Navbar from "../Navbar";
-import "./ModeratorDashboard.css"; 
+import '../Style.css';
+import Header from "../Components/Header";
+
 
 const ModeratorDashboard = () => {
   const flaggedItems = [
@@ -15,11 +16,12 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="moderatorDashboard">
+      <Header />
+
       <aside className="sidebar">
         <h2>EventsUp</h2>
       </aside>
       <div className="content">
-        <Navbar />
         <h1>Moderator Dashboard</h1>
         <button className="requestAdminAssistanceButton">
           Request Admin Assistance
