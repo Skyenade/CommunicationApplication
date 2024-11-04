@@ -72,6 +72,7 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             </div>
 
             <div className="auth-buttons">
+                <button className="btn-user-profile">User Profile</button>
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>
