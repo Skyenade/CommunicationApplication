@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react';
 function App() {
 
   const [userEmail, setUserEmail] = useState("");
+  const [userImage, setUserImage] = useState("");
+  const [eventImage, setEventImage ] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -23,19 +25,18 @@ function App() {
 
           <Route
             path="/"
-            element={<Home setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />}
+            element={<Home setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn}/>}
           />
 
           <Route
             path="/createEvent"
-            element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />}
+            element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
+
+          
 
         </Routes>
       </Router>
-
-
-
     </div>
   );
 }
