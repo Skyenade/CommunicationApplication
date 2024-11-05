@@ -78,7 +78,7 @@ const SignUpUser = () => {
                     {error && <p className="error-message">{error}</p>}
 
                         <p className='home-create-account-button2' onClick={() => navigate("/")}>Already have an account?</p>
-                        {/* here goes to the path / assignend to home due the login page is located at home page */}
+                        {/* here goes to the path "/"" assignend to home due the login page is located at home page */}
 
                 </form>
                 

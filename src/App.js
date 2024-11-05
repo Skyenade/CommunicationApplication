@@ -37,10 +37,10 @@ function App() {
             element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
 
-          <Route
+          {/* <Route
             path="/ModeratorHome"
             element={<ModeratorHome setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
-          />
+          /> */}
 
           <Route
             path="/ModeratorDashboard"

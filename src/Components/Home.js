@@ -5,7 +5,7 @@ import myImage from '../Images/home-page-image.jpeg';
 
 const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
     const [userType, setUserType] = useState(null);
-    const navigate = useNavigate();
+    
 
     // useEffect(() => {
     //     const determineUserType = async () => {
@@ -60,6 +60,7 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
     //     }
     // };
 
+    const navigate = useNavigate();
 
     const handleSignin = async (e) => {
         e.preventDefault();
