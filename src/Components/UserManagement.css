@@ -1,0 +1,68 @@
+.user-management {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 50px;
+    width: 800px;
+  }
+  
+  .user-management h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .user-table th,
+  .user-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .user-table th {
+    background-color: #7c7d7f;
+    color: white;
+  }
+  
+  .radio-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  
+  .radio-group label {
+    margin-right: 10px;
+  }
+  
+  .edit-button,
+  .suspend-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .edit-button {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .suspend-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #218838;
+  }
+  
+  .suspend-button:hover {
+    background-color: #c82333;
+  }
+  

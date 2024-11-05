@@ -5,7 +5,7 @@ import { ref, get } from 'firebase/database';
 import { database } from '../firebase';
 
 const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
-
+    const [userType, setUserType] = useState(null);
     const navigate = useNavigate();
 
     return (
@@ -13,10 +13,9 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
-                <a className='nav-item' >Events Feed</a>
+                <a className='nav-item' onClick={() => navigate("/services")}>Events Feed</a>
+                <span id="adminAccount">Admin Account</span>
             </div>
-
-            <h2>Admin Account</h2>
 
             <div className="auth-buttons">
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
