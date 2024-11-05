@@ -4,6 +4,9 @@ import Home from './Components/Home';
 import CreateEvent from './Components/CreateEvent';
 import ModeratorHome from './Components/ModeratorHome';
 import ModeratorDashboard from './Components/ModeratorDashboard';
+import UserManagement from './Components/UserManagement';
+import HomeUser from './Components/HomeUser';
+import EventFeed from './Components/EventFeed';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react';
 
@@ -40,9 +43,24 @@ function App() {
             element={<ModeratorHome setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
 
-<Route
+          <Route
             path="/ModeratorDashboard"
             element={<ModeratorDashboard setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/UserManagement"
+            element={<UserManagement setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/HomeUser"
+            element={<HomeUser setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/EventFeed"
+            element={<EventFeed setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
 
         </Routes>
