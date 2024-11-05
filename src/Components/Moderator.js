@@ -5,7 +5,7 @@ import Header from "./Home";
 const ModeraterHome = () => {
   return (
     <div>
-      <Header/>
+      {/* <Header/> */}
     {/* <div className=""> */}
         <div className="choose">
           <label>
