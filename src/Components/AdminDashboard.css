@@ -1,0 +1,49 @@
+
+.admin-dashboard {
+    padding: 20px;
+    text-align: center;
+    margin-left: 250px;
+}
+
+.admin-dashboard h1 {
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.dashboard-sections {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 10px;
+}
+
+.section {
+    background-color: #19646b;
+    color: white;
+    width: 350px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
+    font-weight: bolder;
+    font-size: xx-large;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .section {
+        width: 100%;
+        margin: 10px 0;
+        height: 120px;
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    .admin-dashboard h1 {
+        font-size: 1.5em;
+        text-align: center;
+    }
+}

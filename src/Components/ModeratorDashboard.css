@@ -1,0 +1,83 @@
+
+h1 {
+    color: black;
+    margin-top: 50px;
+    margin-left: 60px;
+}
+
+h2 {
+    color: black;
+    margin-top: 50px;
+    float: left;
+}
+
+.content {
+    flex: 1; 
+    padding: 20px; 
+    margin-left: 250px;
+}
+
+.requestAdminAssistanceButton {
+    background-color: #19646b;
+    color: white;
+    border: none;
+    padding: 25px 15px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    float: right;
+    margin-top: -40px;
+    margin-right: 150px;
+    font-weight: bolder;
+}
+
+.flaggedPostsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.flaggedPostsTable th {
+    background-color: #878b8b;
+}
+
+.flaggedPostsTable th,
+.flaggedPostsTable td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    color: black;
+}
+
+.actionButton {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-weight: bolder;
+}
+#action{
+    width: 35%;
+}
+#Warning{
+    background-color: #dae078;
+    color: black;
+}
+
+
+#Suspend{
+    background-color: #794a17;
+}
+
+#Dismiss{
+    background-color: #67dea6;
+    color: black;
+}
+@media (max-width: 1200px) {
+    h1 {
+      font-size: 2rem;
+    }
+  }
