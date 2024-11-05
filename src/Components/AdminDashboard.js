@@ -17,33 +17,24 @@ const AdminDashboard = () => {
 
   return (
     <div>
-      <HeaderAdmin />
+      {/* <HeaderAdmin /> */}
 
       <div className="admin-dashboard">
-        <aside className="sidebar">
-          <h2>EventsUp</h2>
-        </aside>
-
         <div className="content">
           <h1>Admin Dashboard</h1>
 
-          <button className="createUserButton" onClick={handleCreateUser}>
-            Create an Account
-          </button>
-
-          <h2>User Management</h2>
-          <button onClick={handleUserManagement} className="manageUsersButton">
-            Manage Users
-          </button>
-
           <div className="dashboard-sections">
             <div className="section">
-              <Link to="/UserManagement">User Management</Link>
+              <Link to="/UserManagement" className='linking'>User Management</Link>
             </div>
-            <div className="section">Content Management</div>
-            <div className="section">Database Management</div>
-            <div className="section">History of Reported Users</div>
-            <div className="section">History of Reported Content</div>
+            <div className="section" >
+            <Link to="/ContentManagement" className='linking'>Content Management</Link></div>
+            <div className="section">
+            <Link to="/UserManagement" className='linking'>Database Management</Link></div>
+            <div className="section">
+            <Link to="/UserManagement" className='linking'>History of Reported Users</Link></div>
+            <div className="section">
+            <Link to="/UserManagement" className='linking'>History of Reported Content</Link></div>
           </div>
         </div>
       </div>
