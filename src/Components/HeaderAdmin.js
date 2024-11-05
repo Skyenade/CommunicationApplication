@@ -7,19 +7,21 @@ import { database } from '../firebase';
 const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
     const [userType, setUserType] = useState(null);
     const navigate = useNavigate();
+
     return (
         <div className="header-container">
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
                 <a className='nav-item' onClick={() => navigate("/services")}>Events Feed</a>
-                <a id="adminaccout">Admin Account</a>
+                <span id="adminAccount">Admin Account</span>
             </div>
 
             <div className="auth-buttons">
-                <button onClick={handleSignOut} className="btnSignIn">Sign Out</button>
+                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>
     );
 };
+
 export default HeaderAdmin;
