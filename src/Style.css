@@ -80,12 +80,12 @@ body{
     background-color: white;
     font-size: large;
     height: 100px;
-    width: 96vw;
+    width: 100vw;
 }
 
 .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 40px;
 }
 
 .nav-item {
@@ -194,6 +194,37 @@ body{
     flex-direction: row;
     align-items: center;
     gap: 10px;
+}
+
+.user-management-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80vw;
+    align-items: center;
+}
+
+.user-management-table{
+    border: 1px solid black;
+    padding: 20px;
+    background-color: white;
+}
+
+.admin-dashboard-button{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.create-account-button{
+    margin-left: 50px;
+    background-color: #013A63;
+    color: white;
+    border: none;
+    padding: 20px 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {
