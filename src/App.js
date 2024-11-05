@@ -2,17 +2,23 @@
 import './App.css';
 import Home from './Components/Home';
 import CreateEvent from './Components/CreateEvent';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
+import SignUpUser from './Components/SignUpUser';
+import LogIn from './Components/LogIn';
+import ForgotPassword from './Components/ForgotPassword';
+import HomeAdmin from './Components/HomeAdmin';
 
 function App() {
 
   const [userEmail, setUserEmail] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
 
+
+
   useEffect(() => {
     setIsSignedIn(!!userEmail);
-  }, [userEmail]);
+  }, [userEmail,]);
 
 
   return (
@@ -29,6 +35,28 @@ function App() {
           <Route
             path="/createEvent"
             element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />}
+          />
+
+
+          <Route
+            path="/SignupUser"
+            element={<SignUpUser setUserEmail={setUserEmail} />}
+          />
+
+          <Route
+            path="/LogIn"
+            element={<LogIn />}
+          />
+
+          <Route
+            path="/reset"
+            element={<ForgotPassword />}
+          />
+
+          <Route
+            path="/homeadmin"
+            element={isSignedIn ? <HomeAdmin userEmail={userEmail} isSignedIn={isSignedIn} setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} /> : <Navigate to="/signin" />}
+
           />
 
         </Routes>
