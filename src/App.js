@@ -4,9 +4,9 @@ import CreateEvent from './Components/CreateEvent';
 import ModeratorHome from './Components/ModeratorHome';
 import ModeratorDashboard from './Components/ModeratorDashboard';
 import CreateUser from './Components/CreateUser';
-import UserManagement from './Components/UserManagement'; 
-import HomeUser from './Components/HomeUser'; 
-import EventFeed from './Components/EventFeed';
+import UserManagement from './Components/UserManagement'; // Import UserManagement
+import HomeUser from './Components/HomeUser'; // Import HomeUser
+import EventFeed from './Components/EventFeed'; // Import EventFeed
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react';
 
