@@ -14,14 +14,7 @@ const ModeratorDashboard = () => {
       date: "2024-11-01",
       type: "Comment",
       content: "Inappropriate language",
-    },
-    {
-      user: "Jenny",
-      email: "janny@example.com",
-      date: "2024-11-02",
-      type: "Post",
-      content: "Spam content",
-    },
+    }        // add this code just to see the buttons in dashboard//
   ];
 
   // const [flaggedItems, setFlaggedItems] = useState([]);

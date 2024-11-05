@@ -21,7 +21,7 @@
 .section {
     background-color: #19646b;
     color: white;
-    width: 350px;
+    width: 380px;
     height: 150px;
     display: flex;
     justify-content: center;
@@ -31,6 +31,11 @@
     font-weight: bolder;
     font-size: xx-large;
     border-radius: 8px;
+}
+.linking{
+    text-decoration: none;
+  color: white;
+  display: block;
 }
 
 @media (max-width: 768px) {

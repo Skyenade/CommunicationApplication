@@ -6,7 +6,6 @@ import HeaderAdmin from "./HeaderAdmin";
 const AdminHome = () => {
   return (
     <div>
-      <HeaderAdmin/>
         <div className="choose">
           <label>
             <input type="radio" name="options" value="Option 1" />
@@ -43,7 +42,7 @@ const AdminHome = () => {
 
           <aside className="right-sidebar">
             <div className="moderator-dashboard">
-              <h4><Link to="/AdminDashboard">Admin Dashboard</Link></h4>
+              <h4><Link to="/AdminDashboard" className="links">Admin Dashboard</Link></h4>
             </div>
             <div className="notifications">
               <h3>Notifications</h3>
