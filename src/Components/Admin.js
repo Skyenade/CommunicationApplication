@@ -7,7 +7,6 @@ const AdminHome = () => {
   return (
     <div>
       <HeaderAdmin/>
-    <div className="container">
         <div className="choose">
           <label>
             <input type="radio" name="options" value="Option 1" />
@@ -57,7 +56,6 @@ const AdminHome = () => {
           </aside>
         </div>
       </main>
-    </div>
     </div>
   );
 };
