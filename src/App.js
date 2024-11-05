@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ModeratorHome from './Components/ModeratorHome'; 
+import Moderator from './Components/Moderator';
 import ModeratorDashboard from './Components/ModeratorDashboard'; 
 import AdminHome from './Components/Admin';
 import AdminDashboard from './Components/AdminDashboard';
