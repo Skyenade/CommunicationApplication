@@ -54,7 +54,6 @@ const UserManagement = () => {
 
   return (
     <div>
-      <HeaderAdmin />
       <div className="user-management-container">
         <div className='admin-dashboard-button'>
           <h1>Admin Dashboard</h1>

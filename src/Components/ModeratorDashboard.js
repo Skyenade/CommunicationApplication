@@ -6,55 +6,75 @@ import { ref, onValue, remove } from "firebase/database";
 import { useNavigate } from "react-router-dom"; 
 
 const ModeratorDashboard = () => {
-  const [flaggedItems, setFlaggedItems] = useState([]);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const flaggedRef = ref(database, 'flaggedContent');
+  const flaggedItems = [
+    {
+      user: "Kimi",
+      email: "kimi@example.com",
+      date: "2024-11-01",
+      type: "Comment",
+      content: "Inappropriate language",
+    },
+    {
+      user: "Jenny",
+      email: "janny@example.com",
+      date: "2024-11-02",
+      type: "Post",
+      content: "Spam content",
+    },
+  ];
+
+  // const [flaggedItems, setFlaggedItems] = useState([]);
+  // const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   const flaggedRef = ref(database, 'flaggedContent');
     
-    onValue(flaggedRef, (snapshot) => {
-      const data = snapshot.val();
-      const itemsArray = [];
-      if (data) {
-        for (let id in data) {
-          itemsArray.push({ id, ...data[id] });
-        }
-      }
-      setFlaggedItems(itemsArray);
-    });
-  }, []);
+  //   onValue(flaggedRef, (snapshot) => {
+  //     const data = snapshot.val();
+  //     const itemsArray = [];
+  //     if (data) {
+  //       for (let id in data) {
+  //         itemsArray.push({ id, ...data[id] });
+  //       }
+  //     }
+  //     setFlaggedItems(itemsArray);
+  //   });
+  // }, []);
 
-  const handleAction = (action, itemId) => {
-    const itemRef = ref(database, `flaggedContent/${itemId}`);
+  // const handleAction = (action, itemId) => {
+  //   const itemRef = ref(database, `flaggedContent/${itemId}`);
 
-    switch (action) {
-      case 'Warning':
-        alert("Warning issued to the user.");
-        break;
-      case 'Remove':
-        remove(itemRef).then(() => alert("Content removed successfully."));
-        break;
-      case 'Suspend':
-        alert("User suspended. Implement suspension logic here.");
-        break;
-      case 'Dismiss':
-        remove(itemRef).then(() => alert("Report dismissed successfully."));
-        break;
-      default:
-        break;
-    }
-  };
-  const handleAdminAssistance = () => {
-    navigate("/adminAssistance"); 
-  };
+  //   switch (action) {
+  //     case 'Warning':
+  //       alert("Warning issued to the user.");
+  //       break;
+  //     case 'Remove':
+  //       remove(itemRef).then(() => alert("Content removed successfully."));
+  //       break;
+  //     case 'Suspend':
+  //       alert("User suspended. Implement suspension logic here.");
+  //       break;
+  //     case 'Dismiss':
+  //       remove(itemRef).then(() => alert("Report dismissed successfully."));
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+  // const handleAdminAssistance = () => {
+  //   navigate("/adminAssistance"); 
+  // };
 
 
   return (
     <div className="moderatorDashboard">
-      <Header />
+      {/* <Header /> */}
       <div className="content">
         <h1>Moderator Dashboard</h1>
-        <button className="requestAdminAssistanceButton" onClick={handleAdminAssistance} >
+        <button className="requestAdminAssistanceButton" 
+        // onClick={handleAdminAssistance} 
+        >
           Request Admin Assistance
         </button>
 
@@ -81,20 +101,24 @@ const ModeratorDashboard = () => {
                   <td>{item.content}</td>
                   <td>
                     <button 
-                      className="actionButton" 
-                      onClick={() => handleAction('Warning', item.id)}>Warning
+                      className="actionButton" id="Warning"
+                      // onClick={() => handleAction('Warning', item.id)}
+                       >Warning
                     </button>
                     <button 
-                      className="actionButton" 
-                      onClick={() => handleAction('Remove', item.id)}>Remove
+                      className="actionButton" id="Remove"
+                      // onClick={() => handleAction('Remove', item.id)}
+                      >Remove
                     </button>
                     <button 
-                      className="actionButton" 
-                      onClick={() => handleAction('Suspend', item.id)}>Suspend Account
+                      className="actionButton" id="Suspend"
+                      // onClick={() => handleAction('Suspend', item.id)}
+                      >Suspend Account
                     </button>
                     <button 
-                      className="actionButton" 
-                      onClick={() => handleAction('Dismiss', item.id)}>Dismiss Report
+                      className="actionButton"  id="Dismiss"
+                      // onClick={() => handleAction('Dismiss', item.id)}
+                      >Dismiss Report
                     </button>
                   </td>
                 </tr>
@@ -102,6 +126,9 @@ const ModeratorDashboard = () => {
             ) : (
               <tr>
                 <td colSpan="6" style={{ textAlign: 'center' }}>There is no flagged content here!</td>
+                <td>
+                  
+                </td>
               </tr>
             )}
           </tbody>
