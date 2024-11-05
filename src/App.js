@@ -4,10 +4,18 @@ import Home from './Components/Home';
 import CreateEvent from './Components/CreateEvent';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import SignUpUser from './Components/SignUpUser';
+import SignupUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
 import ForgotPassword from './Components/ForgotPassword';
 import HomeAdmin from './Components/HomeAdmin';
+
+import ModeratorHome from './Components/ModeratorHome';
+import ModeratorDashboard from './Components/ModeratorDashboard';
+import UserManagement from './Components/UserManagement';
+import HomeUser from './Components/HomeUser';
+import EventFeed from './Components/EventFeed';
+
+
 
 function App() {
 
@@ -67,14 +75,14 @@ function App() {
 
           <Route
             path="/SignupUser"
-            element={<SignUpUser setUserEmail={setUserEmail} />}
+            element={<SignupUser setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
+
 
           <Route
             path="/LogIn"
-            element={<LogIn />}
+            element={<LogIn setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
-
           <Route
             path="/reset"
             element={<ForgotPassword />}
@@ -82,8 +90,7 @@ function App() {
 
           <Route
             path="/homeadmin"
-            element={isSignedIn ? <HomeAdmin userEmail={userEmail} isSignedIn={isSignedIn} setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} /> : <Navigate to="/signin" />}
-
+            element={<HomeAdmin setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
 
         </Routes>
