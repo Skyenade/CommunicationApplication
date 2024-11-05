@@ -1,8 +1,11 @@
 import React from 'react';
 import '../Style.css';
+import { useNavigate } from "react-router-dom";
 import myImage from '../Images/home-page-image.jpeg';
 
 const Home = () => {
+
+    const navigate = useNavigate();
 
     const handleSignin = async (e) => {
         e.preventDefault();
@@ -25,7 +28,7 @@ const Home = () => {
                 <input className='home-input' type="password" placeholder="Password" />
                 <button className='home-login-button'>Log in</button>
                 <span className='home-forgot-password'>Forgot Password?</span>
-                <button className='home-create-account-button'>Create new account</button>
+                <button className='home-create-account-button' onClick={() => navigate("/SignUpUser")}>Create new account</button>
             </form>
 
         </div>

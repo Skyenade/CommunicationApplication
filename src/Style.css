@@ -28,7 +28,7 @@ body{
     border-radius: 8px;
 }
 
-.home-form user-form{
+.home-form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -38,6 +38,18 @@ body{
     width: 70%;
     padding: 30px;
     background-color: rgb(255, 255, 255);
+}
+.home-form2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 30%;
+    padding: 30px;
+    background-color: rgb(255, 255, 255);
+    margin-left: 35%;
 }
 
 .home-input{
@@ -65,6 +77,15 @@ body{
 .home-create-account-button{
     width: 60%;
     padding: 15px;
+    background-color: #01497C;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+}
+.home-create-account-button2 {
+    width: 60%;
+    padding: 20px;
     background-color: #01497C;
     border: none;
     border-radius: 5px;

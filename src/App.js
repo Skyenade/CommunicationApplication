@@ -28,7 +28,7 @@ function App() {
 
   useEffect(() => {
     setIsSignedIn(!!userEmail);
-  }, [userEmail,]);
+  }, [userEmail, isSignedIn]);
 
 
   return (
@@ -83,6 +83,8 @@ function App() {
             path="/LogIn"
             element={<LogIn setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
+
+
           <Route
             path="/reset"
             element={<ForgotPassword />}
