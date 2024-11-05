@@ -141,3 +141,8 @@ header {
   border: 1px solid black;
   width: 250px;
 }
+#adminaccout {
+  padding-top: 30px;
+  font-weight: bolder;
+  font-size: x-large;
+}
