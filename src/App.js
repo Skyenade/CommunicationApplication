@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ModeraterHome from './Components/ModeratorHome';
+import Moderator from './Components/Moderator';
 import ModeratorDashboard from './Components/ModeratorDashboard'; 
 import AdminHome from './Components/Admin';
 import AdminDashboard from './Components/AdminDashboard';
@@ -29,9 +29,8 @@ function App() {
       <div className="App">
         <Header />
         <Routes>
-          <Route path="/" element={<ModeraterHome />} />
+          <Route path="/" element={<ModeratorHome />} />
           <Route path="/createEvent" element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />} />
-          <Route path="/ModeratorHome" element={<ModeraterHome />} />
           <Route path="/ModeratorDashboard" element={<ModeratorDashboard />} />
           <Route path="/AdminHome" element={<AdminHome />} />
           <Route path="/AdminDashboard" element={<AdminDashboard />} />
