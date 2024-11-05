@@ -1,3 +1,12 @@
+/* -----AdminHome----- */
+
+#adminaccout {
+  padding-top: 30px;
+  font-weight: bolder;
+  font-size: x-large;
+}
+/* ------------------------ */
+
 /* -----Moderator----- */
 header {
   text-align: center;
@@ -140,9 +149,4 @@ header {
   font-size: 14px;
   border: 1px solid black;
   width: 250px;
-}
-#adminaccout {
-  padding-top: 30px;
-  font-weight: bolder;
-  font-size: x-large;
 }
