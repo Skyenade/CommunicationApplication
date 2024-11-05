@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../Style.css';
-import Header from './Header';
+import HeaderAdmin from './HeaderAdmin';
 import { ref, update } from "firebase/database";
 import { database } from '../firebase';
 
@@ -8,8 +8,8 @@ const UserManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
-//   useEffect(() => {
-//   }, []);
+  //   useEffect(() => {
+  //   }, []);
 
   const handleAccountTypeChange = (userId, newType) => {
     const userRef = ref(database, `users/${userId}`);
@@ -43,10 +43,17 @@ const UserManagement = () => {
 
   return (
     <div>
-      <Header />
+      <HeaderAdmin />
       <div className="user-management-container">
-        <h2>Manage Users</h2>
-        <table className="user-management-table">
+
+        <div className='admin-dashboard-button'>
+          <h1>Admin Dashboard</h1>
+          <button className='create-account-button'>Create a User's Account</button>
+        </div>
+
+        <div>
+          <h2>User Management</h2>
+          <table className="user-management-table">
           <thead>
             <tr>
               <th>Username</th>
@@ -90,6 +97,8 @@ const UserManagement = () => {
             )}
           </tbody>
         </table>
+        </div>
+        
       </div>
     </div>
   );
