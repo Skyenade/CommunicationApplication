@@ -116,7 +116,7 @@ const CreateEvent = () => {
             />
             
             <label className="create-event-label">Event Location: </label>
-            <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY" libraries={["places"]}>
+            <LoadScript googleMapsApiKey="AIzaSyBqwTateOoIdBOshwiWfGVfbGMcgnAl2KM" libraries={["places"]}>
               <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                 <input
                   className="create-event-input"

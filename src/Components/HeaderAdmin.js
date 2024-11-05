@@ -14,12 +14,11 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
 
             <div className="nav-links">
                 <a className='nav-item' >Events Feed</a>
-                <a className='nav-item' >My Events</a>
-                <a className='nav-item' >My Followers</a>
             </div>
 
+            <h2>Admin Account</h2>
+
             <div className="auth-buttons">
-                <button className="btn-user-profile">User Profile</button>
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>
