@@ -2,9 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Header from "../Components/Header";
 
-const HomeUser = () => {
+const ModeratorHome = () => {
   return (
-    <div className="user-home-container">
+    <div className="moderator-home-container">
       <Header />
 
       <div className="navbar-actions">
@@ -40,7 +40,10 @@ const HomeUser = () => {
         </aside>
 
         <div className="content-area">        
-          <aside className="right-sidebar">            
+          <aside className="right-sidebar">
+            <div className="moderator-dashboard">
+              <h4><Link to="/ModeratorDashboard">Moderator Dashboard</Link></h4>
+            </div>
             <div className="notifications">
               <h3>Notifications</h3>
               <ul>
@@ -55,8 +58,30 @@ const HomeUser = () => {
       </div>
 
 
+      {/* <main className="main_area">        
+
+        <div className="content-area">
+          <div className="content">
+            <h1>This is home</h1>
+          </div>
+
+          <aside className="right-sidebar">
+            <div className="moderator-dashboard">
+              <h4><Link to="/ModeratorDashboard">Moderator Dashboard</Link></h4>
+            </div>
+            <div className="notifications">
+              <h3>Notifications</h3>
+              <ul>
+                <li>You have a new follower</li>
+                <li>You have a new like</li>
+                <li>New flagged content</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </main> */}
     </div>
   );
 };
 
-export default HomeUser;
+export default ModeratorHome;

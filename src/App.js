@@ -2,7 +2,7 @@
 import './App.css';
 import Home from './Components/Home';
 import CreateEvent from './Components/CreateEvent';
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import SignUpUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
@@ -12,6 +12,8 @@ import HomeAdmin from './Components/HomeAdmin';
 function App() {
 
   const [userEmail, setUserEmail] = useState("");
+  const [userImage, setUserImage] = useState("");
+  const [eventImage, setEventImage] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
 
 
@@ -34,7 +36,32 @@ function App() {
 
           <Route
             path="/createEvent"
-            element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />}
+            element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/ModeratorHome"
+            element={<ModeratorHome setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/ModeratorDashboard"
+            element={<ModeratorDashboard setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/UserManagement"
+            element={<UserManagement setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/HomeUser"
+            element={<HomeUser setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/EventFeed"
+            element={<EventFeed setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
           />
 
 
@@ -61,9 +88,6 @@ function App() {
 
         </Routes>
       </Router>
-
-
-
     </div>
   );
 }
