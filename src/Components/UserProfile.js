@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { database } from '../firebase';
-import './UserManagement.css';
+import './UserProfile.css';
 
 import { ref, get, set, remove } from "firebase/database";
 import { getStorage, ref as storageRef, deleteObject } from "firebase/storage";
 
-const UserManagement = () => {
-  const [user, setUser] = useState(null);
-  const [bio, setBio] = useState('');
+const UserProfile = () => {
+  const [user, setUser] = useState({
+    username: "Maspreet Singh",
+    email: "jaspreet@example.com",
+    previousEvents: [
+      { title: "Sample Event 1", dateTime: "2024-01-01 10:00 AM" },
+      { title: "Sample Event 2", dateTime: "2024-02-15 3:00 PM" },
+    ],
+  });
+  const [bio, setBio] = useState('This is a sample bio.');
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const storage = getStorage();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userId = 'USER_ID'; //team we need to fetch the user id from firebase
+      const userId = 'USER_ID';
       const userRef = ref(database, `users/${userId}`);
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
@@ -38,35 +45,16 @@ const UserManagement = () => {
     if (e.target.files[0]) {
       const file = e.target.files[0];
       setProfileImage(file);
-      
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (user) {
-      if (profileImageUrl) {
-        const profileImageRef = storageRef(storage, profileImageUrl);
-        await deleteObject(profileImageRef).catch((error) => console.error('Error deleting image:', error));
-      }
-      const userId = 'USER_ID'; // Replace with actual user ID
-      await remove(ref(database, `users/${userId}`))
-        .then(() => {
-          alert('Account deleted successfully.');
-          
-        })
-        .catch((error) => {
-          console.error('Error deleting account:', error);
-        });
     }
   };
 
   const handleSaveChanges = async () => {
-    const userId = 'USER_ID'; 
+    const userId = 'USER_ID';
     const userRef = ref(database, `users/${userId}`);
     await set(userRef, {
       ...user,
       bio: bio,
-      profileImageUrl: profileImageUrl, 
+      profileImageUrl: profileImageUrl,
     })
     .then(() => {
       alert('Profile updated successfully!');
@@ -74,6 +62,21 @@ const UserManagement = () => {
     .catch((error) => {
       console.error('Error updating profile:', error);
     });
+  };
+
+  const handleDeleteAccount = async () => {
+    const userId = 'USER_ID';
+    if (profileImageUrl) {
+      const profileImageRef = storageRef(storage, profileImageUrl);
+      await deleteObject(profileImageRef).catch((error) => console.error('Error deleting image:', error));
+    }
+    await remove(ref(database, `users/${userId}`))
+      .then(() => {
+        alert('Account deleted successfully.');
+      })
+      .catch((error) => {
+        console.error('Error deleting account:', error);
+      });
   };
 
   return (
@@ -102,7 +105,7 @@ const UserManagement = () => {
           <p>Loading user data...</p>
         )}
       </div>
-  
+
       <div className="user-profile-actions">
         {profileImageUrl && <img src={profileImageUrl} alt="Profile" />}
         <input type="file" accept="image/*" onChange={handleImageChange} />
@@ -111,7 +114,6 @@ const UserManagement = () => {
       </div>
     </div>
   );
-  
 };
 
-export default UserManagement;
+export default UserProfile;
