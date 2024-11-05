@@ -1,12 +1,12 @@
-
 import './App.css';
 import Home from './Components/Home';
 import CreateEvent from './Components/CreateEvent';
 import ModeratorHome from './Components/ModeratorHome';
 import ModeratorDashboard from './Components/ModeratorDashboard';
-import UserManagement from './Components/UserManagement';
-import HomeUser from './Components/HomeUser';
-import EventFeed from './Components/EventFeed';
+import CreateUser from './Components/CreateUser';
+import UserManagement from './Components/UserManagement'; // Import UserManagement
+import HomeUser from './Components/HomeUser'; // Import HomeUser
+import EventFeed from './Components/EventFeed'; // Import EventFeed
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react';
 
@@ -24,7 +24,6 @@ function App() {
 
   return (
     <div className="App">
-
       <Router>
         <Routes>
 
@@ -46,6 +45,11 @@ function App() {
           <Route
             path="/ModeratorDashboard"
             element={<ModeratorDashboard setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} setEventImage={setEventImage} />}
+          />
+
+          <Route
+            path="/CreateUser"
+            element={<CreateUser setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} setUserImage={setUserImage} />}
           />
 
           <Route
