@@ -60,7 +60,6 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
     //     }
     // };
 
-    const navigate = useNavigate();
 
     const handleSignin = async (e) => {
         e.preventDefault();
