@@ -1,8 +1,7 @@
-import React from "react";
+import React from 'react';
 import '../Style.css';
 import './AdminDashboard.css';
 import { useNavigate, Link } from "react-router-dom";
-import Header from "../Components/Header";
 import HeaderAdmin from './HeaderAdmin';
 
 const AdminDashboard = () => {
@@ -18,7 +17,6 @@ const AdminDashboard = () => {
 
   return (
     <div>
-    
       <HeaderAdmin />
 
       <div className="admin-dashboard">
