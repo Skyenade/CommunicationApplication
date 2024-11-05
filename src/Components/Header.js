@@ -66,7 +66,7 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
-                <a className='nav-item' >Events Feed</a>
+                <a className='nav-item'>Events Feed</a>
                 <a className='nav-item' >My Events</a>
                 <a className='nav-item' >My Followers</a>
             </div>

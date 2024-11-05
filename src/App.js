@@ -1,8 +1,3 @@
-
-import './App.css';
-import Home from './Components/Home';
-import CreateEvent from './Components/CreateEvent';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import SignupUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
@@ -18,13 +13,8 @@ import EventFeed from './Components/EventFeed';
 
 
 function App() {
-
   const [userEmail, setUserEmail] = useState("");
-  const [userImage, setUserImage] = useState("");
-  const [eventImage, setEventImage] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
-
-
 
   useEffect(() => {
     setIsSignedIn(!!userEmail);
@@ -32,9 +22,9 @@ function App() {
 
 
   return (
-    <div className="App">
-
-      <Router>
+    <Router>
+      <div className="App">
+        <Header />
         <Routes>
 
           <Route
@@ -96,8 +86,8 @@ function App() {
           />
 
         </Routes>
-      </Router>
-    </div>
+      </div>
+    </Router>
   );
 }
 
