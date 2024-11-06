@@ -13,7 +13,7 @@ const CreateEvent = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [eventTitle, setEventTitle] = useState('');
   const [eventDetails, setEventDetails] = useState('');
-  const [eventImage, setEventImage] = useState(null);
+  const [eventImage, setEventImage] = useState([]);
   const [eventImageUrl, setEventImageUrl] = useState('');
   const storage = getStorage();
 
@@ -34,22 +34,22 @@ const CreateEvent = () => {
     }
   };  
 
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setEventImage(e.target.files[0]);
-    }
-  };
+  // const handleImageChange = (e) => {
+  //   if (e.target.files[0]) {
+  //     setEventImage(e.target.files[0]);
+  //   }
+  // };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    let imageUrl = '';
-    if (eventImage) {
-      const imageRef = storageRef(storage, 'eventImages/' + eventImage.name);
-      await uploadBytes(imageRef, eventImage);
-      imageUrl = await getDownloadURL(imageRef);
-      setEventImageUrl(imageUrl);
-    }
+    // let imageUrl = '';
+    // if (eventImage) {
+    //   const imageRef = storageRef(storage, 'eventImages/' + eventImage.name);
+    //   await uploadBytes(imageRef, eventImage);
+    //   imageUrl = await getDownloadURL(imageRef);
+    //   setEventImageUrl(imageUrl);
+    // }
 
     const eventData = {
       title: eventTitle,
@@ -57,7 +57,7 @@ const CreateEvent = () => {
       location,
       coordinates: selectedLocation,
       details: eventDetails,
-      imageUrl: imageUrl,
+      // imageUrl: imageUrl,
     };
 
     const eventRef = ref(database, 'events/' + Date.now());
@@ -69,7 +69,7 @@ const CreateEvent = () => {
         setLocation('');
         setSelectedLocation(null);
         setEventDetails('');
-        setEventImage(null);
+        // setEventImage([]);
         setEventImageUrl('');
       })
       .catch((error) => {
@@ -107,13 +107,13 @@ const CreateEvent = () => {
           <div className='create-event-input-container'>
             
             <label className="create-event-label">Event Image: </label>
-            <input
+            {/* <input
               className="create-event-input"
               type="file"
               accept="image/*"
               onChange={handleImageChange}
               required
-            />
+            /> */}
             
             <label className="create-event-label">Event Location: </label>
             <LoadScript googleMapsApiKey="AIzaSyBqwTateOoIdBOshwiWfGVfbGMcgnAl2KM" libraries={["places"]}>
