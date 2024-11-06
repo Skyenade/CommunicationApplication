@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom"; 
 import Header from "./Home";
 
-const ModeraterHome = () => {
+const ModeratorHome = () => {
   return (
     <div>
       {/* <Header/> */}
@@ -59,4 +59,4 @@ const ModeraterHome = () => {
   );
 };
 
-export default ModeraterHome;
+export default ModeratorHome;
