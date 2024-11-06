@@ -6,6 +6,7 @@ import HeaderAdmin from "./HeaderAdmin";
 const AdminHome = () => {
   return (
     <div>
+      <HeaderAdmin/>
         <div className="choose">
           <label>
             <input type="radio" name="options" value="Option 1" />
@@ -31,13 +32,10 @@ const AdminHome = () => {
             className="search-bar"
             placeholder="Search events"
           />
-          <button className="create-event-button">
-            <h4>Create An Event</h4>
-          </button>
         </div>
         <div className="content-area">
           <div className="content">
-            <h1>This is home</h1>
+            <h1>This is Admin home</h1>
           </div>
 
           <aside className="right-sidebar">

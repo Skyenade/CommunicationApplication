@@ -4,43 +4,29 @@ import Header from "../Components/Header";
 
 const HomeUser = () => {
   return (
-    <div className="user-home-container">
+    
+    <div className="">
       <Header />
 
-      <div className="navbar-actions">
-        <input
-          type="text"
-          className="search-bar"
-          placeholder="Search events"
-        />
-        <button className="create-event-button">
-          <h4>Create An Event</h4>
-        </button>
-      </div>
+      <div className="choose">
+                <label>
+                    <input type="radio" name="options" value="Option 1" />
+                    Events by followers
+                </label>
+                <br />
+                <label>
+                    <input type="radio" name="options" value="Option 2" />
+                    Events by Location
+                </label>
+                <br />
+                <div className="location">
+                    <label>Current Location:</label><br />
+                    <input type="text" placeholder="Choose your location" />
+                </div>
+            </div><h3 className="feeds">View Events feeds here</h3><div>
 
-      <div className="main-content-container">
-        <aside className="sidebar">
-          <h2>EventsUp</h2>
-          <div className="choose">
-            <label>
-              <input type="radio" name="options" value="Option 1" />
-              Events by followers
-            </label>
-            <br />
-            <label>
-              <input type="radio" name="options" value="Option 2" />
-              Events by Location
-            </label>
-            <br />
-            <div className="location">
-              <label>Current Location:</label><br />
-              <input type="text" placeholder="Choose your location" />  {/* Maps API in iteration 2 */}
-            </div>
-          </div>
-        </aside>
 
-        <div className="content-area">        
-          <aside className="right-sidebar">            
+        <div className="Home_Notification">       
             <div className="notifications">
               <h3>Notifications</h3>
               <ul>
@@ -49,13 +35,11 @@ const HomeUser = () => {
                 <li>New flagged content</li>
               </ul>
             </div>
-          </aside>
+
         </div>
 
       </div>
-
-
-    </div>
+ </div>
   );
 };
 

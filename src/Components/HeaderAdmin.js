@@ -19,7 +19,6 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
             </div>
 
             <div className="auth-buttons">
-                <button onClick={handleSignOut} className="btnSignIn">Sign Out</button>
                 <a className='nav-item' >Events Feed</a>
             </div>
 

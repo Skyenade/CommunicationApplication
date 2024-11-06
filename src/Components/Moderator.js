@@ -36,7 +36,7 @@ const ModeraterHome = () => {
         </div>
         <div className="content-area">
           <div className="content">
-            <h1>Events!</h1>
+            <h1>This is Moderator home!</h1>
           </div>
 
           <div className="right-sidebar">

@@ -3,7 +3,7 @@ import "./ModeratorDashboard.css";
 import Header from "./Home";
 import { database } from "../firebase"; 
 import { ref, onValue, remove } from "firebase/database";
-import { useNavigate } from "react-router-dom"; 
+import { Navigate, useNavigate } from "react-router-dom"; 
 
 const ModeratorDashboard = () => {
 
@@ -14,7 +14,7 @@ const ModeratorDashboard = () => {
       date: "2024-11-01",
       type: "Comment",
       content: "Inappropriate language",
-    }        // add this code just to see the buttons in dashboard//
+    } // add this code just to see the buttons in dashboard//
   ];
 
   // const [flaggedItems, setFlaggedItems] = useState([]);
@@ -35,28 +35,34 @@ const ModeratorDashboard = () => {
   //   });
   // }, []);
 
-  // const handleAction = (action, itemId) => {
-  //   const itemRef = ref(database, `flaggedContent/${itemId}`);
+  const handleAction = (action, itemId) => {
+    const itemRef = ref(database, `flaggedContent/${itemId}`);
 
-  //   switch (action) {
-  //     case 'Warning':
-  //       alert("Warning issued to the user.");
-  //       break;
-  //     case 'Remove':
-  //       remove(itemRef).then(() => alert("Content removed successfully."));
-  //       break;
-  //     case 'Suspend':
-  //       alert("User suspended. Implement suspension logic here.");
-  //       break;
-  //     case 'Dismiss':
-  //       remove(itemRef).then(() => alert("Report dismissed successfully."));
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
+    switch (action) {
+      case 'Warning':
+        alert("Warning issued to the user.");
+        break;
+      case 'Remove':
+        if (window.confirm("Are you sure you want to remove the content?")) {
+          remove(itemRef)
+            .then(() => alert("Selected Content removed successfully."))
+            .catch((error) => alert("Error removing content: " + error.message));
+        }        break;
+      case 'Suspend':
+        alert("User suspended. Implement suspension logic here.");
+        break;
+      case 'Dismiss':
+        remove(itemRef).then(() => alert("Report dismissed successfully."));
+        break;
+      default:
+        break;
+    }
+
+    
+  };
+
   // const handleAdminAssistance = () => {
-  //   navigate("/adminAssistance"); 
+  //   Navigate("/adminAssistance"); 
   // };
 
 
@@ -66,7 +72,7 @@ const ModeratorDashboard = () => {
       <div className="content">
         <h1>Moderator Dashboard</h1>
         <button className="requestAdminAssistanceButton" 
-        // onClick={handleAdminAssistance} 
+        // onClick={() => Navigate("/adminAssistance")} 
         >
           Request Admin Assistance
         </button>
@@ -95,22 +101,22 @@ const ModeratorDashboard = () => {
                   <td>
                     <button 
                       className="actionButton" id="Warning"
-                      // onClick={() => handleAction('Warning', item.id)}
+                      onClick={() => handleAction('Warning', item.id)}
                        >Warning
                     </button>
                     <button 
                       className="actionButton" id="Remove"
-                      // onClick={() => handleAction('Remove', item.id)}
+                      onClick={() => handleAction('Remove', item.id)}
                       >Remove
                     </button>
                     <button 
                       className="actionButton" id="Suspend"
-                      // onClick={() => handleAction('Suspend', item.id)}
+                      onClick={() => handleAction('Suspend', item.id)}
                       >Suspend Account
                     </button>
                     <button 
                       className="actionButton"  id="Dismiss"
-                      // onClick={() => handleAction('Dismiss', item.id)}
+                      onClick={() => handleAction('Dismiss', item.id)}
                       >Dismiss Report
                     </button>
                   </td>

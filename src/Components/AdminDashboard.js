@@ -17,7 +17,7 @@ const AdminDashboard = () => {
 
   return (
     <div>
-      {/* <HeaderAdmin /> */}
+      <HeaderAdmin />
 
       <div className="admin-dashboard">
         <div className="content">
@@ -30,11 +30,11 @@ const AdminDashboard = () => {
             <div className="section" >
             <Link to="/ContentManagement" className='linking'>Content Management</Link></div>
             <div className="section">
-            <Link to="/UserManagement" className='linking'>Database Management</Link></div>
+            <Link to="/" className='linking'>Database Management</Link></div>
             <div className="section">
-            <Link to="/UserManagement" className='linking'>History of Reported Users</Link></div>
+            <Link to="/" className='linking'>History of Reported Users</Link></div>
             <div className="section">
-            <Link to="/UserManagement" className='linking'>History of Reported Content</Link></div>
+            <Link to="/" className='linking'>History of Reported Content</Link></div>
           </div>
         </div>
       </div>
