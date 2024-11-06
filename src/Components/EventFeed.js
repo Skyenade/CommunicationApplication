@@ -25,25 +25,24 @@ const EventFeed = () => {
 
   return (
     <div>
+      <Header />
       <h1>Event Feed</h1>
       <div className="event-feed">
         {events.length > 0 ? (
           events.map((event) => (
             <div key={event.id} className="event-card">
               <h2>{event.title}</h2>
-              <p><strong>Date & Time:</strong> {event.dateTime}</p>
+              <p><strong>Date & Time:</strong> {new Date(event.dateTime).toLocaleString()}</p>
               <p><strong>Location:</strong> {event.location}</p>
               <p><strong>Details:</strong> {event.details}</p>
               {event.imageUrl && (
                 <img src={event.imageUrl} alt={event.title} className="event-image" />
               )}
-              <div className="event-coordinates">
-                {event.coordinates && (
-                  <p>
-                    <strong>Coordinates:</strong> {event.coordinates.lat}, {event.coordinates.lng}
-                  </p>
-                )}
-              </div>
+              {/* {event.coordinates && (
+                <div className="event-coordinates">
+                  <p><strong>Coordinates:</strong> {event.coordinates.lat}, {event.coordinates.lng}</p>
+                </div>
+              )} */}
             </div>
           ))
         ) : (
