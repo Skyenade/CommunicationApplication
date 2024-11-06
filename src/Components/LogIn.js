@@ -68,6 +68,7 @@ const Login = () => {
 
                         <br /><br />
                     <button type="submit">Login</button><br /><br />
+                    <button type="submit" onClick={() => navigate("/ForgotPassword")}>Forgot password</button>
                     <p className='home-create-account-button2' >Don't have an account!</p>
                     <button type="submit" onClick={() => navigate("/SignUpUser")}>Sign Up here</button><br /><br />
                 </form>

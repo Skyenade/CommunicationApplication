@@ -11,9 +11,6 @@ const ForgotPassword = () => {
 
     return (
         <div className='container'>
-            <Header
-
-            />
             <h1 className="Forgot-Password"  >Forgot Password</h1>
             <form className="Forgot-Password" >
                 <input className="enter-mail" name="email" type="email" placeholder="Enter your email" required /><br></br><br></br>

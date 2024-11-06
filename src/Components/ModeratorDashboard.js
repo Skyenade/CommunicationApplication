@@ -68,7 +68,7 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="moderatorDashboard">
-      {/* <Header /> */}
+      <Header />
       <div className="content">
         <h1>Moderator Dashboard</h1>
         <button className="requestAdminAssistanceButton" 
