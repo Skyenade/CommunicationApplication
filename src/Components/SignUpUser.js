@@ -37,8 +37,8 @@ const SignUpUser = () => {
     };
         return (
             <div >
-                <Header />
-            
+                {/* <Header />
+             */}
 
                 <h2> Crate your account</h2>
                 <form className="home-form2" onSubmit={handleSignUpUser}>
@@ -77,7 +77,7 @@ const SignUpUser = () => {
 
                     {error && <p className="error-message">{error}</p>}
 
-                        <p className='home-create-account-button2' onClick={() => navigate("/")}>Already have an account?</p>
+                        <p className='home-create-account-button2' onClick={() => navigate("/Login")}>Already have an account?</p>
                         {/* here goes to the path / assignend to home due the login page is located at home page */}
 
                 </form>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import '../Style.css';
 import { useNavigate } from "react-router-dom";
-import myImage from '../Images/home-page-image.jpeg';
+// import myImage from '../Images/home-page-image.jpeg';
 
 const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
     const [userType, setUserType] = useState(null);
@@ -60,7 +60,7 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
     //     }
     // };
 
-    const navigate = useNavigate();
+    const Navigate = useNavigate();
 
     const handleSignin = async (e) => {
         e.preventDefault();
@@ -79,13 +79,17 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
                 <a className='nav-item' onClick={() => navigate("/contact")}>My Followers</a>
             </div>
 
-            <form className="home-form" onSubmit={handleSignin}>
+            <div className="auth-buttons">
+                <button className="btn-user-profile">User Profile</button>
+                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
+            </div>
+            {/* <form className="home-form" onSubmit={handleSignin}>
                 <input className='home-input' type="email" placeholder="Email" />
                 <input className='home-input' type="password" placeholder="Password" />
                 <button className='home-login-button'>Log in</button>
                 <span className='home-forgot-password'>Forgot Password?</span>
                 <button className='home-create-account-button' onClick={() => navigate("/SignUpUser")}>Create new account</button>
-            </form>
+            </form> */}
 
         </div>
     );
