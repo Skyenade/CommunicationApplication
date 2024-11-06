@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ModeraterHome from './Components/ModeraterHome';
+import ModeraterHome from './Components/ModeratorHome';
 import ModeratorDashboard from './Components/ModeratorDashboard'; 
 import AdminHome from './Components/Admin';
 import AdminDashboard from './Components/AdminDashboard';
@@ -15,7 +15,6 @@ import SignUpUser from './Components/SignUpUser';
 import SignupUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
 import ForgotPassword from './Components/ForgotPassword';
-import HomeAdmin from './Components/HomeAdmin';
 // import ModeraterHome from './Components/Moderator';
 import UserProfile from './Components/UserProfile';
 import ContentManagement from './Components/ContentManagement';
@@ -35,12 +34,11 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {/* <Header /> */}
         <Routes>
         <Route path="/" element={<LogIn />} />
         <Route path="/SignUpUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
           <Route path="/LogIn" element={<LogIn />} />
-          <Route path="/LogIn" element={<ForgotPassword />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/ModeraterHome" element={<ModeraterHome />} />
           <Route path="/createEvent" element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />} />
           <Route path="/ModeratorDashboard" element={<ModeratorDashboard />} />
@@ -53,7 +51,6 @@ function App() {
           {/* <Route path="/SignupUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
           <Route path="/LogIn" element={<LogIn />} /> */}
           <Route path="/ForgotPassword" element={<ForgotPassword />} />
-          <Route path="/homeadmin" element={isSignedIn ? <HomeAdmin userEmail={userEmail} isSignedIn={isSignedIn} setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} /> : <Navigate to="/LogIn" />} />
           <Route path='/userProfile' element={<UserProfile/>}/>
           <Route path='/ContentManagement' element={<ContentManagement/>}/>
 
