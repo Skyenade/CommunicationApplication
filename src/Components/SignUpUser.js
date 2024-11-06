@@ -91,4 +91,4 @@ const SignUpUser = () => {
     }
 
 
-export default SignUpUser
+export default SignUpUser;

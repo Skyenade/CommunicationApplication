@@ -1,4 +1,4 @@
-// LogIn.js
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../Components/Header";
@@ -6,6 +6,7 @@ import { auth, database } from '../firebase';
 import { ref, get, child } from "firebase/database";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import myImage from '../Images/home-page-image.jpeg';
+
 
 
 const Login = () => {
@@ -75,6 +76,7 @@ const Login = () => {
                     <button type="submit" onClick={() => navigate("/SignUpUser")}>Sign Up here</button><br /><br />
                 </form>
                 {error && <p className="error-message">{error}</p>}
+
             </div>
         </div>
     );
