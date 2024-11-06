@@ -12,6 +12,7 @@ import HomeUser from './Components/HomeUser';
 import EventFeed from './Components/EventFeed'; 
 import Header from './Components/Header';
 import SignUpUser from './Components/SignUpUser';
+import SignupUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
 import ForgotPassword from './Components/ForgotPassword';
 import HomeAdmin from './Components/HomeAdmin';
@@ -19,13 +20,22 @@ import ModeraterHome from './Components/Moderator';
 import UserProfile from './Components/UserProfile';
 import ContentManagement from './Components/ContentManagement';
 
+// import ModeratorHome from './Components/ModeratorHome';
+// import ModeratorDashboard from './Components/ModeratorDashboard';
+// import UserManagement from './Components/UserManagement';
+// import HomeUser from './Components/HomeUser';
+// import EventFeed from './Components/EventFeed';
+
+
+
 function App() {
   const [userEmail, setUserEmail] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
     setIsSignedIn(!!userEmail);
-  }, [userEmail]);
+  }, [userEmail, isSignedIn]);
+
 
   return (
     <Router>
@@ -34,7 +44,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ModeraterHome />} />
           <Route path="/createEvent" element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />} />
-          <Route path="/ModeratorHome" element={<ModeraterHome />} />
+          {/* <Route path="/ModeratorHome" element={<ModeraterHome />} /> */}
           <Route path="/ModeratorDashboard" element={<ModeratorDashboard />} />
           <Route path="/AdminHome" element={<AdminHome />} />
           <Route path="/AdminDashboard" element={<AdminDashboard />} />
@@ -48,6 +58,8 @@ function App() {
           <Route path="/homeadmin" element={isSignedIn ? <HomeAdmin userEmail={userEmail} isSignedIn={isSignedIn} setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} /> : <Navigate to="/LogIn" />} />
           <Route path='/userProfile' element={<UserProfile/>}/>
           <Route path='/ContentManagement' element={<ContentManagement/>}/>
+
+        
         </Routes>
       </div>
     </Router>
