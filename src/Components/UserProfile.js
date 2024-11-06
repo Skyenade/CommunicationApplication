@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { database } from '../firebase';
 import './UserProfile.css';
-
 import { ref, get, set, remove } from "firebase/database";
 import { getStorage, ref as storageRef, deleteObject } from "firebase/storage";
 
