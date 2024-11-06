@@ -10,12 +10,27 @@ body{
     margin: 0 auto;
     padding: 20px;
     align-items: center;
+    margin-top: 30px;    
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    align-items: center;
     margin-top: 30px;
     
 }
 
 .home-container, .home-form {
     grid-column: span 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
 .home-heading{
@@ -95,9 +110,6 @@ body{
     transition: color 0.3s;
     padding: 30px 40px;
 }
-
-
-
 
 .nav-item:hover {
     background-color: #769db8;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Moderator from './Components/Moderator';
+import ModeraterHome from './Components/ModeraterHome';
 import ModeratorDashboard from './Components/ModeratorDashboard'; 
 import AdminHome from './Components/Admin';
 import AdminDashboard from './Components/AdminDashboard';
@@ -15,6 +15,8 @@ import SignUpUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
 import ForgotPassword from './Components/ForgotPassword';
 import HomeAdmin from './Components/HomeAdmin';
+import Home from './Components/Home';
+import UserProfile from './Components/UserProfile';
 
 function App() {
   const [userEmail, setUserEmail] = useState("");
@@ -27,9 +29,9 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <Header />
         <Routes>
-          <Route path="/" element={<ModeratorHome />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/ModeraterHome" element={<ModeraterHome />} />
           <Route path="/createEvent" element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />} />
           <Route path="/ModeratorDashboard" element={<ModeratorDashboard />} />
           <Route path="/AdminHome" element={<AdminHome />} />
@@ -42,6 +44,7 @@ function App() {
           <Route path="/LogIn" element={<LogIn />} />
           <Route path="/reset" element={<ForgotPassword />} />
           <Route path="/homeadmin" element={isSignedIn ? <HomeAdmin userEmail={userEmail} isSignedIn={isSignedIn} setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} /> : <Navigate to="/LogIn" />} />
+          <Route path="/UserProfile" element={<UserProfile />} />
         </Routes>
       </div>
     </Router>

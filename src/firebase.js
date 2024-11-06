@@ -5,19 +5,17 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC-tLtFCl4UyOsImgMyb725V8Abw87cEAY",
-    authDomain: "eventmgt-380ce.firebaseapp.com",
-    projectId: "eventmgt-380ce",
-    storageBucket: "eventmgt-380ce.firebasestorage.app",
-    messagingSenderId: "1026572497014",
-    appId: "1:1026572497014:web:e35a92ff40ea53f3dc6f57",
-    measurementId: "G-H62V6DJKJY"
+  apiKey: "AIzaSyBquVuJgdRjNmZYkHdGK0KYHjKMjQ_VoCU",
+  authDomain: "communityapplication-14c16.firebaseapp.com",
+  databaseURL: "https://communityapplication-14c16-default-rtdb.firebaseio.com",
+  projectId: "communityapplication-14c16",
+  storageBucket: "communityapplication-14c16.firebasestorage.app",
+  messagingSenderId: "751780854595",
+  appId: "1:751780854595:web:621837e442859a1aa80df6",
+  measurementId: "G-182XGDZS6W"
   };
 
 const app = initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
-export { auth };
-
-const database = getDatabase(app);
-export { database };
+export const auth = getAuth(app);
+export const database = getDatabase(app);
