@@ -1,16 +1,34 @@
 import React, { useState } from "react";
 import '../Style.css';
+import { auth, database } from '../firebase';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { ref, set } from "firebase/database";
 
 const CreateUser = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleCreateUser = (e) => {
+  const handleCreateUser = async (e) => {
     e.preventDefault();
-    setMessage("User created successfully!");
-    setEmail('');
-    setPassword('');
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await set(ref(database, 'users/' + user.uid), {
+        email: user.email,
+        uid: user.uid,
+        createdAt: new Date().toISOString()
+      });
+
+      setMessage("User created successfully!");
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setMessage("Failed to create user: " + error.message);
+    }
   };
 
   return (
