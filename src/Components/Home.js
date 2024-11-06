@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import '../Style.css';
 import { useNavigate } from "react-router-dom";
-// import myImage from '../Images/home-page-image.jpeg';
+import myImage from '../Images/home-page-image.jpeg';
 
 
 const Home = ({ handleSignOut, isSignedIn, userEmail }) => {

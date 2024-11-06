@@ -5,6 +5,8 @@ import Header from "../Components/Header";
 import { auth, database } from '../firebase';
 import { ref, get, child } from "firebase/database";
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import myImage from '../Images/home-page-image.jpeg';
+
 
 const Login = () => {
     const [email, setEmail] = useState("");

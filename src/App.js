@@ -37,13 +37,14 @@ function App() {
       <div className="App">
         {/* <Header /> */}
         <Routes>
+        <Route path="/" element={<LogIn />} />
         <Route path="/SignUpUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
           <Route path="/LogIn" element={<LogIn />} />
           <Route path="/LogIn" element={<ForgotPassword />} />
           <Route path="/ModeraterHome" element={<ModeraterHome />} />
           <Route path="/createEvent" element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />} />
           <Route path="/ModeratorDashboard" element={<ModeratorDashboard />} />
-          {/* <Route path="/AdminHome" element={<AdminHome />} /> */}
+          <Route path="/AdminHome" element={<AdminHome />} />
           <Route path="/AdminDashboard" element={<AdminDashboard />} />
           <Route path="/CreateUser" element={<CreateUser />} />
           <Route path="/UserManagement" element={<UserManagement />} />

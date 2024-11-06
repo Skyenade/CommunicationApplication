@@ -6,24 +6,35 @@ const HomeUser = () => {
   return (
     
     <div className="">
-      <Header />
+      <Header/>
+        <div className="choose">
+          <label>
+            <input type="radio" name="options" value="Option 1" />
+            Events by followers
+          </label>
+          <br />
+          <label>
+            <input type="radio" name="options" value="Option 2" />
+            Events by Location
+          </label>
+          <br />
+          <div className="location">
+            <label>Current Location:</label><br />
+            <input type="text" placeholder="Choose your location" />
+          </div>
+        </div>
 
-      <div className="choose">
-                <label>
-                    <input type="radio" name="options" value="Option 1" />
-                    Events by followers
-                </label>
-                <br />
-                <label>
-                    <input type="radio" name="options" value="Option 2" />
-                    Events by Location
-                </label>
-                <br />
-                <div className="location">
-                    <label>Current Location:</label><br />
-                    <input type="text" placeholder="Choose your location" />
-                </div>
-            </div><h3 className="feeds">View Events feeds here</h3><div>
+        <div className="navbar-actions">
+          <input
+            type="text"
+            className="search-bar" id="search"
+            placeholder="Search events"
+          />
+          <button className="create-event-button">
+            <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+          </button>
+        </div>
+            <div><h3 className="feeds">View Events feeds here</h3></div>
 
 
         <div className="Home_Notification">       
@@ -35,11 +46,9 @@ const HomeUser = () => {
                 <li>New flagged content</li>
               </ul>
             </div>
-
+ </div>
         </div>
 
-      </div>
- </div>
   );
 };
 
