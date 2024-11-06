@@ -1,0 +1,49 @@
+/* src/components/ContentManagement.css */
+
+.content-management {
+    padding: 20px;
+    padding-left: 20%;
+}
+
+.flagged-table {
+    width: 60%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.flagged-table th,
+.flagged-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.flagged-table th {
+    background-color: #f2f2f2;
+}
+
+.action-btn {
+    margin: 5px 3px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+.warning-btn {
+    background-color: #ffcc00; 
+}
+
+.remove-btn {
+    background-color: #e63946; 
+}
+
+.suspend-btn {
+    background-color: #ffa500; 
+}
+
+.dismiss-btn {
+    background-color: #2a9d8f; 
+}

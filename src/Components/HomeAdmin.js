@@ -5,12 +5,16 @@ import { auth, database } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 import { useNavigate } from "react-router-dom";
+import HeaderAdmin from './HeaderAdmin';
 
 
 const HomeAdmin = ({ userEmail, isSignedIn, setUserEmail, setIsSignedIn }) => {
     const [error, setError] = useState(null);
     const [services, setServices] = useState([]);
     const navigate = useNavigate();
+
+
+ 
 
 
     const UserManagement = () => {
@@ -40,11 +44,12 @@ const HomeAdmin = ({ userEmail, isSignedIn, setUserEmail, setIsSignedIn }) => {
     };
     return (
         <div className='home-admin-page'>
-            <Header
+            {/* <Header
                 userEmail={userEmail}
                 handleSignOut={handleSignOut}
                 isSignedIn={isSignedIn}
-            />
+            /> */}
+            <HeaderAdmin/>
 
             <h1 className="Admin-info">Admin Account </h1>
 

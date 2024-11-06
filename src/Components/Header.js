@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import '../Style.css';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ref, get } from 'firebase/database';
 import { database } from '../firebase';
 
@@ -66,7 +66,7 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
-                <a className='nav-item'>Events Feed</a>
+                <a className='nav-item'><Link to="/EventFeed">Events Feed</Link></a>
                 <a className='nav-item' >My Events</a>
                 <a className='nav-item' >My Followers</a>
             </div>
