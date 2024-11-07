@@ -25,8 +25,7 @@ const EventFeed = () => {
 
   return (
     <div>
-      <Header />
-      <h1>Event Feed</h1>
+      
       <div className="event-feed">
         {events.length > 0 ? (
           events.map((event) => (
