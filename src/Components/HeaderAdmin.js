@@ -23,7 +23,9 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
             </div>
 
             <div className="auth-buttons">
-                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
+                <button onClick={() => navigate("/Login")} className="btnSignOut">Sign Out</button>
+
+               
             </div>
         </div>
     );
