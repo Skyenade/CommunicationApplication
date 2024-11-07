@@ -133,7 +133,7 @@ header {
   padding: 10px;
   text-align: center;
   border-radius: 4px;
-  width: 252px;
+  width: 100%;
   margin-bottom: -18px;
 }
 
@@ -148,12 +148,10 @@ header {
   padding: 10px;
   font-size: 14px;
   border: 1px solid black;
-  width: 250px;
+  width: 100%;
 }
 .Home_Notification{
-  float: right;
-  margin-right: 12%;
-  margin-top: -50px;
+  width: 100%;
 }
 
 .feeds{
