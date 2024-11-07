@@ -1,13 +1,29 @@
 import React from "react";
-import { Link } from "react-router-dom"; 
-import Header from "./Home";
+import { Link } from "react-router-dom";
+import Header from "../Components/Header";
+import EventFeed from "./EventFeed";
+import '../Style.css';
 
 const ModeratorHome = () => {
   return (
-    <div>
-      <Header/>
-    {/* <div className=""> */}
-        <div className="choose">
+    
+
+<div className="homeuser-container">
+      <Header />
+      <div className="homeuser-navbar-actions">
+        <input
+          type="text"
+          className="search-bar"
+          id="search"
+          placeholder="Search events"
+        />
+        <button className="create-event-button">
+          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+        </button>
+      </div>
+      
+      <div className="homeuser-content">
+        <div className="homeuser-choose-options">
           <label>
             <input type="radio" name="options" value="Option 1" />
             Events by followers
@@ -24,38 +40,27 @@ const ModeratorHome = () => {
           </div>
         </div>
 
-        <div className="navbar-actions">
-          <input
-            type="text"
-            className="search-bar"
-            placeholder="Search events"
-          />
-          <button className="create-event-button">
-            <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
-          </button>
+        <div className="event-feed">
+          <EventFeed />
         </div>
-        <div className="content-area">
-          <div className="content">
-            <h1>This is Moderator home!</h1>
-          </div>
 
-          <div className="right-sidebar">
-            <div className="moderator-dashboard">
+        <div className="Home_Notification">
+          <div className="moderator-dashboard">
               <h4><Link to="/ModeratorDashboard" className="links">Moderator Dashboard</Link></h4>
             </div>
-            <div className="notifications">
-              <h3>Notifications</h3>
-              <ul>
-                <li>You have a new follower</li>
-                <li>You have a new like</li>
-                <li>New flagged content</li>
-              </ul>
-            </div>
+          <div className="notifications">
+            <h3>Notifications</h3>
+            <ul>
+              <li>You have a new follower</li>
+              <li>You have a new like</li>
+              <li>New flagged content</li>
+            </ul>
           </div>
         </div>
+      </div>
     </div>
 
-    // </div>
+    
   );
 };
 
