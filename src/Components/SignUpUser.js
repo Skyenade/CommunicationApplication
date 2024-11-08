@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import '../Style.css';
-import Header from "../Components/Header";
 import { useNavigate } from "react-router-dom";
 import { ref, set } from 'firebase/database';
 
@@ -38,8 +37,7 @@ const SignUpUser = () => {
     };
         return (
             <div >
-                {/* <Header />
-             */}
+                
 
                 <h2> Crate your account</h2>
                 <form className="home-form2" onSubmit={handleSignUpUser}>
