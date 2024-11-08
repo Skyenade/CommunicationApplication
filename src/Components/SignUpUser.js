@@ -29,7 +29,8 @@ const SignUpUser = () => {
             });
 
             setEmail(email);
-            navigate('/signin');
+            alert('Account created successfully!');
+            navigate('/');
         } catch (error) {
             setError(error.message);
             console.error("Sign-up error:", error.message);
