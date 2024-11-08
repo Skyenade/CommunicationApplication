@@ -16,13 +16,13 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
-            <a className='nav-item' >My Events</a>
-            <a className='nav-item' >My Followers</a>
+            {/* <a className='nav-item' >My Events</a>
+            <a className='nav-item' >My Followers</a>                            */}
                 {/* <a className='nav-item' onClick={() => navigate("/EventFeed")}>My Events</a>
                 <a className='nav-item' onClick={() => navigate("/Followers")}>My Followers</a> */}
                 <a className='nav-item' onClick={() => navigate("/HomeUser")}>Events Feed</a>
-                {/* <a className='nav-item' >My Events</a>
-                <a className='nav-item' >My Followers</a> */}
+                <a className='nav-item' >My Events</a>
+                <a className='nav-item' >My Followers</a>
             </div>
 
             <div className="auth-buttons">
