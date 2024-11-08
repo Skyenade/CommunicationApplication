@@ -8,9 +8,8 @@ import CreateEvent from './Components/CreateEvent';
 import CreateUser from './Components/CreateUser';
 import UserManagement from './Components/UserManagement';
 import HomeUser from './Components/HomeUser';
-import EventFeed from './Components/EventFeed';
+// import EventFeed from './Components/EventFeed';
 import SignUpUser from './Components/SignUpUser';
-import LogIn from './Components/LogIn';
 import ForgotPassword from './Components/ForgotPassword';
 import ModeratorHome from './Components/ModeratorHome';
 import UserProfile from './Components/UserProfile';
@@ -36,8 +35,6 @@ function App() {
 
           <Route path="/SignUpUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
 
-          <Route path="/LogIn" element={<LogIn />} />
-
           <Route path="/forgotpassword" element={<ForgotPassword />} />
 
           <Route path="/ModeratorHome" element={<ModeratorHome />} />
@@ -56,18 +53,13 @@ function App() {
 
           <Route path="/HomeUser" element={<HomeUser />} />
 
-          <Route path="/EventFeed" element={<EventFeed />} />
-
-          {/* <Route path="/SignupUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
-          <Route path="/LogIn" element={<LogIn />} /> */}
+          {/* <Route path="/EventFeed" element={<EventFeed />} /> */}
 
           <Route path="/ForgotPassword" element={<ForgotPassword />} />
 
           <Route path='/UserProfile' element={<UserProfile />} />
 
           <Route path='/ContentManagement' element={<ContentManagement />} />
-
-
 
         </Routes>
       </div>

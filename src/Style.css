@@ -316,10 +316,17 @@ body {
 
 .event-feed {
     flex: 2;
-    padding: 20px;
     background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
     border-radius: 8px;
+}
+
+.event-card{
+    border: 1px solid black;
+    padding: 20px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
 }
 
 .homeuser-choose-options label,
