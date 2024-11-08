@@ -15,12 +15,10 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
             <div className="nav-links">
 
                 <a className='nav-item' onClick={() => navigate("/services")}>Events Feed</a>
-                <a id="adminaccout">Admin Account</a>
+                <a className='nav-item'><strong>Admin Account</strong></a>
             </div>
 
-            <div className="auth-buttons">
-                <a className='nav-item' >Events Feed</a>
-            </div>
+          
 
             <div className="auth-buttons">
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
