@@ -40,7 +40,6 @@ const AdminHome = () => {
         <div className="event-feed">
           <EventFeed />
         </div>
-
         <div className="Home_Notification">
           <div className="moderator-dashboard">
           <h1><Link to="/AdminDashboard" className="links">Admin Dashboard</Link></h1>

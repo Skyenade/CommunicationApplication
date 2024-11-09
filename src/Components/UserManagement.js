@@ -4,6 +4,7 @@ import { getDatabase, ref, onValue, update, set } from "firebase/database";
 import HeaderAdmin from "./HeaderAdmin";
 import "./UserManagement.css";
 import { Link } from "react-router-dom";
+import Header from "./Header";
 
 const UserManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
@@ -55,6 +56,7 @@ const UserManagement = () => {
 
   return (
     <div>
+      <Header/>
       <div className="user-management-container">
         <div className='admin-dashboard-button'>
           <h1>Admin Dashboard</h1>
