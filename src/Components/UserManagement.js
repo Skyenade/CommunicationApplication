@@ -1,7 +1,9 @@
+
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, onValue, update, set } from "firebase/database";
 import HeaderAdmin from "./HeaderAdmin";
 import "./UserManagement.css";
+import { Link } from "react-router-dom";
 
 const UserManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
@@ -53,11 +55,10 @@ const UserManagement = () => {
 
   return (
     <div>
-      <HeaderAdmin />
       <div className="user-management-container">
         <div className='admin-dashboard-button'>
           <h1>Admin Dashboard</h1>
-          <button className='create-account-button'>Create a User's Account</button>
+          <button className='create-account-button' ><Link to="/CreateUser" className="linking"> Create a User's Account</Link></button>
         </div>
 
         <div>

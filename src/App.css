@@ -150,3 +150,12 @@ header {
   border: 1px solid black;
   width: 250px;
 }
+.Home_Notification{
+  float: right;
+  margin-right: 12%;
+  margin-top: -50px;
+}
+
+.feeds{
+  text-align: center;
+}

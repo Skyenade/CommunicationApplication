@@ -13,15 +13,23 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
+
                 <a className='nav-item' onClick={() => navigate("/services")}>Events Feed</a>
-                <span id="adminAccount">Admin Account</span>
+                <a id="adminaccout">Admin Account</a>
             </div>
 
             <div className="auth-buttons">
-                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
+                <a className='nav-item' >Events Feed</a>
+            </div>
+
+            <div className="auth-buttons">
+                <button onClick={() => navigate("/Login")} className="btnSignOut">Sign Out</button>
+
+               
             </div>
         </div>
     );
 };
 
 export default HeaderAdmin;
+
