@@ -4,40 +4,43 @@ import Header from "../Components/Header";
 
 const HomeUser = () => {
   return (
-    
-    <div className="">
-      <Header/>
-        <div className="choose">
-          <label>
-            <input type="radio" name="options" value="Option 1" />
-            Events by followers
-          </label>
-          <br />
-          <label>
-            <input type="radio" name="options" value="Option 2" />
-            Events by Location
-          </label>
-          <br />
-          <div className="location">
-            <label>Current Location:</label><br />
-            <input type="text" placeholder="Choose your location" />
+    <div className="user-home-container">
+      <Header />
+
+      <div className="navbar-actions">
+        <input
+          type="text"
+          className="search-bar"
+          placeholder="Search events"
+        />
+        <button className="create-event-button">
+          <h4>Create An Event</h4>
+        </button>
+      </div>
+
+      <div className="main-content-container">
+        <aside className="sidebar">
+          <h2>EventsUp</h2>
+          <div className="choose">
+            <label>
+              <input type="radio" name="options" value="Option 1" />
+              Events by followers
+            </label>
+            <br />
+            <label>
+              <input type="radio" name="options" value="Option 2" />
+              Events by Location
+            </label>
+            <br />
+            <div className="location">
+              <label>Current Location:</label><br />
+              <input type="text" placeholder="Choose your location" />  {/* Maps API in iteration 2 */}
+            </div>
           </div>
-        </div>
+        </aside>
 
-        <div className="navbar-actions">
-          <input
-            type="text"
-            className="search-bar" id="search"
-            placeholder="Search events"
-          />
-          <button className="create-event-button">
-            <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
-          </button>
-        </div>
-            <div><h3 className="feeds">View Events feeds here</h3></div>
-
-
-        <div className="Home_Notification">       
+        <div className="content-area">        
+          <aside className="right-sidebar">            
             <div className="notifications">
               <h3>Notifications</h3>
               <ul>
@@ -46,9 +49,13 @@ const HomeUser = () => {
                 <li>New flagged content</li>
               </ul>
             </div>
- </div>
+          </aside>
         </div>
 
+      </div>
+
+
+    </div>
   );
 };
 

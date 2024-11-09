@@ -32,15 +32,18 @@ const AdminHome = () => {
             className="search-bar"
             placeholder="Search events"
           />
+          <button className="create-event-button">
+            <h4>Create An Event</h4>
+          </button>
         </div>
         <div className="content-area">
           <div className="content">
-            <h1>This is Admin home</h1>
+            <h1>This is home</h1>
           </div>
 
           <aside className="right-sidebar">
             <div className="moderator-dashboard">
-              <h4><Link to="/AdminDashboard" className="links">Admin Dashboard</Link></h4>
+              <h4><Link to="/AdminDashboard">Admin Dashboard</Link></h4>
             </div>
             <div className="notifications">
               <h3>Notifications</h3>

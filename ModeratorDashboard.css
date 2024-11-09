@@ -1,3 +1,21 @@
+.moderatorDashboard {
+    display: flex; /* Use flexbox for layout */
+    background-color: #dfdbdb;
+    color: white;
+    padding: 20px;
+    border-radius: 4px;
+    height: 100vh; /* Full height */
+}
+
+.sidebar {
+    width: 350px;
+    padding: 30px;
+    background-color: #dfdbdb;
+    border-right: 1px solid #ddd;
+    margin: 3px 30px;
+    color: #2d2a83;
+    font-weight: bolder;
+}
 
 h1 {
     color: black;
@@ -8,13 +26,11 @@ h1 {
 h2 {
     color: black;
     margin-top: 50px;
-    float: left;
 }
 
 .content {
     flex: 1; 
-    padding: 20px; 
-    margin-left: 250px;
+    padding: 20px; /* Padding for content area */
 }
 
 .requestAdminAssistanceButton {
@@ -59,9 +75,7 @@ h2 {
     border-radius: 3px;
     font-weight: bolder;
 }
-#action{
-    width: 35%;
-}
+
 #Warning{
     background-color: #dae078;
     color: black;
@@ -76,8 +90,3 @@ h2 {
     background-color: #67dea6;
     color: black;
 }
-@media (max-width: 1200px) {
-    h1 {
-      font-size: 2rem;
-    }
-  }

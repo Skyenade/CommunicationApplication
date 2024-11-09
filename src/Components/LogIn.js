@@ -1,87 +1,57 @@
-
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../Components/Header";
+import React from 'react';
+import '../Style.css';
+import Header from './Header';
 import { auth, database } from '../firebase';
-import { ref, get, child } from "firebase/database";
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import myImage from '../Images/home-page-image.jpeg';
-
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { ref, set } from 'firebase/database';
+import { useNavigate } from "react-router-dom";
 
 
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
-    const [error, setError] = useState(null);
 
     const handleLogIn = async (e) => {
         e.preventDefault();
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const emailOfUser = userCredential.user.email;
+        
+        const email = e.target[0].value;
+        const password = e.target[1].value;
+        console.log( email, password);
 
-            
 
-            if (emailOfUser === "admin@gmail.com" && password === "admin1234") {
-                navigate('/AdminHome', { state: { email: emailOfUser } });
-            } else {
-                
-                const dbRef = ref(database);
-                const snapshot = await get(child(dbRef, `users/${userCredential.user.uid}`));
+        return (
+            <div>
+                <div className="form-login">
+                    <h1 className="signin-title">Sign In</h1>
+                    <form className="logIn-form" onSubmit={handleLogIn}>
+                        <label>Email:</label>
+                        <input
+                            type="email"
+                            id="signinEmail"
+                            className='input-client-form'
+                            required
+                            // value={email}
+                            // onChange={(e) => setEmail(e.target.value)}
+                        />
 
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                // if (userData.accountType === "admin@gmail.com") {
-                //     navigate('/AdminHome', { state: { email: emailOfUser } });
-             if (userData.accountType === "Moderator") {
-                    navigate('/ModeraterHome', { state: { email: emailOfUser } });
-                } else {
-                    navigate('/homeUser', { state: { email: emailOfUser } });
-                }
-            } else {
-                console.log("No user data found");
-            }}
-        } catch (error) {
-            setError(error.message);
-        }
-    };
+                        <label>Password:</label>
+                        <input
+                            type="password"
+                            id="signinPassword"
+                            className='input-user-form'
+                            required
+                            // value={password}
+                            // onChange={(e) => setPassword(e.target.value)}
+                        />
 
-    return (
-        <div className="sign-up-pages">
-            {/* <Header /> */}
-            <div className="form-login">
-                <h1 className="signin-title">Login In</h1>
-                <form className="logIn-form" onSubmit={handleLogIn}>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        id="signinEmail"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                        {/* <p className="Password" onClick={handleReset} >Forgot password?</p> */}
 
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        id="signinPassword"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-
-                        <br /><br />
-                    <button type="submit">Login</button><br /><br />
-                    <button type="submit" onClick={() => navigate("/ForgotPassword")}>Forgot password</button>
-                    <p className='home-create-account-button2' >Don't have an account!</p>
-                    <button type="submit" onClick={() => navigate("/SignUpUser")}>Sign Up here</button><br /><br />
-                </form>
-                {error && <p className="error-message">{error}</p>}
-
+                        <button type="submit">Login</button><br /><br />
+                    </form>
+                    <p className="Sign-up-here">You don't have an account? Sign up here</p>
+                    {/* <button onClick={() => navigate("/SignupUser")} type="submit">Sign Up</button> */}
+                </div>
             </div>
-        </div>
-    );
+        )
+    }
 };
 
 export default Login;

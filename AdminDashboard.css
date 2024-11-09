@@ -1,8 +1,29 @@
+.sidebar {
+    width: 300px;
+    padding: 20px;
+    background-color: #dfdbdb;
+    border-right: 1px solid #ddd;
+    margin: 0 20px;
+    color: #2d2a83;
+    font-weight: bolder;
+    height: 700px;
+    float: left;
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 250px;
+        height: auto;
+        padding: 20px;
+        float: none;
+        margin: 10px auto;
+    }
+}
 
 .admin-dashboard {
     padding: 20px;
     text-align: center;
-    margin-left: 250px;
+    background-color: #f5f5f5;
 }
 
 .admin-dashboard h1 {
@@ -15,13 +36,15 @@
 .dashboard-sections {
     display: flex;
     flex-wrap: wrap;
-    margin: 10px;
+    justify-content: space-around;
+    margin: 20px;
+    gap: 10px;
 }
 
 .section {
     background-color: #19646b;
     color: white;
-    width: 350px;
+    width: 300px;
     height: 150px;
     display: flex;
     justify-content: center;
@@ -29,8 +52,9 @@
     padding: 20px;
     margin: 20px;
     font-weight: bolder;
-    font-size: xx-large;
+    font-size: 1.2em;
     border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {

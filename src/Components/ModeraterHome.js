@@ -2,10 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom"; 
 import Header from "./Home";
 
-const ModeratorHome = () => {
+const ModeraterHome = () => {
   return (
     <div>
-      {/* <Header/> */}
+      <Header/>
     {/* <div className=""> */}
         <div className="choose">
           <label>
@@ -36,7 +36,8 @@ const ModeratorHome = () => {
         </div>
         <div className="content-area">
           <div className="content">
-            <h1>This is Moderator home!</h1>
+            <h1>Events!</h1>
+            <Link to="AdminHome">click to check admin</Link>
           </div>
 
           <div className="right-sidebar">
@@ -59,4 +60,4 @@ const ModeratorHome = () => {
   );
 };
 
-export default ModeratorHome;
+export default ModeraterHome;

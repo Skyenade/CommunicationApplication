@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ModeraterHome from './Components/ModeratorHome';
+import ModeraterHome from './Components/ModeraterHome';
 import ModeratorDashboard from './Components/ModeratorDashboard'; 
 import AdminHome from './Components/Admin';
 import AdminDashboard from './Components/AdminDashboard';
@@ -12,15 +12,11 @@ import HomeUser from './Components/HomeUser';
 import EventFeed from './Components/EventFeed'; 
 import Header from './Components/Header';
 import SignUpUser from './Components/SignUpUser';
-import SignupUser from './Components/SignUpUser';
 import LogIn from './Components/LogIn';
 import ForgotPassword from './Components/ForgotPassword';
-// import ModeraterHome from './Components/Moderator';
+import HomeAdmin from './Components/HomeAdmin';
+import Home from './Components/Home';
 import UserProfile from './Components/UserProfile';
-import ContentManagement from './Components/ContentManagement';
-// import ContentManagement from './Components/ContentManagement';
-
-
 
 function App() {
   const [userEmail, setUserEmail] = useState("");
@@ -28,17 +24,13 @@ function App() {
 
   useEffect(() => {
     setIsSignedIn(!!userEmail);
-  }, [userEmail, isSignedIn]);
-
+  }, [userEmail]);
 
   return (
     <Router>
       <div className="App">
         <Routes>
-        <Route path="/" element={<LogIn />} />
-        <Route path="/SignUpUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
-          <Route path="/LogIn" element={<LogIn />} />
-          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/" element={<Home />} />
           <Route path="/ModeraterHome" element={<ModeraterHome />} />
           <Route path="/createEvent" element={<CreateEvent setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} />} />
           <Route path="/ModeratorDashboard" element={<ModeratorDashboard />} />
@@ -48,14 +40,11 @@ function App() {
           <Route path="/UserManagement" element={<UserManagement />} />
           <Route path="/HomeUser" element={<HomeUser />} />
           <Route path="/EventFeed" element={<EventFeed />} />
-          {/* <Route path="/SignupUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
-          <Route path="/LogIn" element={<LogIn />} /> */}
-          <Route path="/ForgotPassword" element={<ForgotPassword />} />
-          <Route path='/userProfile' element={<UserProfile/>}/>
-          <Route path='/ContentManagement' element={<ContentManagement/>}/>
-
-        
-
+          <Route path="/SignupUser" element={<SignUpUser setUserEmail={setUserEmail} />} />
+          <Route path="/LogIn" element={<LogIn />} />
+          <Route path="/reset" element={<ForgotPassword />} />
+          <Route path="/homeadmin" element={isSignedIn ? <HomeAdmin userEmail={userEmail} isSignedIn={isSignedIn} setUserEmail={setUserEmail} setIsSignedIn={setIsSignedIn} /> : <Navigate to="/LogIn" />} />
+          <Route path="/UserProfile" element={<UserProfile />} />
         </Routes>
       </div>
     </Router>

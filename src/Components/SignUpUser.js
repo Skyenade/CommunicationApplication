@@ -1,94 +1,59 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../Style.css';
-import Header from "../Components/Header";
-import { useNavigate } from "react-router-dom";
-import { ref, set } from 'firebase/database';
-
+import Header from './Header';
 import { auth, database } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { ref, set } from 'firebase/database';
+import { useNavigate } from "react-router-dom";
 
 const SignUpUser = () => {
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [username, setUsername] = useState("");
-    const [error, setError] = useState(null);
-
-    const navigate = useNavigate();
-
     const handleSignUpUser = async (e) => {
         e.preventDefault();
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const userId = userCredential.user.uid;
+        const username = e.target[0].value;
+        const email = e.target[0].value;
+        const password = e.target[1].value;
+        console.log(username, email, password);
 
-            await set(ref(database, `users/${userId}`), {
-                email,
-                username,
-               
-            });
-
-            setEmail(email);
-            navigate('/signin');
-        } catch (error) {
-            setError(error.message);
-            console.error("Sign-up error:", error.message);
-        }
-    };
         return (
             <div >
-                {/* <Header />
-             */}
+
 
                 <h2> Crate your account</h2>
-                <form className="home-form2" onSubmit={handleSignUpUser}>
+                <form className="user-form" onSubmit={handleSignUpUser}>
                     <label>Username</label>
                     <input
-                        className='home-input'
                         type="text"
                         id="username"
-                       
+                        className='input-User-form'
                         required
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        
                     />
-                    <label>Email</label>
-                    <input 
-                        className='home-input'
+                    <label>Email:</label>
+                    <input
                         type="email"
                         id="uEmail"
-                        
+                        className='input-User-form'
                         required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
 
                     />
-                    <label>Password</label>
-                    <input className='home-input'
+                    <label>Password:</label>
+                    <input
                         type="password"
                         id="uPassword"
-                        
+                        className='input-User-form'
                         required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
                     />
-                    <button className='home-create-account-button2' type='submit'>SignUp</button>
-
-                    {error && <p className="error-message">{error}</p>}
-
-                        <p className='home-create-account-button2' onClick={() => navigate("/Login")}>Already have an account?</p>
-                        {/* here goes to the path / assignend to home due the login page is located at home page */}
+                    <button type='submit'>SignUp</button>
 
                 </form>
-                
+                <p className="Sign-up-here">Already have an account?</p>
 
 
             </div>
-        
 
-        );
+
+        )
     }
+};
 
-
-export default SignUpUser;
+export default SignUpUser
