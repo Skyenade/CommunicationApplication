@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, deleteUser } from 'firebase/auth';
+import Header from './Header';
 import { database } from '../firebase';
 import { ref, onValue, set, remove } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -123,6 +124,8 @@ const UserProfile = () => {
   };
 
   return (
+    <div> 
+      <Header/>
     <div className="user-profile">
       <div className="user-details">
         {user ? (
@@ -179,6 +182,8 @@ const UserProfile = () => {
         <button onClick={handleDeleteAccount} className="delete-account-btn">Delete Your Account</button>
       </div>
     </div>
+    </div>
+
   );
 };
 
