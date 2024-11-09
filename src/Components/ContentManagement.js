@@ -3,6 +3,8 @@ import { database } from '../firebase';
 import { ref, get, update, remove } from 'firebase/database'; 
 import './ContentManagement.css'; 
 
+
+
 const ContentManagement = () => {
     // Dummy data to display initially
     const flaggedItems = [
