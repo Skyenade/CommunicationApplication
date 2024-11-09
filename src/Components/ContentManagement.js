@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { database } from '../firebase'; 
 import { ref, get, update, remove } from 'firebase/database'; 
-import './ModeratorDashboard.css'; 
+import './ContentManagement.css'; 
 
 const ContentManagement = () => {
     // Dummy data to display initially
