@@ -22,7 +22,6 @@ const UserProfile = () => {
         const userRef = ref(database, `users/${userId}`);
         const eventsRef = ref(database, 'events');
 
-        // Fetch user data
         onValue(userRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
@@ -32,7 +31,6 @@ const UserProfile = () => {
           }
         });
 
-        // Fetch user's events
         onValue(eventsRef, (snapshot) => {
           const allEvents = snapshot.val();
           const userEvents = Object.values(allEvents || {}).filter(event => event.userId === userId);
@@ -61,20 +59,17 @@ const UserProfile = () => {
 
       let imageUrl = profileImageUrl;
       if (newProfileImage) {
-        // Delete old profile image if it exists
         if (profileImageUrl) {
           const oldImageRef = storageRef(storage, profileImageUrl);
           await deleteObject(oldImageRef).catch(error => console.error('Error deleting old image:', error));
         }
 
-        // Upload new profile image
         const newImageRef = storageRef(storage, `profileImages/${userId}`);
         await uploadBytes(newImageRef, newProfileImage);
         imageUrl = await getDownloadURL(newImageRef);
         setProfileImageUrl(imageUrl);
       }
 
-      // Save updated data in database
       await set(userRef, {
         ...user,
         bio,
@@ -103,16 +98,13 @@ const UserProfile = () => {
       const userId = auth.currentUser.uid;
 
       try {
-        // Delete profile image from storage
         if (profileImageUrl) {
           const profileImageRef = storageRef(storage, profileImageUrl);
           await deleteObject(profileImageRef);
         }
 
-        // Remove user data from database
         await remove(ref(database, `users/${userId}`));
 
-        // Delete user from Firebase Authentication
         await deleteUser(auth.currentUser);
 
         alert('Account deleted successfully.');
