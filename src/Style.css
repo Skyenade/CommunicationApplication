@@ -219,6 +219,13 @@ body {
     color: white;
     font-weight: 600;
     cursor: pointer;
+    padding: 8px 16px;
+}
+
+
+.create-event-button .links {
+    color: #fff;
+    text-decoration: none;
 }
 
 .moderator-home-container {
@@ -295,19 +302,7 @@ body {
     height: 50px;
   }
 
-.create-event-button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    
-}
 
-.create-event-button .links {
-    color: #fff;
-    text-decoration: none;
-}
 
 
 .homeuser-content {
@@ -323,6 +318,14 @@ body {
     background-color: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
+}
+
+.home-heading{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 10px;
 }
 
 .event-feed {
