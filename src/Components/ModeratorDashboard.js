@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./ModeratorDashboard.css"; 
-import Header from "./Home";
+import Header from "./Header";
 import { database } from "../firebase"; 
 import { ref, onValue, remove } from "firebase/database";
 import { Navigate, useNavigate } from "react-router-dom"; 
@@ -67,8 +67,9 @@ const ModeratorDashboard = () => {
 
 
   return (
-    <div className="moderatorDashboard">
-      <Header />
+    <div >
+    <Header/>
+    <div className='create-event'>
       <div className="content">
         <h1>Moderator Dashboard</h1>
         <button className="requestAdminAssistanceButton" 
@@ -132,7 +133,7 @@ const ModeratorDashboard = () => {
             )}
           </tbody>
         </table>
-      </div>
+      </div></div>
     </div>
   );
 };

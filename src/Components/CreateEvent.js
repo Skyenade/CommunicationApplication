@@ -3,8 +3,10 @@ import '../Style.css';
 import Header from './Header';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 import { ref, set } from "firebase/database";
-import { database } from '../firebase';
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, database } from '../firebase';
+
 
 const CreateEvent = () => {
   const [dateTime, setDateTime] = useState('');
@@ -13,13 +15,11 @@ const CreateEvent = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [eventTitle, setEventTitle] = useState('');
   const [eventDetails, setEventDetails] = useState('');
-  const [eventImage, setEventImage] = useState([]);
-  const [eventImageUrl, setEventImageUrl] = useState('');
+  const [eventImages, setEventImages] = useState([]);
+  const firestore = getFirestore();
   const storage = getStorage();
 
-  const handleDateTimeChange = (event) => {
-    setDateTime(event.target.value);
-  };
+  const handleDateTimeChange = (event) => setDateTime(event.target.value);
 
   const onLoad = (autoC) => setAutocomplete(autoC);
 
@@ -32,53 +32,53 @@ const CreateEvent = () => {
         lng: place.geometry.location.lng(),
       });
     }
-  };  
+  };
 
-  // const handleImageChange = (e) => {
-  //   if (e.target.files[0]) {
-  //     setEventImage(e.target.files[0]);
-  //   }
-  // };
+  const handleImageChange = (e) => {
+    if (e.target.files) {
+      setEventImages(Array.from(e.target.files));
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // let imageUrl = '';
-    // if (eventImage) {
-    //   const imageRef = storageRef(storage, 'eventImages/' + eventImage.name);
-    //   await uploadBytes(imageRef, eventImage);
-    //   imageUrl = await getDownloadURL(imageRef);
-    //   setEventImageUrl(imageUrl);
-    // }
+    try {
+      const imageUrls = [];
 
-    const eventData = {
-      title: eventTitle,
-      dateTime,
-      location,
-      coordinates: selectedLocation,
-      details: eventDetails,
-      // imageUrl: imageUrl,
-    };
+      for (const image of eventImages) {
+        const imageRef = storageRef(storage, 'eventImages/' + image.name);
+        await uploadBytes(imageRef, image);
+        const url = await getDownloadURL(imageRef);
+        imageUrls.push(url);
+      }
 
-    const eventRef = ref(database, 'events/' + Date.now());
-    await set(eventRef, eventData)
-      .then(() => {
-        alert('Event created successfully!');
-        setEventTitle('');
-        setDateTime('');
-        setLocation('');
-        setSelectedLocation(null);
-        setEventDetails('');
-        // setEventImage([]);
-        setEventImageUrl('');
-      })
-      .catch((error) => {
-        console.error('Error saving event:', error);
-      });
+      const newEvent = {
+        title: eventTitle,
+        dateTime,
+        location,
+        coordinates: selectedLocation,
+        details: eventDetails,
+        images: imageUrls, // Store the URLs in Firestore
+        createdBy: auth.currentUser?.uid || "Anonymous",
+      };
+
+      await addDoc(collection(firestore, "events"), newEvent);
+
+      alert('Event created successfully!');
+      setEventTitle('');
+      setDateTime('');
+      setLocation('');
+      setSelectedLocation(null);
+      setEventDetails('');
+      setEventImages([]);
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
   };
 
   return (
-    <div >
+    <div>
       <Header/>
       <div className='create-event'>
         <h1 className="create-event-heading">Create Event</h1>
@@ -105,16 +105,16 @@ const CreateEvent = () => {
           </div>
 
           <div className='create-event-input-container'>
-            
             <label className="create-event-label">Event Image: </label>
-            {/* <input
+            <input
               className="create-event-input"
               type="file"
               accept="image/*"
               onChange={handleImageChange}
+              multiple
               required
-            /> */}
-            
+            />
+
             <label className="create-event-label">Event Location: </label>
             <LoadScript googleMapsApiKey="AIzaSyBqwTateOoIdBOshwiWfGVfbGMcgnAl2KM" libraries={["places"]}>
               <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
@@ -127,8 +127,6 @@ const CreateEvent = () => {
                   required
                 />
               </Autocomplete>
-
-              
             </LoadScript>
           </div>
 
@@ -146,9 +144,7 @@ const CreateEvent = () => {
 
           <button className="create-event-button" type="submit">Create Event</button>
         </form>
-
       </div>
-
     </div>
   );
 };
