@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import '../Style.css';
-import Header from './Header';
 import { ref, onValue } from "firebase/database";
 import { database } from '../firebase';
 
@@ -25,8 +24,7 @@ const EventFeed = () => {
 
   return (
     <div>
-      <Header />
-      <h1>Event Feed</h1>
+      
       <div className="event-feed">
         {events.length > 0 ? (
           events.map((event) => (
