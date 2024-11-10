@@ -15,7 +15,6 @@ const UserProfile = () => {
   const [newProfileImage, setNewProfileImage] = useState(null);
   const auth = getAuth();
   const storage = getStorage();
-  const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -151,7 +150,7 @@ const UserProfile = () => {
               )}
 
             </ul>
-            <button onClick={handleAddEvent}>Add Event</button>
+            {/* <button onClick={handleAddEvent}>Add Event</button> */}
             <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
           </>
         ) : (
