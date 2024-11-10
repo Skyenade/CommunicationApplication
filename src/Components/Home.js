@@ -33,7 +33,7 @@ const Home = ({ handleSignOut, isSignedIn, userEmail }) => {
                 // if (userData.accountType === "admin@gmail.com") {
                 //     navigate('/AdminHome', { state: { email: emailOfUser } });
              if (userData.accountType === "Moderator") {
-                    navigate('/ModeraterHome', { state: { email: emailOfUser } });
+                    navigate('/ModeratorHome', { state: { email: emailOfUser } });
                 } else {
                     navigate('/homeUser', { state: { email: emailOfUser } });
                 }
