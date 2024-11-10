@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../Style.css';
 import { ref, onValue } from "firebase/database";
 import { database } from '../firebase';
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const eventsRef = ref(database, 'events');
@@ -21,6 +24,10 @@ const EventFeed = () => {
       }
     });
   }, []);
+
+  const handleCommentClick = (eventId) => {
+    navigate(`/comments/${eventId}`);
+  };
 
   return (
     <div>
@@ -41,6 +48,9 @@ const EventFeed = () => {
                   <p><strong>Coordinates:</strong> {event.coordinates.lat}, {event.coordinates.lng}</p>
                 </div>
               )} */}
+        <div>
+        <button onClick={() => handleCommentClick(event.id)}>Comment</button>
+        </div>
             </div>
           ))
         ) : (
