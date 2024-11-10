@@ -8,7 +8,6 @@ import CreateEvent from './Components/CreateEvent';
 import CreateUser from './Components/CreateUser';
 import UserManagement from './Components/UserManagement';
 import HomeUser from './Components/HomeUser';
-// import EventFeed from './Components/EventFeed';
 import SignUpUser from './Components/SignUpUser';
 import ForgotPassword from './Components/ForgotPassword';
 import ModeratorHome from './Components/ModeratorHome';
@@ -52,8 +51,6 @@ function App() {
           <Route path="/UserManagement" element={<UserManagement />} />
 
           <Route path="/HomeUser" element={<HomeUser />} />
-
-          {/* <Route path="/EventFeed" element={<EventFeed />} /> */}
 
           <Route path="/ForgotPassword" element={<ForgotPassword />} />
 
