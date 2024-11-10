@@ -6,6 +6,7 @@ import { ref, onValue, set, remove } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import './UserProfile.css';
 
+
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [bio, setBio] = useState('');
@@ -14,6 +15,7 @@ const UserProfile = () => {
   const [newProfileImage, setNewProfileImage] = useState(null);
   const auth = getAuth();
   const storage = getStorage();
+  const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -39,6 +41,7 @@ const UserProfile = () => {
       } else {
         console.error('No user is logged in.');
       }
+
     });
 
     return () => unsubscribe();
@@ -46,9 +49,11 @@ const UserProfile = () => {
 
   const handleBioChange = (e) => setBio(e.target.value);
 
+
   const handleProfileImageChange = (e) => {
     if (e.target.files[0]) {
       setNewProfileImage(e.target.files[0]);
+
     }
   };
 
@@ -81,6 +86,7 @@ const UserProfile = () => {
         console.error('Error updating profile:', error);
       });
     }
+
   };
 
   const handleDeleteProfileImage = async () => {
@@ -124,6 +130,7 @@ const UserProfile = () => {
           <>
             <h1>Hello, {user.username || 'User'}</h1>
             <p>Your email: {user.email}</p>
+
             <p>Your bio:</p>
             <textarea
               value={bio}
@@ -142,7 +149,9 @@ const UserProfile = () => {
               ) : (
                 <p>No previous events found.</p>
               )}
+
             </ul>
+            <button onClick={handleAddEvent}>Add Event</button>
             <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
           </>
         ) : (
@@ -158,9 +167,9 @@ const UserProfile = () => {
         )}
 
         <div className="profile-image-actions">
-          <label htmlFor="profileImageUpload" className="choose-file-label">
+          <button htmlFor="profileImageUpload" className="choose-file-label">
             Change Profile Picture
-          </label>
+          </button>
           <input
             type="file"
             accept="image/*"
@@ -172,6 +181,7 @@ const UserProfile = () => {
         </div>
 
         <button onClick={handleDeleteAccount} className="delete-account-btn">Delete Your Account</button>
+
       </div>
     </div>
     </div>

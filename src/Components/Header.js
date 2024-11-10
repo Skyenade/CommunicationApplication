@@ -26,7 +26,11 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             </div>
 
             <div className="auth-buttons">
+<<<<<<< HEAD
+                <button className="btn-user-profile" onClick={() => navigate("/UserProfile")}>User Profile</button>
+=======
                 <button id="userprofile-button" className="btn-user-profile" onClick={() => navigate("/UserProfile")}>User Profile</button>
+>>>>>>> dev
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>
