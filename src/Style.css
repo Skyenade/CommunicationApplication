@@ -417,3 +417,85 @@ body {
         grid-column: span 12;
     }
 }
+
+.like_btn{
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    margin: 15px 7px;
+    border-radius: 10px;
+    font-weight: bolder;
+}
+
+/* ------css to comment part */
+.comment_btn{
+    color: white;
+    background-color: black;
+    padding: 10px;
+    margin: 15px 7px;
+    border-radius: 10px;
+    font-weight: bolder;
+}
+
+.post_btn{
+    color: white;
+    background-color: rgb(87, 212, 93);
+    padding: 10px;
+    margin:  7px;
+    border-radius: 20px;
+    font-weight: bolder;
+    border: none;
+}
+
+.post_btn:hover{
+    background-color: rgb(73, 183, 79);
+
+}
+.add-comment textarea {
+    max-width: 800%;
+    width: 90%;
+    height: 40px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #eeebeb;
+  }
+
+.comments-list {
+    margin-top: 20px;
+    max-width: 600px;
+    padding: 10px;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+  }
+  
+  
+  .comment:hover{
+    background-color: #efeaeae3;
+    border-radius: 8px;
+  }
+  
+  .comment p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    color: #585555;
+  }
+  
+  .comment strong {
+    font-weight: bold;
+    color: #19646b; 
+  }
+  
+  .comments-list p {
+    font-size: 16px;
+    color: #484444;
+    margin-top: 20px;
+    font-size: medium;
+  }
+
+  
+  
+  
+  
