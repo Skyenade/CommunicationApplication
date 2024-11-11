@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import '../Style.css';
 import Header from './Header';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
-import { ref, set } from "firebase/database";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, database } from '../firebase';
-
+import { auth } from '../firebase';
 
 const CreateEvent = () => {
   const [dateTime, setDateTime] = useState('');
@@ -17,7 +14,6 @@ const CreateEvent = () => {
   const [eventDetails, setEventDetails] = useState('');
   const [eventImages, setEventImages] = useState([]);
   const firestore = getFirestore();
-  const storage = getStorage();
 
   const handleDateTimeChange = (event) => setDateTime(event.target.value);
 
@@ -40,17 +36,24 @@ const CreateEvent = () => {
     }
   };
 
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const imageUrls = [];
-
+      const imageBase64List = [];
+      
       for (const image of eventImages) {
-        const imageRef = storageRef(storage, 'eventImages/' + image.name);
-        await uploadBytes(imageRef, image);
-        const url = await getDownloadURL(imageRef);
-        imageUrls.push(url);
+        const base64String = await convertToBase64(image);
+        imageBase64List.push(base64String);
       }
 
       const newEvent = {
@@ -59,10 +62,17 @@ const CreateEvent = () => {
         location,
         coordinates: selectedLocation,
         details: eventDetails,
-        images: imageUrls, // Store the URLs in Firestore
+        images: imageBase64List,
         createdBy: auth.currentUser?.uid || "Anonymous",
+        report: false,
+        warning: false,
+        suspended: false, 
+        likes: [],
+        comments: [], 
+        comment: "", 
       };
 
+     
       await addDoc(collection(firestore, "events"), newEvent);
 
       alert('Event created successfully!');
@@ -79,7 +89,7 @@ const CreateEvent = () => {
 
   return (
     <div>
-      <Header/>
+      <Header />
       <div className='create-event'>
         <h1 className="create-event-heading">Create Event</h1>
         <form className="create-event-form" onSubmit={handleSubmit}>

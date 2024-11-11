@@ -20,17 +20,14 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
             <a className='nav-item' >My Followers</a>                            */}
                 {/* <a className='nav-item' onClick={() => navigate("/EventFeed")}>My Events</a>
                 <a className='nav-item' onClick={() => navigate("/Followers")}>My Followers</a> */}
-                <a className='nav-item' onClick={() => navigate("/HomeUser")}>Events Feed</a>
+                <a className='nav-item' onClick={() => navigate("/HomeUser")}>Home</a>
                 <a className='nav-item' >My Events</a>
                 <a className='nav-item' >My Followers</a>
             </div>
 
             <div className="auth-buttons">
-<<<<<<< HEAD
-                <button className="btn-user-profile" onClick={() => navigate("/UserProfile")}>User Profile</button>
-=======
+
                 <button id="userprofile-button" className="btn-user-profile" onClick={() => navigate("/UserProfile")}>User Profile</button>
->>>>>>> dev
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>

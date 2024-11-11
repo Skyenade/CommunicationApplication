@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import '../Style.css';
-import { ref, onValue } from "firebase/database";
-import { database } from '../firebase';
+import { collection, getDocs } from "firebase/firestore";
+import { firestore } from '../firebase';
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    const eventsRef = ref(database, 'events');
-    onValue(eventsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const eventsList = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
+    const fetchEvents = async () => {
+      try {
+        const eventsCollection = collection(firestore, 'events');
+        const eventsSnapshot = await getDocs(eventsCollection);
+        const eventsList = eventsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
         }));
         setEvents(eventsList);
-      } else {
-        setEvents([]);
+      } catch (error) {
+        console.error("Error fetching events: ", error);
       }
-    });
+    };
+
+    fetchEvents();
   }, []);
 
   return (
     <div>
-      
       <div className="event-feed">
+        <h1 className='home-heading'>Event Feed</h1>
         {events.length > 0 ? (
           events.map((event) => (
             <div key={event.id} className="event-card">
@@ -33,14 +35,9 @@ const EventFeed = () => {
               <p><strong>Date & Time:</strong> {new Date(event.dateTime).toLocaleString()}</p>
               <p><strong>Location:</strong> {event.location}</p>
               <p><strong>Details:</strong> {event.details}</p>
-              {event.imageUrl && (
-                <img src={event.imageUrl} alt={event.title} className="event-image" />
-              )}
-              {/* {event.coordinates && (
-                <div className="event-coordinates">
-                  <p><strong>Coordinates:</strong> {event.coordinates.lat}, {event.coordinates.lng}</p>
-                </div>
-              )} */}
+              {event.images && event.images.length > 0 && (
+                <img src={event.images[0]} alt={event.title} className="event-image" />
+              )}              
             </div>
           ))
         ) : (

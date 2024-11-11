@@ -1,136 +1,135 @@
 import React, { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged, deleteUser } from 'firebase/auth';
+import Header from './Header';
 import { database } from '../firebase';
-import './UserProfile.css';
-import { ref, get, set, update, remove } from "firebase/database";
-import { getAuth, updateEmail } from "firebase/auth";
+import { ref, onValue, set, remove } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import './UserProfile.css';
+
 
 const UserProfile = () => {
-  const [user, setUser] = useState({
-    username: "Maspreet Singh",
-    email: "jaspreet@example.com",
-    previousEvents: [
-      { title: "Sample Event 1", dateTime: "2024-01-01 10:00 AM" },
-      { title: "Sample Event 2", dateTime: "2024-02-15 3:00 PM" },
-    ],
-  });
-  const [bio, setBio] = useState('This is a sample bio.');
-  const [profileImage, setProfileImage] = useState(null);
-  const [profileImageUrl, setProfileImageUrl] = useState('');
-  const storage = getStorage();
+  const [user, setUser] = useState(null);
+  const [bio, setBio] = useState('');
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [newProfileImage, setNewProfileImage] = useState(null);
   const auth = getAuth();
+  const storage = getStorage();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const userId = 'USER_ID';
-      const userRef = ref(database, `users/${userId}`);
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        setUser(data);
-        setBio(data.bio || '');
-        setProfileImageUrl(data.profileImageUrl || '');
-      } else {
-        console.log("No user data available");
-      }
-    };
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        const userId = currentUser.uid;
+        const userRef = ref(database, `users/${userId}`);
+        const eventsRef = ref(database, 'events');
 
-    fetchUserData();
-  }, []);
+        onValue(userRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setUser(data);
+            setBio(data.bio || '');
+            setProfileImageUrl(data.profileImageUrl || '');
+          }
+        });
+
+        onValue(eventsRef, (snapshot) => {
+          const allEvents = snapshot.val();
+          const userEvents = Object.values(allEvents || {}).filter(event => event.userId === userId);
+          setEvents(userEvents);
+        });
+      } else {
+        console.error('No user is logged in.');
+      }
+
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
 
   const handleBioChange = (e) => setBio(e.target.value);
-  const handleUsernameChange = (e) => setUser({ ...user, username: e.target.value });
-  const handleEmailChange = (e) => setUser({ ...user, email: e.target.value });
-  const handleEventChange = (index, field, value) => {
-    const updatedEvents = [...user.previousEvents];
-    updatedEvents[index][field] = value;
-    setUser({ ...user, previousEvents: updatedEvents });
-  };
 
-  const handleAddEvent = () => {
-    const newEvent = { title: "New Event", dateTime: new Date().toISOString() };
-    setUser({ ...user, previousEvents: [...user.previousEvents, newEvent] });
-  };
 
-  const handleImageChange = (e) => {
+  const handleProfileImageChange = (e) => {
     if (e.target.files[0]) {
-      setProfileImage(e.target.files[0]);
+      setNewProfileImage(e.target.files[0]);
+
     }
   };
 
   const handleSaveChanges = async () => {
-    const userId = 'USER_ID';
-    const userRef = ref(database, `users/${userId}`);
+    if (auth.currentUser) {
+      const userId = auth.currentUser.uid;
+      const userRef = ref(database, `users/${userId}`);
 
-    // Update profile image if there's a new one
-    let updatedProfileImageUrl = profileImageUrl;
-    if (profileImage) {
-      const imageRef = storageRef(storage, `profileImages/${userId}`);
-      await uploadBytes(imageRef, profileImage);
-      updatedProfileImageUrl = await getDownloadURL(imageRef);
-      setProfileImageUrl(updatedProfileImageUrl);
-    }
+      let imageUrl = profileImageUrl;
+      if (newProfileImage) {
+        if (profileImageUrl) {
+          const oldImageRef = storageRef(storage, profileImageUrl);
+          await deleteObject(oldImageRef).catch(error => console.error('Error deleting old image:', error));
+        }
 
-    // Update email in Firebase Authentication
-    const currentUser = auth.currentUser;
-    if (currentUser && currentUser.email !== user.email) {
-      try {
-        await updateEmail(currentUser, user.email);
-        console.log("Email updated in Firebase Auth");
-      } catch (error) {
-        console.error("Error updating email in Firebase Auth:", error);
-        return; // Stop further updates if there's an error
+        const newImageRef = storageRef(storage, `profileImages/${userId}`);
+        await uploadBytes(newImageRef, newProfileImage);
+        imageUrl = await getDownloadURL(newImageRef);
+        setProfileImageUrl(imageUrl);
       }
-    }
 
-    // Update profile in Firebase Database
-    await update(userRef, {
-      ...user,
-      bio: bio,
-      profileImageUrl: updatedProfileImageUrl,
-    })
-      .then(() => {
+      await set(userRef, {
+        ...user,
+        bio,
+        profileImageUrl: imageUrl,
+      }).then(() => {
         alert('Profile updated successfully!');
-      })
-      .catch((error) => {
+        setNewProfileImage(null);
+      }).catch(error => {
         console.error('Error updating profile:', error);
       });
+    }
+
+  };
+
+  const handleDeleteProfileImage = async () => {
+    if (profileImageUrl) {
+      const profileImageRef = storageRef(storage, profileImageUrl);
+      await deleteObject(profileImageRef).then(() => {
+        setProfileImageUrl(null);
+        alert('Profile picture deleted successfully.');
+      }).catch(error => console.error('Error deleting profile picture:', error));
+    }
   };
 
   const handleDeleteAccount = async () => {
-    const userId = 'USER_ID';
-    if (profileImageUrl) {
-      const profileImageRef = storageRef(storage, profileImageUrl);
-      await deleteObject(profileImageRef).catch((error) => console.error('Error deleting image:', error));
-    }
-    await remove(ref(database, `users/${userId}`))
-      .then(() => {
+    if (auth.currentUser) {
+      const userId = auth.currentUser.uid;
+
+      try {
+        if (profileImageUrl) {
+          const profileImageRef = storageRef(storage, profileImageUrl);
+          await deleteObject(profileImageRef);
+        }
+
+        await remove(ref(database, `users/${userId}`));
+
+        await deleteUser(auth.currentUser);
+
         alert('Account deleted successfully.');
-      })
-      .catch((error) => {
-        console.error('Error deleting account:', error);
-      });
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        alert('Failed to delete account. Please try again.');
+      }
+    }
   };
 
   return (
+    <div> 
+      <Header/>
     <div className="user-profile">
       <div className="user-details">
         {user ? (
           <>
-            <h1>Hello,</h1>
-            <input
-              type="text"
-              value={user.username}
-              onChange={handleUsernameChange}
-              placeholder="Update your name"
-            />
-            <input
-              type="email"
-              value={user.email}
-              onChange={handleEmailChange}
-              placeholder="Update your email"
-            />
-            <p>Your password: ******</p>
+            <h1>Hello, {user.username || 'User'}</h1>
+            <p>Your email: {user.email}</p>
+
             <p>Your bio:</p>
             <textarea
               value={bio}
@@ -140,24 +139,18 @@ const UserProfile = () => {
             />
             <h2>Your Previous Events:</h2>
             <ul>
-              {user.previousEvents ? user.previousEvents.map((event, index) => (
-                <li key={index}>
-                  <input
-                    type="text"
-                    value={event.title}
-                    onChange={(e) => handleEventChange(index, 'title', e.target.value)}
-                    placeholder="Event Title"
-                  />
-                  <input
-                    type="text"
-                    value={event.dateTime}
-                    onChange={(e) => handleEventChange(index, 'dateTime', e.target.value)}
-                    placeholder="Event Date & Time"
-                  />
-                </li>
-              )) : <p>No previous events found.</p>}
+              {events.length > 0 ? (
+                events.map((event, index) => (
+                  <li key={index}>
+                    <strong>{event.title}</strong> on {event.dateTime}
+                  </li>
+                ))
+              ) : (
+                <p>No previous events found.</p>
+              )}
+
             </ul>
-            <button onClick={handleAddEvent}>Add Event</button>
+            {/* <button onClick={handleAddEvent}>Add Event</button> */}
             <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
           </>
         ) : (
@@ -166,12 +159,32 @@ const UserProfile = () => {
       </div>
 
       <div className="user-profile-actions">
-        {profileImageUrl && <img src={profileImageUrl} alt="Profile" />}
-        <input type="file" accept="image/*" onChange={handleImageChange} />
-        <button onClick={() => setProfileImage(null)}>Delete Your Picture</button>
-        <button className="delete-account-btn" onClick={handleDeleteAccount}>Delete Your Account</button>
+        {profileImageUrl ? (
+          <img src={profileImageUrl} alt="Profile" className="profile-image" />
+        ) : (
+          <p>No profile picture set.</p>
+        )}
+
+        <div className="profile-image-actions">
+          <label htmlFor="profileImageUpload" className="choose-file-label">
+            Change Profile Picture
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            id="profileImageUpload"
+            onChange={handleProfileImageChange}
+            style={{ display: 'none' }}
+          />
+          <button onClick={handleDeleteProfileImage} className="delete-picture-btn">Delete Picture</button>
+        </div>
+
+        <button onClick={handleDeleteAccount} className="delete-account-btn">Delete Your Account</button>
+
       </div>
     </div>
+    </div>
+
   );
 };
 
