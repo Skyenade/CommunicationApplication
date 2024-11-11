@@ -239,7 +239,7 @@ const UserProfile = () => {
 //             style={{ display: 'none' }}
 //           />
 //           <button onClick={handleDeleteProfileImage} className="delete-picture-btn">Delete Picture</button>
-
+          )}
         </div>
 
         <div className="user-profile-actions">
