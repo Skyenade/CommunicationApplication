@@ -4,7 +4,6 @@ import { ref, get, update, remove } from 'firebase/database';
 import './ContentManagement.css'; 
 
 const ContentManagement = () => {
-    // Dummy data to display initially
     const flaggedItems = [
         {
             id: "1",
@@ -20,7 +19,6 @@ const ContentManagement = () => {
     // const [flaggedItems, setFlaggedItems] = useState([]);
     const [userDetails, setUserDetails] = useState({});
 
-    // Uncomment this section for real data from Firebase
     // useEffect(() => {
     //     const fetchFlaggedPosts = async () => {
     //         const flaggedPostsRef = ref(database, 'flaggedPosts');
@@ -67,7 +65,6 @@ const ContentManagement = () => {
                 if (window.confirm("Are you sure you want to remove the content?")) {
                     remove(postRef)
                         .then(() => {
-                            // Uncomment this line to update state when real data is fetched from Firebase
                             // setFlaggedItems(flaggedItems.filter(post => post.id !== id));
                             alert("Selected Content removed successfully.");
                         });

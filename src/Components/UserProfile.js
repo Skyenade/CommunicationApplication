@@ -166,9 +166,9 @@ const UserProfile = () => {
         )}
 
         <div className="profile-image-actions">
-          <button htmlFor="profileImageUpload" className="choose-file-label">
+          <label htmlFor="profileImageUpload" className="choose-file-label">
             Change Profile Picture
-          </button>
+          </label>
           <input
             type="file"
             accept="image/*"

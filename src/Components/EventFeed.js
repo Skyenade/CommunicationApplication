@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../Style.css';
 import { collection, getDocs } from "firebase/firestore";
-import { firestore } from '../firebase'; // Ensure firestore is properly exported from your firebase config
+import { firestore } from '../firebase';
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
@@ -37,13 +37,7 @@ const EventFeed = () => {
               <p><strong>Details:</strong> {event.details}</p>
               {event.images && event.images.length > 0 && (
                 <img src={event.images[0]} alt={event.title} className="event-image" />
-              )}
-              {/* If coordinates are available, you can display them */}
-              {/* {event.coordinates && (
-                <div className="event-coordinates">
-                  <p><strong>Coordinates:</strong> {event.coordinates.lat}, {event.coordinates.lng}</p>
-                </div>
-              )} */}
+              )}              
             </div>
           ))
         ) : (
