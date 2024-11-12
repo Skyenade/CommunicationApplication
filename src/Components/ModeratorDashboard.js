@@ -14,7 +14,7 @@ const ModeratorDashboard = () => {
       date: "2024-11-01",
       type: "Comment",
       content: "Inappropriate language",
-    } // add this code just to see the buttons in dashboard//
+    } 
   ];
 
   // const [flaggedItems, setFlaggedItems] = useState([]);
