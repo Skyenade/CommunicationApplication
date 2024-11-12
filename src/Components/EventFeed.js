@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-// import { collection, getDocs } from "firebase/firestore";
+
+
 import { collection, addDoc,getDocs, query, where, onSnapshot } from 'firebase/firestore';
 import { firestore } from '../firebase'; 
 import { getAuth } from 'firebase/auth'; 
+
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
@@ -110,6 +112,7 @@ const EventFeed = () => {
 
               {event.images && event.images.length > 0 && (
                 <img src={event.images[0]} alt={event.title} className="event-image" />
+
               )}
               {/* If coordinates are available, you can display them */}
               {/* {event.coordinates && (
@@ -151,6 +154,7 @@ const EventFeed = () => {
     </div>
   </div>
 )}
+
 
             </div>
           ))

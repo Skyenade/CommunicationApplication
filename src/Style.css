@@ -308,6 +308,7 @@ body {
 .homeuser-content {
     display: flex;
     gap: 20px;
+    width: 96vw;
 }
 
 .homeuser-choose-options,
@@ -331,6 +332,7 @@ body {
 .event-feed {
     flex: 2;
     background-color: #f9f9f9;
+    border-radius: 8px;
     border-radius: 8px;
 }
 
