@@ -24,7 +24,8 @@ const SignUpUser = () => {
             await set(ref(database, `users/${userId}`), {
                 email,
                 username,
-               
+                status: 'active',
+                accountType: 'User'               
             });
 
             setEmail(email);
@@ -38,7 +39,7 @@ const SignUpUser = () => {
         return (
             <div >
                 
-        
+
                 <h2> Crate your account</h2>
                 <form className="home-form2" onSubmit={handleSignUpUser}>
                     <label>Username</label>

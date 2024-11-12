@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import ModeratorDashboard from './Components/ModeratorDashboard';
 import AdminHome from './Components/AdminHome';
 import AdminDashboard from './Components/AdminDashboard';
 import CreateEvent from './Components/CreateEvent';
-import CreateUser from './Components/CreateUser';
 import UserManagement from './Components/UserManagement';
-import HomeUser from './Components/HomeUser';
 import SignUpUser from './Components/SignUpUser';
 import ForgotPassword from './Components/ForgotPassword';
 import ModeratorHome from './Components/ModeratorHome';
 import UserProfile from './Components/UserProfile';
 import ContentManagement from './Components/ContentManagement';
 import EventDetails from './Components/EventDetails';
+import HomeUser from './Components/HomeUser';  
+import CreateUser from './Components/CreateUser';  
+import RequestAssistance from './Components/RequestAssistance';
+import AdminAssistanceRequests from './Components/AdminAssistanceRequests';
 
 
 import Home from './Components/Home';
@@ -46,8 +48,12 @@ function App() {
             <Route path="/HomeUser" element={<HomeUser />} />
             <Route path="/UserProfile" element={<UserProfile />} />
             <Route path="/ContentManagement" element={<ContentManagement />} />
-            <Route path="/EventDetails" element={<EventDetails />} />
-          
+            <Route path="/" element={<HomeUser />} />
+            <Route path="/event/:eventId" element={<EventDetails />} />
+            <Route path="/RequestAssistance" element={<RequestAssistance />} />
+            <Route path="/AdminAssistanceRequests" element={<AdminAssistanceRequests />} />
+
+        
           </Routes>
         </div>
       </Router>
