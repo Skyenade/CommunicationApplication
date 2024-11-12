@@ -3,9 +3,12 @@ import "./ModeratorDashboard.css";
 import Header from "./Header";
 import { database } from "../firebase"; 
 import { ref, onValue, remove } from "firebase/database";
-import { Navigate, useNavigate } from "react-router-dom"; 
+import { Navigate} from "react-router-dom"; 
+import { useNavigate } from 'react-router-dom';
 
 const ModeratorDashboard = () => {
+
+  const navigate = useNavigate();
 
   const flaggedItems = [
     {
@@ -61,9 +64,9 @@ const ModeratorDashboard = () => {
     
   };
 
-  // const handleAdminAssistance = () => {
-  //   Navigate("/adminAssistance"); 
-  // };
+  const handleAdminAssistance = () => {
+    navigate("/RequestAssistance"); 
+  };
 
 
   return (
@@ -72,9 +75,7 @@ const ModeratorDashboard = () => {
     <div className='create-event'>
       <div className="content">
         <h1>Moderator Dashboard</h1>
-        <button className="requestAdminAssistanceButton" 
-        // onClick={() => Navigate("/adminAssistance")} 
-        >
+        <button className="requestAdminAssistanceButton"onClick={handleAdminAssistance}>
           Request Admin Assistance
         </button>
 

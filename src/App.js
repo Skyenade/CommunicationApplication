@@ -15,7 +15,7 @@ import ContentManagement from './Components/ContentManagement';
 import EventDetails from './Components/EventDetails';
 import HomeUser from './Components/HomeUser';  
 import CreateUser from './Components/CreateUser';  
-
+import RequestAssistance from './Components/RequestAssistance';
 
 
 
@@ -50,6 +50,7 @@ function App() {
             <Route path="/ContentManagement" element={<ContentManagement />} />
             <Route path="/" element={<HomeUser />} />
             <Route path="/event/:eventId" element={<EventDetails />} />
+            <Route path="/RequestAssistance" element={<RequestAssistance />} />
         
           </Routes>
         </div>
