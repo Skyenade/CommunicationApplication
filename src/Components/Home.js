@@ -29,9 +29,7 @@ const Home = ({ handleSignOut, isSignedIn, userEmail }) => {
                 const snapshot = await get(child(dbRef, `users/${userCredential.user.uid}`));
 
             if (snapshot.exists()) {
-                const userData = snapshot.val();
-                // if (userData.accountType === "admin@gmail.com") {
-                //     navigate('/AdminHome', { state: { email: emailOfUser } });
+                const userData = snapshot.val();                
              if (userData.accountType === "Moderator") {
                     navigate('/ModeratorHome', { state: { email: emailOfUser } });
                 } else {
