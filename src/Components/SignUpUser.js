@@ -24,7 +24,8 @@ const SignUpUser = () => {
             await set(ref(database, `users/${userId}`), {
                 email,
                 username,
-               
+                status: 'active',
+                accountType: 'User'               
             });
 
             setEmail(email);

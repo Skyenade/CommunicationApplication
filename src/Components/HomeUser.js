@@ -5,6 +5,8 @@ import EventFeed from "./EventFeed";
 import '../Style.css';
 
 const HomeUser = () => {
+
+  
   return (
     <div className="homeuser-container">
       <Header />
