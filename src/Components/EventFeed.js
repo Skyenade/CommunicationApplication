@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-
-
-import { collection, addDoc,getDocs, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, arrayUnion, arrayRemove, doc, onSnapshot, addDoc } from "firebase/firestore";
 import { firestore } from '../firebase'; 
 import { getAuth } from 'firebase/auth'; 
+import useAuth from "../hooks/useAuth";
 
 
 const EventFeed = () => {
@@ -13,6 +12,8 @@ const EventFeed = () => {
   const [comments, setComments] = useState({}); 
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
+  const { currentUser } = useAuth(); // Usa el hook para obtener currentUser
+
   const navigate = useNavigate();
 
 
@@ -93,6 +94,46 @@ const EventFeed = () => {
     navigate(`/event/${eventId}`); // Navegar a la ruta con el ID del evento
   };
 
+
+
+// for the btn like 
+  const handleLike = async (eventId) => {
+    if (!currentUser || !currentUser.uid) {
+      console.error("User is not authenticated or userId is undefined.");
+      return;
+    }
+
+    try {
+      const eventRef = doc(firestore, "events", eventId);
+      await updateDoc(eventRef, {
+        likes: arrayUnion(currentUser.uid),
+        dislikes: arrayRemove(currentUser.uid) // Opcional
+      });
+      console.log("Event liked successfully.");
+    } catch (error) {
+      console.error("Error liking event:", error);
+    }
+  };
+
+  // for the btn Dislike
+  const handleDislike = async (eventId) => {
+    if (!currentUser || !currentUser.uid) {
+      console.error("User is not authenticated or userId is undefined.");
+      return;
+    }
+
+    try {
+      const eventRef = doc(firestore, "events", eventId);
+      await updateDoc(eventRef, {
+        dislikes: arrayUnion(currentUser.uid),
+        likes: arrayRemove(currentUser.uid) // Opcional
+      });
+      console.log("Event disliked successfully.");
+    } catch (error) {
+      console.error("Error disliking event:", error);
+    }
+  };
+
   return (
     <div>
       <div className="event-feed">
@@ -123,7 +164,8 @@ const EventFeed = () => {
               
               <div>
 
-<button className='like_btn'>Like</button>
+                <button className='like_btn' onClick={() => handleLike(event.id)}>Like</button>
+                <button className='dislike_btn' onClick={() => handleDislike(event.id)}>Dislike</button>
   <button className='comment_btn' onClick={() => toggleCommentSection(event.id)}>
     {showCommentSection === event.id ? 'Hide Comments' : 'Comments'}
   </button>
