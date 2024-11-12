@@ -1,10 +1,8 @@
-
 import React, { useEffect, useState } from "react";
-import { getDatabase, ref, onValue, update, set } from "firebase/database";
-import HeaderAdmin from "./HeaderAdmin";
-import "./UserManagement.css";
-import { Link } from "react-router-dom";
+import { getDatabase, ref, onValue, update } from "firebase/database";
 import Header from "./Header";
+import { Link } from "react-router-dom";
+import "./UserManagement.css";
 
 const UserManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
@@ -54,13 +52,43 @@ const UserManagement = () => {
     }
   };
 
+  const handleDelete = (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      const userRef = ref(db, `users/${userId}`);
+      update(userRef, { status: 'deleted' })
+        .then(() => {
+          setAllUsers(prevUsers =>
+            prevUsers.map(user =>
+              user.id === userId ? { ...user, status: 'deleted' } : user
+            )
+          );
+        })
+        .catch(error => console.error("Error deleting user:", error));
+    }
+  };
+
+  const handleRestore = (userId) => {
+    const userRef = ref(db, `users/${userId}`);
+    update(userRef, { status: 'active' })
+      .then(() => {
+        setAllUsers(prevUsers =>
+          prevUsers.map(user =>
+            user.id === userId ? { ...user, status: 'active' } : user
+          )
+        );
+      })
+      .catch(error => console.error("Error restoring user:", error));
+  };
+
   return (
     <div>
-      <Header/>
+      <Header />
       <div className="user-management-container">
         <div className='admin-dashboard-button'>
           <h1>Admin Dashboard</h1>
-          <button className='create-account-button' ><Link to="/CreateUser" className="linking"> Create a User's Account</Link></button>
+          <button className='create-account-button'>
+            <Link to="/CreateUser" className="linking">Create a User's Account</Link>
+          </button>
         </div>
 
         <div>
@@ -99,6 +127,8 @@ const UserManagement = () => {
                     <td>
                       <button onClick={() => handleEdit(user.id)}>Edit</button>
                       <button onClick={() => handleSuspend(user.id)}>Suspend</button>
+                      <button onClick={() => handleDelete(user.id)}>Delete</button>
+                      <button onClick={() => handleRestore(user.id)}>Restore</button>
                     </td>
                   </tr>
                 ))
