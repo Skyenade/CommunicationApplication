@@ -102,7 +102,7 @@ const EventFeed = () => {
               <p><strong>Details:</strong> {event.details}</p>
               <button
                 className="like_btn"
-                onClick={() => handleEventDetailsClick(event.id)}>Event DetailS</button>
+                onClick={() => handleEventDetailsClick(event.id)}>Event Details</button>
 
               {event.images && event.images.length > 0 && (
                 <img src={event.images[0]} alt={event.title} className="event-image" />
