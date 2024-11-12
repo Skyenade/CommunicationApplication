@@ -3,7 +3,7 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import ModeratorDashboard from './Components/ModeratorDashboard';
-import AdminHome from './Components/Admin';
+import AdminHome from './Components/AdminHome';
 import AdminDashboard from './Components/AdminDashboard';
 import CreateEvent from './Components/CreateEvent';
 import CreateUser from './Components/CreateUser';
