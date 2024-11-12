@@ -11,7 +11,7 @@ const EventFeed = () => {
   const [comments, setComments] = useState({}); 
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -85,6 +85,12 @@ const EventFeed = () => {
     }
   };
 
+  
+
+  const handleEventDetailsClick = (eventId) => {
+    navigate(`/event/${eventId}`); // Navegar a la ruta con el ID del evento
+  };
+
   return (
     <div>
       <div className="event-feed">
@@ -96,6 +102,12 @@ const EventFeed = () => {
               <p><strong>Date & Time:</strong> {new Date(event.dateTime).toLocaleString()}</p>
               <p><strong>Location:</strong> {event.location}</p>
               <p><strong>Details:</strong> {event.details}</p>
+              <button          
+                 className="like_btn" onClick={() => handleEventDetailsClick('5X8fXmD6gpmMNmQdCiU6')}>EventDetails</button>
+               
+
+           
+
               {event.images && event.images.length > 0 && (
                 <img src={event.images[0]} alt={event.title} className="event-image" />
               )}
