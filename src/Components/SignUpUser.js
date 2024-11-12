@@ -25,7 +25,7 @@ const SignUpUser = () => {
                 email,
                 username,
                 status: 'active',
-                accountType: 'user'               
+                accountType: 'User'               
             });
 
             setEmail(email);

@@ -13,7 +13,7 @@ const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
             <h1 className='home-heading'>EventUp</h1>
 
             <div className="nav-links">
-            <a className='nav-item' onClick={() => navigate("/AdminHome")}>Events Feed</a>
+            <a className='nav-item' onClick={() => navigate("/AdminHome")}>Home</a>
                 <a className='nav-item'><strong>Admin Account</strong></a>
             </div>
 
