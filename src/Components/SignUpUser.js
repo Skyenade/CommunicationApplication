@@ -39,7 +39,7 @@ const SignUpUser = () => {
             <div >
                 
         
-                <h2> Crate your account</h2>
+                <h2> Create your account</h2>
                 <form className="home-form2" onSubmit={handleSignUpUser}>
                     <label>Username</label>
                     <input
