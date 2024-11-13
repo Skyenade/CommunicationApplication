@@ -27,11 +27,11 @@ const Header = ({ handleSignOut, isSignedIn, userEmail }) => {
     }, [userEmail]);
 
     const handleHomeNavigation = () => {
-        if (userType === "user") {
+        // if (userType === "user") {
             navigate("/HomeUser");
-        } else if (userType === "moderator") {
-            navigate("/ModeratorHome");
-        } 
+        // } else if (userType === "moderator") {
+        //     navigate("/ModeratorHome");
+        // } 
     };
 
     return (
