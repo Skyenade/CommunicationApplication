@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-import { collection, getDocs, updateDoc, query, where, addDoc, arrayUnion, arrayRemove, doc, onSnapshot } from "firebase/firestore";
-import { firestore } from '../firebase'; 
-import { getAuth } from 'firebase/auth'; 
+import { collection, getDocs, updateDoc, query, where, addDoc, arrayUnion, arrayRemove, doc, onSnapshot, orderBy } from "firebase/firestore";
+import { firestore } from '../firebase';
+import { getAuth } from 'firebase/auth';
 import useAuth from "../hooks/useAuth";
 
 const EventFeed = () => {
@@ -46,13 +46,18 @@ const EventFeed = () => {
 
   const fetchComments = (eventId) => {
     const commentsCollection = collection(firestore, 'comments');
-    const commentsQuery = query(commentsCollection, where('eventId', '==', eventId));
+    const commentsQuery = query(
+      commentsCollection,
+      where('eventId', '==', eventId),
+      orderBy('timestamp', 'desc') // Order the comments chronologically
+    );
 
     const unsubscribe = onSnapshot(commentsQuery, (commentsSnapshot) => {
       const commentsList = commentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
+      console.log("Comments fetched for eventId", eventId, commentsList); // Check if comments are being fetched
       setComments(prevComments => ({ ...prevComments, [eventId]: commentsList }));
     });
 
@@ -178,6 +183,9 @@ const EventFeed = () => {
                       comments[event.id].map((comment) => (
                         <div key={comment.id} className="comment">
                           <p><strong>{comment.userName}:</strong> {comment.text}</p>
+                          <p className="comment-date">
+                            {comment.timestamp ? new Date(comment.timestamp.toDate()).toLocaleString() : 'Date not available'}
+                          </p>
                         </div>
                       ))
                     ) : (
@@ -190,6 +198,7 @@ const EventFeed = () => {
           ))
         ) : (
           <p>No events to show.</p>
+       
         )}
       </div>
     </div>
