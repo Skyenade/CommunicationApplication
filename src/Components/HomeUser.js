@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { collection, query, where, getDocs, updateDoc, arrayUnion, arrayRemove, doc, getDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { ref, get, child, update } from "firebase/database";
+import { database } from "../firebase";
 
 import Header from "../Components/Header";
-import useAuth from "../hooks/useAuth";  // Importar el hook de autenticación
+import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
 import '../Style.css';
 
 const HomeUser = () => {
 
-  const currentUser = useAuth();  // Hook para obtener el usuario autenticado
+  const currentUser = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
-  const [following, setFollowing] = useState([]); // Estado para almacenar usuarios seguidos
+  const [following, setFollowing] = useState([]);
 
   useEffect(() => {
     if (currentUser) {
       const fetchFollowing = async () => {
         try {
-          const userDoc = await getDoc(doc(firestore, "users", currentUser.uid));
-          if (userDoc.exists()) {
-            setFollowing(userDoc.data().following || []); // Cargar usuarios seguidos del usuario actual
+          const userRef = ref(database, "users/" + currentUser.uid);
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            setFollowing(snapshot.val().following || []);
           }
         } catch (error) {
           console.error("Error fetching following list:", error);
@@ -35,18 +36,21 @@ const HomeUser = () => {
     if (!searchTerm) return;
 
     try {
-      const usersRef = collection(firestore, "users");
-      const q = query(usersRef, where("username", "==", searchTerm));
-      const querySnapshot = await getDocs(q);
+      const usersRef = ref(database, "users");
+      const snapshot = await get(usersRef);
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        const filteredUsers = Object.keys(usersData)
+          .map((key) => ({ id: key, ...usersData[key] }))
+          .filter((user) => user.username.toLowerCase().includes(searchTerm.toLowerCase()));
 
-      if (querySnapshot.empty) {
-        console.log("No users found with that username.");
+        if (filteredUsers.length > 0) {
+          setUserResults(filteredUsers);
+        } else {
+          console.log("No users found with that username.");
+        }
       } else {
-        const results = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-      setUserResults(results);
+        console.log("No users found.");
       }
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -57,12 +61,11 @@ const HomeUser = () => {
     if (!currentUser) return;
 
     try {
-      const currentUserRef = doc(firestore, "users", currentUser.uid);
-      const userToFollowRef = doc(firestore, "users", userId);
+      const currentUserRef = ref(database, "users/" + currentUser.uid);
+      const userToFollowRef = ref(database, "users/" + userId);
 
-      // Agrega el ID del usuario seguido a ambos usuarios
-      await updateDoc(currentUserRef, { following: arrayUnion(userId) });
-      await updateDoc(userToFollowRef, { followers: arrayUnion(currentUser.uid) });
+      await update(currentUserRef, { following: [...following, userId] });
+      await update(userToFollowRef, { followers: [currentUser.uid] });
 
       setFollowing((prev) => [...prev, userId]);
     } catch (error) {
@@ -74,12 +77,11 @@ const HomeUser = () => {
     if (!currentUser) return;
 
     try {
-      const currentUserRef = doc(firestore, "users", currentUser.uid);
-      const userToUnfollowRef = doc(firestore, "users", userId);
+      const currentUserRef = ref(database, "users/" + currentUser.uid);
+      const userToUnfollowRef = ref(database, "users/" + userId);
 
-      // Elimina el ID del usuario de ambos arrays
-      await updateDoc(currentUserRef, { following: arrayRemove(userId) });
-      await updateDoc(userToUnfollowRef, { followers: arrayRemove(currentUser.uid) });
+      await update(currentUserRef, { following: following.filter(id => id !== userId) });
+      await update(userToUnfollowRef, { followers: [currentUser.uid] });
 
       setFollowing((prev) => prev.filter((id) => id !== userId));
     } catch (error) {
@@ -87,17 +89,15 @@ const HomeUser = () => {
     }
   };
 
-  // Muestra mensaje de carga si currentUser es null
+  
   if (!currentUser) {
-    return <div>Loading...</div>;  // Esto se muestra si currentUser es null
+    return <div>Loading...</div>;
   }
 
   return (
     <div className="homeuser-container">
       <Header />
       <div className="homeuser-navbar-actions">
-     
-        {/* Mostrar información del usuario autenticado */}
         <input
           type="text"
           className="search-bar"
