@@ -228,6 +228,22 @@ body {
     text-decoration: none;
 }
 
+.Search-button{
+    width: 5%;
+        padding: 15px;
+        background-color: #01497C;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 1%;
+       
+        
+         
+        }
+
+
 .moderator-home-container {
     display: flex;
     flex-direction: column;
@@ -441,7 +457,7 @@ body {
     }
 }
 
-.like_btn {
+.like_btn{
     background-color: white;
     color: black;
     padding: 10px 20px;
@@ -519,186 +535,81 @@ body {
     font-size: medium;
 }
 
-/* -------------EventDetails */
+  /* -------------EventDetails */
+  
 
 
-
-h1 {
+ h1{
     text-align: center;
-}
-
-.column-date {
+ }
+ .column-date{
     margin-left: 65%;
-    margin-right: 15%;
-}
+   margin-right:15%;
+ }
+ .main-containered {
+     display: grid;
+     grid-template-columns: 1fr 1fr 1fr;
+     grid-template-rows: auto auto auto;
 
-.main-containered {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto auto;
-    
+ }
 
-}
+ .container1 {
+     grid-column: 1 / 2;
+     grid-row: 1 / 2;
+     margin-left: 60%;
+ }
 
-.container1 {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    margin-left: 60%;
-}
+ .container2 {
+     grid-column: 1 / 3;
+     grid-row: 1 / 2;
+   
+           
+ }
+ .container3 {
+     grid-column: 2 / 3;
+     grid-row: 2 / 3;
+     margin-left: 50%;
+ }
 
-.container2 {
-    grid-column: 1 / 3;
-    grid-row: 1 / 2;
+ .container4 {
+     grid-column: 2 / 3;
+     grid-row: 3 / 4;
+ }
 
+ .container6 {
+     grid-column: 3 / 4;
+     grid-row: 1 / 2;
 
-}
+   margin-top: 5%;
+        padding: 5px;
+      
+     
+ }
 
-.container3 {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    margin-left: 50%;
-}
+ .container5 {
+     grid-column: 3 / 4;
+     grid-row: 2 / 3;
+  
+ }
 
-.container4 {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4;
-}
-
-.container6 {
-    grid-column: 3 / 4;
-    grid-row: 1 / 2;
-
-    margin-top: 5%;
-    padding: 5px;
-
-
-}
-
-.container5 {
-    grid-column: 3 / 4;
-    grid-row: 2 / 3;
-
-}
-
-.container7 {
-    grid-column: 3 / 4;
-    grid-row: 3 / 4;
-
-}
-
-.event-by {
+ .container7 {
+     grid-column: 3 / 4;
+     grid-row: 3 / 4;
+   
+ }
+.event-by{
     margin-right: 12%;
     margin-left: 5%;
     justify-content: space-between;
 }
-
-.date,
-.attend-checkbox {
-    margin-right: 12%;
+ .date,
+ .attend-checkbox {
+ 
+margin-right: 12%;
     margin-left: 5%;
-    justify-content: space-between;
+        justify-content: space-between;
 
-}
-
-.request-assistance-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 400px; 
-    margin: 0 auto; 
-    padding: 20px;
-    background-color: #f7f7f7; 
-    border-radius: 8px;
-}
-
-.request-assistance-container label {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.request-assistance-container .request-textarea {
-    width: 100%;
-    height: 100px;
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    resize: none;
-}
-
-.request-assistance-container button {
-    padding: 10px 20px;
-    font-size: 1em;
-    color: white;
-    background-color: #19646b;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.request-assistance-container button:hover {
-    background-color: #145354;
-}
+ }
 
 
-
-
-
-.table-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    text-align: center;
-}
-
-.requests-table {
-    width: 80%; 
-    border-collapse: collapse;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-}
-
-.requests-table th,
-.requests-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.requests-table th {
-    background-color: #014F86;
-    color: white;
-    font-weight: bold;
-}
-
-.requests-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.solved-button {
-    padding: 6px 12px;
-    margin: 0 5px;
-    color: white;
-    background-color: #19646b;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.dismiss-button{
-    padding: 6px 12px;
-    margin: 0 5px;
-    color: white;
-    background-color: rgb(145, 42, 37);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.requests-table button:hover {
-    background-color: #145354;
-}
+ 
