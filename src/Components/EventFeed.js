@@ -5,12 +5,17 @@ import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import { getAuth } from 'firebase/auth';
 import { query, where, onSnapshot } from 'firebase/firestore';
+// import { handleFlagComment, handleReportEvent } from './Notifications';  //remove this comment when checking report and flag conntent
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
+
+  const [flagReason, setFlagReason] = useState('');
+  const [flaggingCommentId, setFlaggingCommentId] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,6 +93,9 @@ const EventFeed = () => {
   const handleEventDetailsClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
+
+
+  
 
   return (
     <div>
