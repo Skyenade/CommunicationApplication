@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
 import Header from "./Home";
@@ -6,7 +7,6 @@ import '../Style.css';
 import EventFeed from "./EventFeed";
 import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { firestore } from "../firebase";
-
 
 const AdminHome = () => {
     const [notifications, setNotifications] = useState([]);
@@ -76,6 +76,7 @@ const AdminHome = () => {
         <div className="event-feed">
           <EventFeed />
         </div>
+        
         <div className="Home_Notification">
           <div className="moderator-dashboard">
               <h4><Link to="/AdminDashboard" className="links">Admin Dashboard</Link></h4>
@@ -123,6 +124,7 @@ const AdminHome = () => {
               ) : (
                 <li>No new notifications</li>
               )}
+           
             </ul>
           </div> </div>
       </div>
