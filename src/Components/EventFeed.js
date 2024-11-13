@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { firestore } from '../firebase';
+import { getAuth } from 'firebase/auth';
+import { query, where, onSnapshot } from 'firebase/firestore';
 import { collection, getDocs, updateDoc, query, where, addDoc, arrayUnion, arrayRemove, doc, onSnapshot, orderBy } from "firebase/firestore";
 import { firestore } from '../firebase';
 import { getAuth } from 'firebase/auth';
@@ -23,9 +27,11 @@ const EventFeed = () => {
         const eventsList = eventsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
+          ...doc.data(),
         }));
         setEvents(eventsList);
       } catch (error) {
+        console.error('Error fetching events: ', error);
         console.error('Error fetching events: ', error);
       }
     };
@@ -33,6 +39,18 @@ const EventFeed = () => {
     fetchEvents();
   }, []);
 
+
+  const toggleCommentSection = (eventId) => {
+    if (showCommentSection === eventId) {
+      setShowCommentSection(null);
+    } else {
+      setShowCommentSection(eventId);
+      fetchComments(eventId);
+    }
+  };
+
+
+  const fetchComments = (eventId) => {
 
   const toggleCommentSection = (eventId) => {
     if (showCommentSection === eventId) {
@@ -56,6 +74,7 @@ const EventFeed = () => {
       const commentsList = commentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
+        ...doc.data(),
       }));
       console.log("Comments fetched for eventId", eventId, commentsList); // Check if comments are being fetched
       setComments(prevComments => ({ ...prevComments, [eventId]: commentsList }));
@@ -65,26 +84,33 @@ const EventFeed = () => {
   };
 
 
+
   const handleAddComment = async (eventId) => {
     if (!newComment.trim()) {
       console.log('Comment cannot be empty');
+      return;
       return;
     }
 
     try {
       const auth = getAuth();
       const user = auth.currentUser;
+      const user = auth.currentUser;
       if (user) {
+        const userEmail = user.email;
         const userEmail = user.email;
         await addDoc(collection(firestore, 'comments'), {
           eventId,
+          userName: userEmail,
           userName: userEmail,
           text: newComment,
           timestamp: new Date(),
         });
 
         setNewComment('');
+        setNewComment('');
       } else {
+        console.log('User not logged in');
         console.log('User not logged in');
       }
     } catch (error) {
@@ -136,6 +162,7 @@ const EventFeed = () => {
     <div>
       <div className="event-feed">
         <h1 className="home-heading">Event Feed</h1>
+        <h1 className="home-heading">Event Feed</h1>
         {events.length > 0 ? (
           events.map((event) => (
             <div key={event.id} className="event-card">
@@ -155,6 +182,7 @@ const EventFeed = () => {
               {event.images && event.images.length > 0 && (
                 <img src={event.images[0]} alt={event.title} className="event-image" />
               )}
+
 
               <div>
                 <button className="like_btn" onClick={() => handleLike(event.id)}>Like</button>

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "../firebase";
+import { useParams } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
 
@@ -18,10 +21,12 @@ const EventDetails = () => {
         const fetchEvent = async () => {
             try {
                 const eventDoc = doc(firestore, "events", eventId);
+              
                 const docSnapshot = await getDoc(eventDoc);
 
                 if (docSnapshot.exists()) {
                     setEvent(docSnapshot.data());
+                
                 } else {
                     console.log("No such event!");
                 }
@@ -32,8 +37,10 @@ const EventDetails = () => {
 
         fetchEvent();
     }, [eventId]);
+  
 
     if (!event) {
+        return <div>Loading event details...</div>;
         return <div>Loading event details...</div>;
     }
     return (
@@ -63,6 +70,7 @@ const EventDetails = () => {
             </div>
 
 
+
             <div className="main-containered">
 
                 <ul>
@@ -74,10 +82,9 @@ const EventDetails = () => {
                 </ul>
 
 
-                <div className="container2">
-                    {/* event img */}
-                    {event.images && <img src={event.images} alt={event.title} />}
-                </div>
+            <div className="container2">
+                {event.images && <img src={event.images} alt={event.title} />}
+            </div>
 
                 <div className="container3">
                     <h4>Event Details</h4>
@@ -89,9 +96,9 @@ const EventDetails = () => {
                     {event.images && <img src={event.images} alt="Event Map" />}
                 </div>
 
-                <div className="container5">
-                    <h4>Comments</h4>
-                </div>
+            <div className="container5">
+                <h4>Comments</h4>
+            </div>
 
                 <div className="container7">
                     {/* Here you can map and display comments */}
