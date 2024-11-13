@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
 import Header from "./Home";
@@ -41,7 +40,6 @@ const AdminHome = () => {
         console.error("Error marking notification as read: ", err);
       }
     };
-  
 
   return (
     <div className="homeuser-container">
@@ -93,8 +91,6 @@ const AdminHome = () => {
                     {notification.type === 'comment_flag' ? (
                       <div>
                         <p><strong>You have a Flagged Comment</strong></p>
-                        {/* <p>Comment ID: {notification.commentId}</p>
-                        <p>Event ID: {notification.eventId}</p> */}
                         <p>Flagged by: {notification.userEmail}</p>
                         <p>Reason: {notification.reason}</p>
                         <small>
@@ -102,31 +98,29 @@ const AdminHome = () => {
                             ? new Date(notification.timestamp).toLocaleString() 
                             : "No timestamp available"}
                         </small>
-                        <button onClick={() => handleMarkAsRead(notification.id)}>Received</button>
                       </div>
                     ) : notification.type === 'event_report' ? (
                       <div>
-                        <p><strong> You have a Reported Event</strong></p>
-                        {/* <p>Event ID: {notification.eventId}</p> */}
+                        <p><strong>You have a Reported Event</strong></p>
                         <p>Reported by: {notification.userEmail}</p>
                         <small>
                           {notification.timestamp 
                             ? new Date(notification.timestamp).toLocaleString() 
                             : "No timestamp available"}
                         </small>
-                        <button onClick={() => handleMarkAsRead(notification.id)}>Received</button>
                       </div>
                     ) : (
                       <p>{notification.message}</p>
                     )}
+                    <button onClick={() => handleMarkAsRead(notification.id)}>Received</button>
                   </li>
                 ))
               ) : (
                 <li>No new notifications</li>
               )}
-           
             </ul>
-          </div> </div>
+          </div>
+        </div>
       </div>
     </div>
   );

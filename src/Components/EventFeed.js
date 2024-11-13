@@ -5,7 +5,6 @@ import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import { getAuth } from 'firebase/auth';
 import { query, where, onSnapshot } from 'firebase/firestore';
-// import { handleFlagComment, handleReportEvent } from './Notifications';  //remove this comment when checking report and flag conntent
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);

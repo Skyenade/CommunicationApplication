@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import Header from "../Components/Header";
-import EventFeed from "./EventFeed";
 import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
-import '../Style.css';
+import { Link } from "react-router-dom";
+import Header from "./Header";
+import EventFeed from "./EventFeed";
 
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
@@ -40,12 +39,8 @@ const ModeratorHome = () => {
     }
   };
 
-
-
   return (
-    
-
-<div className="homeuser-container">
+    <div className="homeuser-container">
       <Header />
       <div className="homeuser-navbar-actions">
         <input
@@ -79,13 +74,14 @@ const ModeratorHome = () => {
 
         <div className="event-feed">
           <EventFeed />
-        </div>
+        </div>     
 
         <div className="Home_Notification">
           <div className="moderator-dashboard">
               <h4><Link to="/ModeratorDashboard" className="links">Moderator Dashboard</Link></h4>
-            </div>
-            <div className="notifications">
+          </div>
+          
+          <div className="notifications">
             <h3>Notifications</h3>
             <ul>
               {loading ? (
@@ -93,48 +89,42 @@ const ModeratorHome = () => {
               ) : notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === 'comment_flag' ? (
-                      <div>
+                    {notification.type === "comment_flag" ? (
+                      <>
                         <p><strong>You have a Flagged Comment</strong></p>
-                        {/* <p>Comment ID: {notification.commentId}</p>
-                        <p>Event ID: {notification.eventId}</p> */}
                         <p>Flagged by: {notification.userEmail}</p>
-                        <p>Reason: {notification.reason}</p>
+                        <p>Reason: {notification.reason || "No reason provided"}</p>
                         <small>
                           {notification.timestamp 
                             ? new Date(notification.timestamp).toLocaleString() 
                             : "No timestamp available"}
                         </small>
-                        <button onClick={() => handleMarkAsRead(notification.id)}>Mark as read</button>
-                      </div>
-                    ) : notification.type === 'event_report' ? (
-                      <div>
-                        <p><strong> You have a Reported Event</strong></p>
-                        {/* <p>Event ID: {notification.eventId}</p> */}
-                        <p>Reported by: {notification.userEmail}</p>
+                      </>
+                    ) : notification.type === "event_report" ? (
+                      <>
+                        <p><strong>Reported Event:</strong> {notification.eventId}</p>
+                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
+                        <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
                         <small>
                           {notification.timestamp 
                             ? new Date(notification.timestamp).toLocaleString() 
                             : "No timestamp available"}
                         </small>
-                        <button onClick={() => handleMarkAsRead(notification.id)}>Mark as read</button>
-                      </div>
+                      </>
                     ) : (
-                      <p>{notification.message}</p>
+                      <span>{notification.message}</span>
                     )}
+                    <button onClick={() => handleMarkAsRead(notification.id)}>Received</button>
                   </li>
                 ))
               ) : (
-                <li>No new notifications</li>
+                <li>No notifications</li>
               )}
             </ul>
           </div>
-
         </div>
       </div>
     </div>
-
-    
   );
 };
 
