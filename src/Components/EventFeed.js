@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-import { collection, query, where, getDocs, updateDoc, arrayUnion, arrayRemove, doc, onSnapshot, addDoc } from "firebase/firestore";
+import { collection, getDocs, updateDoc,query, where,addDoc, arrayUnion, arrayRemove, doc, onSnapshot } from "firebase/firestore";
 import { firestore } from '../firebase'; 
 import { getAuth } from 'firebase/auth'; 
 import useAuth from "../hooks/useAuth";
@@ -107,14 +107,13 @@ const EventFeed = () => {
       const eventRef = doc(firestore, "events", eventId);
       await updateDoc(eventRef, {
         likes: arrayUnion(currentUser.uid),
-        dislikes: arrayRemove(currentUser.uid) // Opcional
+        dislikes: arrayRemove(currentUser.uid) // Opcional para remover dislike si ya lo dio
       });
       console.log("Event liked successfully.");
     } catch (error) {
       console.error("Error liking event:", error);
     }
   };
-
   // for the btn Dislike
   const handleDislike = async (eventId) => {
     if (!currentUser || !currentUser.uid) {
@@ -126,7 +125,7 @@ const EventFeed = () => {
       const eventRef = doc(firestore, "events", eventId);
       await updateDoc(eventRef, {
         dislikes: arrayUnion(currentUser.uid),
-        likes: arrayRemove(currentUser.uid) // Opcional
+        likes: arrayRemove(currentUser.uid) // Opcional para remover like si ya lo dio
       });
       console.log("Event disliked successfully.");
     } catch (error) {
@@ -145,6 +144,13 @@ const EventFeed = () => {
               <p><strong>Date & Time:</strong> {new Date(event.dateTime).toLocaleString()}</p>
               <p><strong>Location:</strong> {event.location}</p>
               <p><strong>Details:</strong> {event.details}</p>
+              
+              {/* Mostrar el conteo de likes y dislikes */}
+              <div>
+                <p>Likes: {event.likes ? event.likes.length : 0}</p>
+                <p>Dislikes: {event.dislikes ? event.dislikes.length : 0}</p>
+              </div>
+              
               <button          
                  className="like_btn" onClick={() => handleEventDetailsClick('5X8fXmD6gpmMNmQdCiU6')}>EventDetails</button>
                
