@@ -121,7 +121,9 @@ const EventDetails = () => {
             <div className="container7">
                 {/* Here you can map and display comments */}
             </div>
+
         </div >
+
 
 
     );
