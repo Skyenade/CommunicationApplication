@@ -80,8 +80,10 @@ const EventDetails = () => {
                 reason: reportReason,
                 timestamp: new Date(),
             };
+            console.log(reportData);
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+
 
             window.alert("Event reported successfully!");
             setReportReason("");  
