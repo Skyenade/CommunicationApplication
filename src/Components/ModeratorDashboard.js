@@ -15,8 +15,8 @@ const ModeratorDashboard = () => {
       user: "Kimi",
       email: "kimi@example.com",
       date: "2024-11-01",
-      type: "Comment",
-      content: "Inappropriate language",
+      Content: "Comment",
+      Reporttext: "Inappropriate language",
     } 
   ];
 
@@ -86,8 +86,8 @@ const ModeratorDashboard = () => {
               <th>User</th>
               <th>Email</th>
               <th>Date</th>
-              <th>Type</th>
-              <th>Content (Report Issue)</th>
+              <th>Content</th>
+              <th>Reporttext (Report Issue)</th>
               <th id="action">Action</th>
             </tr>
           </thead>
@@ -98,8 +98,8 @@ const ModeratorDashboard = () => {
                   <td>{item.user}</td>
                   <td>{item.email}</td>
                   <td>{item.date}</td>
-                  <td>{item.type}</td>
-                  <td>{item.content}</td>
+                  <td>{item.Content}</td>
+                  <td>{item.Reporttext}</td>
                   <td>
                     <button 
                       className="actionButton" id="Warning"
