@@ -76,7 +76,8 @@ const CreateEvent = () => {
         likes: [],
         comments: [], 
         comment: "",
-        attendees: []
+        attendees: [],
+        followers: [],
       };
   
       await addDoc(collection(firestore, "events"), newEvent);
