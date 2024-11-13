@@ -20,7 +20,7 @@ const AdminDashboard = () => {
       <HeaderAdmin />
 
       <div className="admin-dashboard">
-        <div className="content">
+        
           <h1>Admin Dashboard</h1>
 
           <div className="dashboard-sections">
@@ -35,8 +35,10 @@ const AdminDashboard = () => {
             <Link to="/" className='linking'>History of Reported Users</Link></div>
             <div className="section">
             <Link to="/" className='linking'>History of Reported Content</Link></div>
+            <div className="section">
+            <Link to="/AdminAssistanceRequests" className='linking'>Assistance Requestes</Link></div>
           </div>
-        </div>
+        
       </div>
     </div>
   );

@@ -3,7 +3,8 @@ import '../Style.css';
 import Header from './Header';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { auth } from '../firebase';
+import { auth, database } from '../firebase';
+import { ref, get } from 'firebase/database';
 
 const CreateEvent = () => {
   const [dateTime, setDateTime] = useState('');
@@ -47,7 +48,7 @@ const CreateEvent = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     try {
       const imageBase64List = [];
       
@@ -55,7 +56,12 @@ const CreateEvent = () => {
         const base64String = await convertToBase64(image);
         imageBase64List.push(base64String);
       }
-
+  
+      const userRef = ref(database, `users/${auth.currentUser?.email.replace('.', ',')}`);
+      const userSnapshot = await get(userRef);
+  
+      const createdBy = userSnapshot.exists() ? userSnapshot.val().username : auth.currentUser?.email;
+  
       const newEvent = {
         title: eventTitle,
         dateTime,
@@ -63,18 +69,19 @@ const CreateEvent = () => {
         coordinates: selectedLocation,
         details: eventDetails,
         images: imageBase64List,
-        createdBy: auth.currentUser?.uid || "Anonymous",
+        createdBy: createdBy,
         report: false,
         warning: false,
         suspended: false, 
         likes: [],
         comments: [], 
-        comment: "", 
+        comment: "",
+        attendees: [],
+        followers: [],
       };
-
-     
+  
       await addDoc(collection(firestore, "events"), newEvent);
-
+  
       alert('Event created successfully!');
       setEventTitle('');
       setDateTime('');
@@ -86,6 +93,7 @@ const CreateEvent = () => {
       console.error('Error creating event:', error);
     }
   };
+  
 
   return (
     <div>
