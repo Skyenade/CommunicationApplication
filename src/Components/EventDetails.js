@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "../firebase";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
 

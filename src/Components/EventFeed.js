@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
-import { firestore } from '../firebase';
-import { getAuth } from 'firebase/auth';
-import { query, where, onSnapshot } from 'firebase/firestore';
 import { collection, getDocs, updateDoc, query, where, addDoc, arrayUnion, arrayRemove, doc, onSnapshot, orderBy } from "firebase/firestore";
 import { firestore } from '../firebase';
 import { getAuth } from 'firebase/auth';
@@ -94,10 +90,10 @@ const EventFeed = () => {
 
     try {
       const auth = getAuth();
-      const user = auth.currentUser;
+      
       const user = auth.currentUser;
       if (user) {
-        const userEmail = user.email;
+       
         const userEmail = user.email;
         await addDoc(collection(firestore, 'comments'), {
           eventId,
@@ -231,6 +227,6 @@ const EventFeed = () => {
       </div>
     </div>
   );
-};
+}};
 
 export default EventFeed;
