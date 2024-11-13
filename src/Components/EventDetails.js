@@ -68,7 +68,7 @@ const EventDetails = () => {
     const handleReportEvent = async () => {
         if (reportReason.trim() === "") {
             window.alert("Please provide a reason for reporting the event.");
-            return; 
+            return;
         }
 
         try {

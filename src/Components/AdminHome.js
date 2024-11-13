@@ -88,35 +88,45 @@ const AdminHome = () => {
               ) : notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === 'comment_flag' ? (
-                      <div>
-                        <p><strong>You have a Flagged Comment</strong></p>
+                    {notification.type === "comment_flag" ? (
+                      <>
+                        <p>
+                          <strong>You have a Flagged Comment</strong>
+                        </p>
                         <p>Flagged by: {notification.userEmail}</p>
-                        <p>Reason: {notification.reason}</p>
+                        <p>Reason: {notification.reason || "No reason provided"}</p>
                         <small>
-                          {notification.timestamp 
-                            ? new Date(notification.timestamp).toLocaleString() 
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
                             : "No timestamp available"}
                         </small>
-                      </div>
-                    ) : notification.type === 'event_report' ? (
-                      <div>
-                        <p><strong>You have a Reported Event</strong></p>
-                        <p>Reported by: {notification.userEmail}</p>
+                      </>
+                    ) : notification.type === "event_report" ? (
+                      <>
+                        <p>
+                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
+                        <strong>You have a reported Event</strong>  
+                        </p>
+                        <p>
+                          <strong>Reported by:</strong> {notification.userEmail}
+                        </p>
+                        {/* <p>
+                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
+                        </p> */}
                         <small>
-                          {notification.timestamp 
-                            ? new Date(notification.timestamp).toLocaleString() 
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
                             : "No timestamp available"}
                         </small>
-                      </div>
+                      </>
                     ) : (
-                      <p>{notification.message}</p>
+                      <span>{notification.message}</span>
                     )}
-                    <button onClick={() => handleMarkAsRead(notification.id)}>Received</button>
+                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">VIEWED</button>
                   </li>
                 ))
               ) : (
-                <li>No new notifications</li>
+                <li>No notifications</li>
               )}
             </ul>
           </div>

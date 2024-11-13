@@ -15,7 +15,7 @@ const ModeratorHome = () => {
       const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
 
       const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-        const notificationsList = snapshot.docs.map(doc => ({
+        const notificationsList = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -50,10 +50,14 @@ const ModeratorHome = () => {
           placeholder="Search events"
         />
         <button className="create-event-button">
-          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+          <h4>
+            <Link to="/CreateEvent" className="links">
+              Create An Event
+            </Link>
+          </h4>
         </button>
       </div>
-      
+
       <div className="homeuser-content">
         <div className="homeuser-choose-options">
           <label>
@@ -67,20 +71,25 @@ const ModeratorHome = () => {
           </label>
           <br />
           <div className="location">
-            <label>Current Location:</label><br />
+            <label>Current Location:</label>
+            <br />
             <input type="text" placeholder="Choose your location" />
           </div>
         </div>
 
         <div className="event-feed">
           <EventFeed />
-        </div>     
+        </div>
 
         <div className="Home_Notification">
           <div className="moderator-dashboard">
-              <h4><Link to="/ModeratorDashboard" className="links">Moderator Dashboard</Link></h4>
+            <h4>
+              <Link to="/ModeratorDashboard" className="links">
+                Moderator Dashboard
+              </Link>
+            </h4>
           </div>
-          
+
           <div className="notifications">
             <h3>Notifications</h3>
             <ul>
@@ -91,30 +100,39 @@ const ModeratorHome = () => {
                   <li key={notification.id}>
                     {notification.type === "comment_flag" ? (
                       <>
-                        <p><strong>You have a Flagged Comment</strong></p>
+                        <p>
+                          <strong>You have a Flagged Comment</strong>
+                        </p>
                         <p>Flagged by: {notification.userEmail}</p>
                         <p>Reason: {notification.reason || "No reason provided"}</p>
                         <small>
-                          {notification.timestamp 
-                            ? new Date(notification.timestamp).toLocaleString() 
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
                             : "No timestamp available"}
                         </small>
                       </>
                     ) : notification.type === "event_report" ? (
                       <>
-                        <p><strong>Reported Event:</strong> {notification.eventId}</p>
-                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
-                        <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
+                         <p>
+                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
+                        <strong>You have a reported Event</strong>  
+                        </p>
+                        <p>
+                          <strong>Reported by:</strong> {notification.userEmail}
+                        </p>
+                        {/* <p>
+                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
+                        </p> */}
                         <small>
-                          {notification.timestamp 
-                            ? new Date(notification.timestamp).toLocaleString() 
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
                             : "No timestamp available"}
                         </small>
                       </>
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    <button onClick={() => handleMarkAsRead(notification.id)}>Received</button>
+                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">VIEWED</button>
                   </li>
                 ))
               ) : (
