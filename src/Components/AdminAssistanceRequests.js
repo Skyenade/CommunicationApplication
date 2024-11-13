@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../Style.css";
-import Header from "./Header";
+import HeaderAdmin from "./HeaderAdmin";
 import { ref, get, update } from "firebase/database";
 import { database } from "../firebase";
 
@@ -45,7 +45,7 @@ const AdminAssistanceRequests = () => {
 
     return (
         <div>
-            <Header />
+            <HeaderAdmin />
             <h1>Assistance Requests</h1>
             {loading ? (
                 <p>Loading...</p>
