@@ -702,3 +702,10 @@ h1 {
 .requests-table button:hover {
     background-color: #145354;
 }
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
