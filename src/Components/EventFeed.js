@@ -10,7 +10,13 @@ const EventFeed = () => {
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
+
   const { currentUser } = useAuth();
+
+
+  const [flagReason, setFlagReason] = useState('');
+  const [flaggingCommentId, setFlaggingCommentId] = useState(null);
+
 
   const navigate = useNavigate();
 
@@ -122,6 +128,7 @@ const EventFeed = () => {
       console.error("Error disliking event:", error);
     }
   };
+
 
   return (
     <div className="event-feed">

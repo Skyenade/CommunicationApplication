@@ -612,4 +612,94 @@ margin-right: 12%;
  }
 
 
- 
+.request-assistance-container button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: white;
+    background-color: #19646b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.request-assistance-container button:hover {
+    background-color: #145354;
+}
+
+
+
+.table-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.requests-table {
+    width: 80%; 
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
+
+
+.requests-table th,
+.requests-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.requests-table th {
+    background-color: #014F86;
+    color: white;
+    font-weight: bold;
+}
+
+.requests-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.solved-button {
+    padding: 6px 12px;
+    margin: 0 5px;
+    color: white;
+    background-color: #19646b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dismiss-button{
+    padding: 6px 12px;
+    margin: 0 5px;
+    color: white;
+    background-color: rgb(145, 42, 37);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.requests-table button:hover {
+    background-color: #145354;
+}
+
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
+/* ---Notification button----- */
+
+.notif_viwedbtn{
+    margin: 15px 50px;
+    background-color: rgb(7, 7, 39);
+    color: white;
+    padding: 8px;
+font-weight: bolder;}
+
