@@ -1,3 +1,11 @@
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
+import { firestore, auth } from '../firebase';
+import Header from "../Components/Header";
+import '../Style.css';
+
+
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
@@ -128,3 +136,5 @@ const EventDetails = () => {
         </div>
     );
 };
+
+export default EventDetails;
