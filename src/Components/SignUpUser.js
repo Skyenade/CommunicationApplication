@@ -28,7 +28,6 @@ const SignUpUser = () => {
                 accountType: 'User',
                 followers: [],
                 following: []
-               
             });
 
             setEmail(email);
