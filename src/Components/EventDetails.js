@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { firestore } from "../firebase";
+
+
+
+
+
 import Header from "../Components/Header";
 import "../Style.css";
 
@@ -35,16 +40,16 @@ const EventDetails = () => {
         const fetchComments = () => {
             if (!eventId) {
                 console.error("Event ID is still undefined in fetchComments.");
-                
+
                 return;
             }
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
-            commentsCollection, 
-                where("eventId", "==", eventId), 
+                commentsCollection,
+                where("eventId", "==", eventId),
                 orderBy("timestamp", "desc")
             );
-           
+
             const unsubscribe = onSnapshot(commentsQuery, (commentsSnapshot) => {
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
@@ -110,8 +115,18 @@ const EventDetails = () => {
                 </div>
 
                 <div className="comments-section">
-                    <h4>Comments</h4>
-                    {/* Map and display comments here if needed */}
+                    <h4>Comments </h4>
+                    {comments.length > 0 ? (
+                        comments.map((comment) => (
+                            <div key={comment.id} className="comment">
+                                <p><strong>{comment.userName}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
+                                <p>{comment.text}</p>
+
+                            </div>
+                        ))
+                    ) : (
+                        <p>No comments yet.</p>
+                    )}
                 </div>
             </div>
         </div>
