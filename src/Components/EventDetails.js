@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
@@ -11,21 +11,15 @@ const EventDetails = () => {
     const [reportReason, setReportReason] = useState("");
 
     useEffect(() => {
-        if (!eventId) {
-            console.error("No event ID provided.");
-            return;
-        }
+        if (!eventId) return console.error("No event ID provided.");
 
         const eventDocRef = doc(firestore, "events", eventId);
         const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                setEvent(docSnapshot.data());
-            } else {
-                console.log("No such event!");
-            }
+            if (docSnapshot.exists()) setEvent(docSnapshot.data());
+            else console.log("No such event!");
         });
 
-        return () => unsubscribe(); 
+        return () => unsubscribe();
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
@@ -54,22 +48,31 @@ const EventDetails = () => {
     };
 
     const handleReportEvent = async () => {
-        if (reportReason.trim() === "") {
-            window.alert("Please provide a reason for reporting the event.");
-            return;
-        }
-
+        if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
+        if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
+    
         try {
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
                 userName: auth.currentUser.displayName,
+                email: auth.currentUser.email,
                 reason: reportReason,
                 timestamp: new Date(),
                 status: "flagged"
             };
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+            
+           
+            const notificationRef = collection(firestore, "notifications");
+            await addDoc(notificationRef, {
+                message: "A new event report requires verification.",
+                eventId: eventId,
+                reportedBy: auth.currentUser.displayName,
+                timestamp: new Date(),
+                status: "unread"
+            });
 
             window.alert("Event reported successfully!");
             setReportReason("");  
@@ -79,9 +82,7 @@ const EventDetails = () => {
         }
     };
 
-    if (!event) {
-        return <div>Loading event details...</div>;
-    }
+    if (!event) return <div>Loading event details...</div>;
 
     return (
         <div>
