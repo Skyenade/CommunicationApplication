@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+// <<<<<<< HEAD
 import { onSnapshot, arrayRemove, arrayUnion, doc, getDoc, updateDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+// =======
+// import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs } from "firebase/firestore"; 
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
 
+// Your component function starts here
 const EventDetails = () => {
     const { eventId } = useParams();
     const [user,setUser] = useState("");
@@ -61,9 +65,9 @@ const EventDetails = () => {
             window.alert("Please provide a reason for reporting the event.");
             return;
         }
-
         try {
             const user = auth.currentUser;
+// <<<<<<< HEAD
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
@@ -73,35 +77,34 @@ const EventDetails = () => {
                 status: "flagged"
             };
 
+// =======
+// >>>>>>> jasp-2
             if (user) {
                 const notificationRef = collection(firestore, 'notifications');
-
                 const reportData = {
                     type: 'event_report',
                     eventId,
                     userId: user.uid,
                     userName: user.displayName,
                     userEmail: user.email,
-                    reason: reportReason,  
+                    reason: reportReason,
                     timestamp: new Date(),
-                    isRead: false, 
+                    isRead: false,
                 };
-
                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
                 console.log("Event reported successfully");
+
                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
                 const userSnapshot = await getDocs(userQuery);
-
                 userSnapshot.forEach(async (userDoc) => {
-                    const userData = userDoc.data();
                     await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
                         ...reportData,
-                        targetUserId: userDoc.id, 
+                        targetUserId: userDoc.id,
                     });
                 });
 
                 window.alert("Event reported successfully!");
-                setReportReason("");  
+                setReportReason("");
             }
         } catch (error) {
             console.error("Error reporting event:", error);
