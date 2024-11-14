@@ -1,10 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom"; 
-import Header from "./Home";
+import { Link } from "react-router-dom";
 import HeaderAdmin from "./HeaderAdmin";
 import '../Style.css';
 import EventFeed from "./EventFeed";
-
 
 const AdminHome = () => {
   return (
@@ -40,16 +38,19 @@ const AdminHome = () => {
         <div className="event-feed">
           <EventFeed />
         </div>
+        
         <div className="Home_Notification">
           <div className="moderator-dashboard">
-          <h1><Link to="/AdminDashboard" className="links">Admin Dashboard</Link></h1>
-            </div>
+            <h1><Link to="/AdminDashboard" className="links">Admin Dashboard</Link></h1>
+          </div>
           <div className="notifications">
             <h3>Notifications</h3>
             <ul>
               <li>You have a new follower</li>
               <li>You have a new like</li>
-              <li>New flagged content</li>
+              <li>New flagged content available for review</li>
+              <li>Assistance requests pending review</li>
+              <li><Link to="/AdminReports" className="links">New reports available for review</Link></li> {/* Added report link */}
             </ul>
           </div>
         </div>

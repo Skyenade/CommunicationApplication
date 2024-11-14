@@ -17,7 +17,7 @@ import HomeUser from './Components/HomeUser';
 import CreateUser from './Components/CreateUser';  
 import RequestAssistance from './Components/RequestAssistance';
 import AdminAssistanceRequests from './Components/AdminAssistanceRequests';
-
+import MyEvents from './Components/MyEvents';
 
 import Home from './Components/Home';
 
@@ -52,7 +52,7 @@ function App() {
             <Route path="/event/:eventId" element={<EventDetails />} />
             <Route path="/RequestAssistance" element={<RequestAssistance />} />
             <Route path="/AdminAssistanceRequests" element={<AdminAssistanceRequests />} />
-
+            <Route path="/MyEvents" element={<MyEvents />} />
         
           </Routes>
         </div>
