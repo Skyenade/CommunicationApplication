@@ -90,7 +90,7 @@ const Home = () => {
                     Create new account
                 </button>
 
-                {error && <div className="error-message">{error}</div>} {/* Error message display */}
+                {error && <div className="error-message">{error}</div>}
             </form>
         </div>
     );
