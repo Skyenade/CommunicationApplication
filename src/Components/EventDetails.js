@@ -139,7 +139,7 @@ const EventDetails = () => {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
         }
-
+    
 
     if (!event) {
         return <div>Loading event details...</div>;
