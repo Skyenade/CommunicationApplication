@@ -50,7 +50,7 @@ const AdminHome = () => {
               <li>You have a new like</li>
               <li>New flagged content available for review</li>
               <li>Assistance requests pending review</li>
-              <li><Link to="/AdminReports" className="links">New reports available for review</Link></li> {/* Added report link */}
+              <li><Link to="/AdminReports" className="links">New reports available for review</Link></li>
             </ul>
           </div>
         </div>
