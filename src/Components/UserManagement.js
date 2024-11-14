@@ -13,8 +13,26 @@ const UserManagement = () => {
     onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
       const userList = [];
+
       for (let userId in data) {
-        userList.push({ id: userId, ...data[userId] });
+        const user = { id: userId, ...data[userId] };
+
+        if (user.status === "suspended" && user.suspensionDate) {
+          const suspensionDate = new Date(user.suspensionDate);
+          const currentDate = new Date();
+          const differenceInDays = (currentDate - suspensionDate) / (1000 * 60 * 60 * 24);
+
+          if (differenceInDays >= 7) {
+            const userRef = ref(db, `users/${userId}`);
+            update(userRef, { status: "active", suspensionDate: null })
+              .then(() => {
+                user.status = "active";
+                user.suspensionDate = null;
+              })
+              .catch((error) => console.error("Error restoring user after suspension:", error));
+          }
+        }
+        userList.push(user);
       }
       setAllUsers(userList);
     });
@@ -24,13 +42,13 @@ const UserManagement = () => {
     const userRef = ref(db, `users/${userId}`);
     update(userRef, { accountType: newType })
       .then(() => {
-        setAllUsers(prevUsers =>
-          prevUsers.map(user =>
+        setAllUsers((prevUsers) =>
+          prevUsers.map((user) =>
             user.id === userId ? { ...user, accountType: newType } : user
           )
         );
       })
-      .catch(error => console.error("Error updating account type:", error));
+      .catch((error) => console.error("Error updating account type:", error));
   };
 
   const handleEdit = (userId) => {
@@ -40,54 +58,58 @@ const UserManagement = () => {
   const handleSuspend = (userId) => {
     if (window.confirm("Are you sure you want to suspend this user?")) {
       const userRef = ref(db, `users/${userId}`);
-      update(userRef, { status: 'suspended' })
+      const suspensionDate = new Date().toISOString();
+
+      update(userRef, { status: "suspended", suspensionDate })
         .then(() => {
-          setAllUsers(prevUsers =>
-            prevUsers.map(user =>
-              user.id === userId ? { ...user, status: 'suspended' } : user
+          setAllUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === userId ? { ...user, status: "suspended", suspensionDate } : user
             )
           );
         })
-        .catch(error => console.error("Error suspending user:", error));
+        .catch((error) => console.error("Error suspending user:", error));
     }
   };
 
   const handleDelete = (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       const userRef = ref(db, `users/${userId}`);
-      update(userRef, { status: 'deleted' })
+      update(userRef, { status: "deleted" })
         .then(() => {
-          setAllUsers(prevUsers =>
-            prevUsers.map(user =>
-              user.id === userId ? { ...user, status: 'deleted' } : user
+          setAllUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === userId ? { ...user, status: "deleted" } : user
             )
           );
         })
-        .catch(error => console.error("Error deleting user:", error));
+        .catch((error) => console.error("Error deleting user:", error));
     }
   };
 
   const handleRestore = (userId) => {
     const userRef = ref(db, `users/${userId}`);
-    update(userRef, { status: 'active' })
+    update(userRef, { status: "active", suspensionDate: null })
       .then(() => {
-        setAllUsers(prevUsers =>
-          prevUsers.map(user =>
-            user.id === userId ? { ...user, status: 'active' } : user
+        setAllUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === userId ? { ...user, status: "active" } : user
           )
         );
       })
-      .catch(error => console.error("Error restoring user:", error));
+      .catch((error) => console.error("Error restoring user:", error));
   };
 
   return (
     <div>
       <Header />
       <div className="user-management-container">
-        <div className='admin-dashboard-button'>
+        <div className="admin-dashboard-button">
           <h1>Admin Dashboard</h1>
-          <button className='create-account-button'>
-            <Link to="/CreateUser" className="linking">Create a User's Account</Link>
+          <button className="create-account-button">
+            <Link to="/CreateUser" className="linking">
+              Create a User's Account
+            </Link>
           </button>
         </div>
 
@@ -104,7 +126,7 @@ const UserManagement = () => {
             </thead>
             <tbody>
               {allUsers.length > 0 ? (
-                allUsers.map(user => (
+                allUsers.map((user) => (
                   <tr key={user.id}>
                     <td>{user.username}</td>
                     <td>{user.email}</td>
@@ -113,16 +135,18 @@ const UserManagement = () => {
                         type="radio"
                         name={`accountType-${user.id}`}
                         value="User"
-                        checked={user.accountType === 'User'}
-                        onChange={() => handleAccountTypeChange(user.id, 'User')}
-                      /> User
+                        checked={user.accountType === "User"}
+                        onChange={() => handleAccountTypeChange(user.id, "User")}
+                      />{" "}
+                      User
                       <input
                         type="radio"
                         name={`accountType-${user.id}`}
                         value="Moderator"
-                        checked={user.accountType === 'Moderator'}
-                        onChange={() => handleAccountTypeChange(user.id, 'Moderator')}
-                      /> Moderator
+                        checked={user.accountType === "Moderator"}
+                        onChange={() => handleAccountTypeChange(user.id, "Moderator")}
+                      />{" "}
+                      Moderator
                     </td>
                     <td>
                       <button onClick={() => handleEdit(user.id)}>Edit</button>
@@ -138,7 +162,6 @@ const UserManagement = () => {
                 </tr>
               )}
             </tbody>
-
           </table>
         </div>
       </div>
