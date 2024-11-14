@@ -83,6 +83,7 @@ const AdminHome = () => {
           <div className="notifications">
             <h3>Notifications</h3>
             <ul>
+
               {loading ? (
                 <li>Loading notifications...</li>
               ) : notifications.length > 0 ? (
@@ -128,6 +129,7 @@ const AdminHome = () => {
               ) : (
                 <li>No notifications</li>
               )}
+
             </ul>
           </div>
         </div>

@@ -11,11 +11,11 @@ const EventFeed = () => {
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
 
+  const { currentUser } = useAuth();
+
 
   const [flagReason, setFlagReason] = useState('');
   const [flaggingCommentId, setFlaggingCommentId] = useState(null);
-
-  const { currentUser } = useAuth();
 
 
   const navigate = useNavigate();
@@ -92,10 +92,6 @@ const EventFeed = () => {
   const handleEventDetailsClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
-
-
-
-  
 
   const handleLike = async (eventId) => {
     if (!currentUser || !currentUser.uid) {

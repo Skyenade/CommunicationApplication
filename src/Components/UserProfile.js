@@ -167,7 +167,7 @@ const UserProfile = () => {
                 )}
               </ul>
 
-              <h2>Attendance History:</h2>
+              {/* <h2>Attendance History:</h2>
               <ul>
                 {attendanceHistory.length > 0 ? (
                   attendanceHistory.map((entry, index) => (
@@ -176,7 +176,7 @@ const UserProfile = () => {
                 ) : (
                   <p>No attendance history available.</p>
                 )}
-              </ul>
+              </ul> */}
 
               <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
             </>
