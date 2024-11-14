@@ -106,7 +106,7 @@ const UserManagement = () => {
               {allUsers.length > 0 ? (
                 allUsers.map(user => (
                   <tr key={user.id}>
-                    <td>{user.firstName} {user.lastName}</td>
+                    <td>{user.username}</td> {/* Displaying the correct username */}
                     <td>{user.email}</td>
                     <td>
                       <input
@@ -138,6 +138,7 @@ const UserManagement = () => {
                 </tr>
               )}
             </tbody>
+
           </table>
         </div>
       </div>
