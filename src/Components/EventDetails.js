@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
@@ -8,7 +8,6 @@ import "../Style.css";
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
-    const [isAttending, setIsAttending] = useState(false);
     const [reportReason, setReportReason] = useState("");
 
     useEffect(() => {
@@ -17,49 +16,38 @@ const EventDetails = () => {
             return;
         }
 
-        const fetchEvent = async () => {
-            try {
-                const eventDoc = doc(firestore, "events", eventId);
-                const docSnapshot = await getDoc(eventDoc);
-
-                if (docSnapshot.exists()) {
-                    setEvent(docSnapshot.data());
-                } else {
-                    console.log("No such event!");
-                }
-
-                const userDocRef = doc(firestore, "users", auth.currentUser.uid);
-                const userSnapshot = await getDoc(userDocRef);
-                if (userSnapshot.exists()) {
-                    const userData = userSnapshot.data();
-                    setIsAttending(userData.attendingEvents?.includes(eventId));
-                }
-            } catch (error) {
-                console.error("Error fetching event:", error);
+        const eventDocRef = doc(firestore, "events", eventId);
+        const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                setEvent(docSnapshot.data());
+            } else {
+                console.log("No such event!");
             }
-        };
+        });
 
-        fetchEvent();
+        return () => unsubscribe(); 
     }, [eventId]);
 
-    const handleAttendanceChange = async (e) => {
-        const newAttendanceStatus = e.target.checked;
-        setIsAttending(newAttendanceStatus);
-
+    const handleAttendanceChange = async () => {
+        const userDocRef = doc(firestore, "users", auth.currentUser.uid);
+        const eventDocRef = doc(firestore, "events", eventId);
+        const isAttending = event?.attendees?.includes(auth.currentUser.email);
+    
         try {
-            const userDocRef = doc(firestore, "users", auth.currentUser.uid);
-            const eventDocRef = doc(firestore, "events", eventId);
-
-            if (newAttendanceStatus) {
-                await updateDoc(userDocRef, {
-                    attendingEvents: arrayUnion(eventId)
-                });
-                await updateDoc(eventDocRef, {
-                    attendees: arrayUnion(auth.currentUser.displayName)
-                });
+            const userSnapshot = await getDoc(userDocRef);
+            if (!userSnapshot.exists()) {
+                await setDoc(userDocRef, { attendingEvents: [] });
+            }
+    
+            if (isAttending) {
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+                window.alert("You are no longer attending this event.");
+            } else {
+                await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
                 window.alert("You are now attending this event!");
             }
-            console.log("Attendance status updated successfully!");
         } catch (error) {
             console.error("Error updating attendance:", error);
         }
@@ -72,13 +60,13 @@ const EventDetails = () => {
         }
 
         try {
-            // dertails to firebase
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
                 userName: auth.currentUser.displayName,
                 reason: reportReason,
                 timestamp: new Date(),
+                status: "flagged"
             };
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
@@ -111,13 +99,12 @@ const EventDetails = () => {
                 <input 
                     type="checkbox" 
                     id="attendEvent" 
-                    checked={isAttending}
+                    checked={event.attendees?.includes(auth.currentUser.displayName)}
                     onChange={handleAttendanceChange} 
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
             </div>
 
-            {/* Report Section */}
             <div>
                 <textarea
                     id="reportReason"
@@ -131,7 +118,7 @@ const EventDetails = () => {
             <div className="main-containered">
                 <ul>
                     <h3>List of Attendees</h3>
-                    {event.attendees ? (
+                    {event.attendees && event.attendees.length > 0 ? (
                         event.attendees.map((attendee, index) => (
                             <li key={index}>{attendee}</li>
                         ))
