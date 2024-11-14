@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
+import { doc, getDoc, collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs,onSnapshot,arrayRemove,setDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
-
 import Header from "../Components/Header";
 import '../Style.css';
 
@@ -11,9 +10,13 @@ import '../Style.css';
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
+
+    const [comments, setComments] = useState([]);
+
     const [reportReason, setReportReason] = useState("");
     const [isAttending, setIsAttending] = useState(false); 
   
+
 
     useEffect(() => {
         if (!eventId) {
@@ -33,7 +36,38 @@ const EventDetails = () => {
             }
         });
 
+
+        // Fetch comments related to the event
+        const fetchComments = () => {
+            if (!eventId) {
+                console.error("Event ID is still undefined in fetchComments.");
+
+                return;
+            }
+            const commentsCollection = collection(firestore, "comments");
+            const commentsQuery = query(
+                commentsCollection,
+                where("eventId", "==", eventId),
+                orderBy("timestamp", "desc")
+            );
+
+            const unsubscribe = onSnapshot(commentsQuery, (commentsSnapshot) => {
+                const commentsList = commentsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setComments(commentsList);
+            });
+
+            return unsubscribe;
+        };
+        fetchEvent();
+        const unsubscribeComments = fetchComments();
+
+        return () => unsubscribeComments && unsubscribeComments(); // Clean up listener on unmount
+
         return () => unsubscribe(); 
+
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
@@ -169,6 +203,30 @@ const EventDetails = () => {
                     <h4>Event Details</h4>
                     <p>{event.details}</p>
                 </div>
+
+
+                <div className="event-map">
+                    {/* Display map or location image if available */}
+                    {event.locationImage && (
+                        <img src={event.locationImage} alt="Event Map" />
+                    )}
+                </div>
+
+                <div className="comments-section">
+                    <h4>Comments </h4>
+                    {comments.length > 0 ? (
+                        comments.map((comment) => (
+                            <div key={comment.id} className="comment">
+                                <p><strong>{comment.userName}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
+                                <p>{comment.text}</p>
+
+                            </div>
+                        ))
+                    ) : (
+                        <p>No comments yet.</p>
+                    )}
+                </div>
+
             </div>
         </div>
     );
