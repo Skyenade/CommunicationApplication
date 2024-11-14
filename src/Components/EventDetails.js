@@ -1,10 +1,12 @@
+// Place all import statements at the very top of the file
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs } from "firebase/firestore"; // Ensure this is here
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
 
+// Your component function starts here
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
@@ -86,7 +88,7 @@ const EventDetails = () => {
                 };
                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
                 console.log("Event reported successfully");
-        
+
                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
                 const userSnapshot = await getDocs(userQuery);
                 userSnapshot.forEach(async (userDoc) => {
@@ -95,7 +97,7 @@ const EventDetails = () => {
                         targetUserId: userDoc.id,
                     });
                 });
-        
+
                 window.alert("Event reported successfully!");
                 setReportReason("");
             }
@@ -103,8 +105,8 @@ const EventDetails = () => {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
         }
-        
-        
+    };
+
     if (!event) {
         return <div>Loading event details...</div>;
     }
@@ -170,4 +172,5 @@ const EventDetails = () => {
     );
 };
 
+// This should be the very last line of your file
 export default EventDetails;
