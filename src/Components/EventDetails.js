@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+
 import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs } from "firebase/firestore"; 
 import { firestore, auth } from "../firebase";
+
+import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
+import { firestore, auth } from '../firebase';
+
 import Header from "../Components/Header";
-import "../Style.css";
+import '../Style.css';
+
 
 // Your component function starts here
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
-    const [isAttending, setIsAttending] = useState(false);
     const [reportReason, setReportReason] = useState("");
+    const [isAttending, setIsAttending] = useState(false); 
+  
 
     useEffect(() => {
         if (!eventId) {
@@ -18,51 +25,37 @@ const EventDetails = () => {
             return;
         }
 
-        const fetchEvent = async () => {
-            try {
-                const eventDoc = doc(firestore, "events", eventId);
-                const docSnapshot = await getDoc(eventDoc);
-
-                if (docSnapshot.exists()) {
-                    setEvent(docSnapshot.data());
-                } else {
-                    console.log("No such event!");
-                }
-
-                const userDocRef = doc(firestore, "users", auth.currentUser.uid);
-                const userSnapshot = await getDoc(userDocRef);
-                if (userSnapshot.exists()) {
-                    const userData = userSnapshot.data();
-                    setIsAttending(userData.attendingEvents?.includes(eventId));
-                }
-            } catch (error) {
-                console.error("Error fetching event:", error);
+        const eventDocRef = doc(firestore, "events", eventId);
+        const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const eventData = docSnapshot.data();
+                setEvent(eventData);
+               
+                setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
+            } else {
+                console.log("No such event!");
             }
-        };
+        });
 
-        fetchEvent();
+        return () => unsubscribe(); 
     }, [eventId]);
 
-    const handleAttendanceChange = async (e) => {
-        const newAttendanceStatus = e.target.checked;
-        setIsAttending(newAttendanceStatus);
+    const handleAttendanceChange = async () => {
+        const userDocRef = doc(firestore, "users", auth.currentUser.uid);
+        const eventDocRef = doc(firestore, "events", eventId);
 
-        try {
-            const userDocRef = doc(firestore, "users", auth.currentUser.uid);
-            const eventDocRef = doc(firestore, "events", eventId);
-
-            if (newAttendanceStatus) {
-                await updateDoc(userDocRef, {
-                    attendingEvents: arrayUnion(eventId)
-                });
-                await updateDoc(eventDocRef, {
-                    attendees: arrayUnion(auth.currentUser.displayName)
-                });
-                window.alert("You are now attending this event!");
-            }
-            console.log("Attendance status updated successfully!");
-        } catch (error) {
-            console.error("Error updating attendance:", error);
+        if (isAttending) {
+            
+            await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+            await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+            setIsAttending(false); // Update state
+            window.alert("You are no longer attending this event.");
+        } else {
+           
+            await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+            await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+            setIsAttending(true); // Update state
+            window.alert("You are now attending this event!");
         }
     };
 
@@ -72,6 +65,7 @@ const EventDetails = () => {
             return;
         }
         try {
+
             const user = auth.currentUser;
             if (user) {
                 const notificationRef = collection(firestore, 'notifications');
@@ -87,6 +81,16 @@ const EventDetails = () => {
                 };
                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
                 console.log("Event reported successfully");
+
+            const reportData = {
+                eventId,
+                userId: auth.currentUser.uid,
+                userName: auth.currentUser.displayName,
+                reason: reportReason,
+                timestamp: new Date(),
+                status: "flagged"
+            };
+
 
                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
                 const userSnapshot = await getDocs(userQuery);
@@ -113,59 +117,52 @@ const EventDetails = () => {
     return (
         <div>
             <Header />
-            <div>
-                <h1>{event.title}</h1>
-                <h2 className="event-by">Event Created by: {event.createdBy}</h2>
-            </div>
+            <div className="event-details">
+                <h1 className="title">{event.title}</h1>
+                <h2 className="event-header">Event Created by: {event.createdBy}</h2>
+                <h3 className="event-header">Date & Time: {new Date(event.dateTime).toLocaleString()}</h3>
 
-            <div className="date">
-                <h2 className="date">Date & Time: {event.dateTime}</h2>
-            </div>
+                <div className="attend-event">
+                    <input 
+                        type="checkbox" 
+                        id="attendEvent" 
+                        checked={isAttending} 
+                        onChange={handleAttendanceChange} 
+                        disabled={isAttending} 
+                    />
+                    <label htmlFor="attendEvent">Attend this event</label>
 
-            <div>
-                <input 
-                    type="checkbox" 
-                    id="attendEvent" 
-                    checked={isAttending}
-                    onChange={handleAttendanceChange} 
-                />
-                <label htmlFor="attendEvent">Attend this event</label>
-            </div>
+                    <input 
+                        type="checkbox" 
+                        id="reportEvent"
+                        onChange={handleReportEvent} 
+                    />
+                    <label htmlFor="reportEvent">Report event</label>
+                </div>
 
-            {/* Report Section */}
-            <div>
-                <textarea
-                    id="reportReason"
-                    placeholder="Provide reason for reporting"
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                />
-                <button onClick={handleReportEvent}>Report Event</button>
-            </div>
-
-            <div className="main-containered">
-                <ul>
+                <div className="attendees-list">
                     <h3>List of Attendees</h3>
-                    {event.attendees ? (
-                        event.attendees.map((attendee, index) => (
-                            <li key={index}>{attendee}</li>
-                        ))
+                    {event.attendees && event.attendees.length > 0 ? (
+                        <ul>
+                            {event.attendees.map((attendee, index) => (
+                                <li key={index}>{attendee}</li>
+                            ))}
+                        </ul>
                     ) : (
-                        <li>No attendees yet</li>
+                        <p>No attendees yet</p>
                     )}
-                </ul>
-            </div>
+                </div>
 
-            <div className="container2">
-                {event.images && <img src={event.images} alt={event.title} />}
-            </div>
+                <div className="event-image">
+                    {event.images && event.images.length > 0 && (
+                        <img src={event.images[0]} alt={event.title} />
+                    )}
+                </div>
 
-            <div className="container3">
-                <h4>Event Details</h4>
-            </div>
-
-            <div className="container4">
-                <p>{event.details}</p>
+                <div className="event-details-text">
+                    <h4>Event Details</h4>
+                    <p>{event.details}</p>
+                </div>
             </div>
         </div>
     );
