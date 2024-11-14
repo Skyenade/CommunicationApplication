@@ -12,6 +12,7 @@ const EventDetails = () => {
     const [reportReason, setReportReason] = useState("");
     const [isAttending, setIsAttending] = useState(false); 
 
+
     useEffect(() => {
         if (!eventId) {
             console.error("No event ID provided.");
@@ -21,10 +22,7 @@ const EventDetails = () => {
         const eventDocRef = doc(firestore, "events", eventId);
         const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
-                const eventData = docSnapshot.data();
-                setEvent(eventData);
-               
-                setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
+                setEvent(docSnapshot.data());
             } else {
                 console.log("No such event!");
             }
@@ -36,19 +34,25 @@ const EventDetails = () => {
     const handleAttendanceChange = async () => {
         const userDocRef = doc(firestore, "users", auth.currentUser.uid);
         const eventDocRef = doc(firestore, "events", eventId);
-
-        if (isAttending) {
-            
-            await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
-            await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
-            setIsAttending(false); // Update state
-            window.alert("You are no longer attending this event.");
-        } else {
-           
-            await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
-            await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
-            setIsAttending(true); // Update state
-            window.alert("You are now attending this event!");
+        const isAttending = event?.attendees?.includes(auth.currentUser.email);
+    
+        try {
+            const userSnapshot = await getDoc(userDocRef);
+            if (!userSnapshot.exists()) {
+                await setDoc(userDocRef, { attendingEvents: [] });
+            }
+    
+            if (isAttending) {
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+                window.alert("You are no longer attending this event.");
+            } else {
+                await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+                window.alert("You are now attending this event!");
+            }
+        } catch (error) {
+            console.error("Error updating attendance:", error);
         }
     };
 
@@ -112,52 +116,58 @@ const EventDetails = () => {
     return (
         <div>
             <Header />
-            <div className="event-details">
-                <h1 className="title">{event.title}</h1>
-                <h2 className="event-header">Event Created by: {event.createdBy}</h2>
-                <h3 className="event-header">Date & Time: {new Date(event.dateTime).toLocaleString()}</h3>
+            <div>
+                <h1>{event.title}</h1>
+                <h2 className="event-by">Event Created by: {event.createdBy}</h2>
+            </div>
 
-                <div className="attend-event">
-                    <input 
-                        type="checkbox" 
-                        id="attendEvent" 
-                        checked={isAttending} 
-                        onChange={handleAttendanceChange} 
-                        disabled={isAttending} 
-                    />
-                    <label htmlFor="attendEvent">Attend this event</label>
+            <div className="date">
+                <h2 className="date">Date & Time: {event.dateTime}</h2>
+            </div>
 
-                    <input 
-                        type="checkbox" 
-                        id="reportEvent"
-                        onChange={handleReportEvent} 
-                    />
-                    <label htmlFor="reportEvent">Report event</label>
-                </div>
+            <div>
+                <input 
+                    type="checkbox" 
+                    id="attendEvent" 
+                    checked={event.attendees?.includes(auth.currentUser.displayName)}
+                    onChange={handleAttendanceChange} 
+                />
+                <label htmlFor="attendEvent">Attend this event</label>
+            </div>
 
-                <div className="attendees-list">
+            <div>
+                <textarea
+                    id="reportReason"
+                    placeholder="Provide reason for reporting"
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                />
+                <button onClick={handleReportEvent}>Report Event</button>
+            </div>
+
+            <div className="main-containered">
+                <ul>
                     <h3>List of Attendees</h3>
                     {event.attendees && event.attendees.length > 0 ? (
-                        <ul>
-                            {event.attendees.map((attendee, index) => (
-                                <li key={index}>{attendee}</li>
-                            ))}
-                        </ul>
+                        event.attendees.map((attendee, index) => (
+                            <li key={index}>{attendee}</li>
+                        ))
                     ) : (
-                        <p>No attendees yet</p>
+                        <li>No attendees yet</li>
                     )}
-                </div>
+                </ul>
+            </div>
 
-                <div className="event-image">
-                    {event.images && event.images.length > 0 && (
-                        <img src={event.images[0]} alt={event.title} />
-                    )}
-                </div>
+            <div className="container2">
+                {event.images && <img src={event.images} alt={event.title} />}
+            </div>
 
-                <div className="event-details-text">
-                    <h4>Event Details</h4>
-                    <p>{event.details}</p>
-                </div>
+            <div className="container3">
+                <h4>Event Details</h4>
+            </div>
+
+            <div className="container4">
+                <p>{event.details}</p>
             </div>
         </div>
     );
