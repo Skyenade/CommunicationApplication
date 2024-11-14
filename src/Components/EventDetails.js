@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
-import { firestore, auth } from '../firebase';
+
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs,onSnapshot,arrayRemove,setDoc } from "firebase/firestore";
+import { firestore, auth } from "../firebase";
+
 import Header from "../Components/Header";
 import '../Style.css';
 
@@ -60,6 +62,7 @@ const EventDetails = () => {
         }
 
         try {
+
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
@@ -73,6 +76,40 @@ const EventDetails = () => {
 
             window.alert("Event reported successfully!");
             setReportReason("");  
+
+//             const user = auth.currentUser;
+
+//             if (user) {
+//                 const notificationRef = collection(firestore, 'notifications');
+
+//                 const reportData = {
+//                     type: 'event_report',
+//                     eventId,
+//                     userId: user.uid,
+//                     userName: user.displayName,
+//                     userEmail: user.email,
+//                     reason: reportReason,  
+//                     timestamp: new Date(),
+//                     isRead: false, 
+//                 };
+
+//                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
+//                 console.log("Event reported successfully");
+//                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+//                 const userSnapshot = await getDocs(userQuery);
+
+//                 userSnapshot.forEach(async (userDoc) => {
+//                     const userData = userDoc.data();
+//                     await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+//                         ...reportData,
+//                         targetUserId: userDoc.id, 
+//                     });
+//                 });
+
+//                 window.alert("Event reported successfully!");
+//                 setReportReason("");  
+//             }
+
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
