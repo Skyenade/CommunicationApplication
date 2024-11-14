@@ -8,7 +8,8 @@ const useAuth = () => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user || null); // Si el usuario no está autenticado, será null
+            console.log("User authentication state changed:", user);
+            setCurrentUser(user || null);
         });
         return unsubscribe;
     }, []);
