@@ -1,7 +1,6 @@
-// Place all import statements at the very top of the file
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs } from "firebase/firestore"; // Ensure this is here
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs } from "firebase/firestore"; 
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
