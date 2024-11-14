@@ -78,13 +78,13 @@ const EventDetails = () => {
             
             await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
             await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
-            setIsAttending(false); // Update state
+            setIsAttending(false);
             window.alert("You are no longer attending this event.");
         } else {
            
             await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
             await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
-            setIsAttending(true); // Update state
+            setIsAttending(true);
             window.alert("You are now attending this event!");
         }
     };
