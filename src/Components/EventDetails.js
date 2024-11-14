@@ -171,5 +171,4 @@ const EventDetails = () => {
     );
 };
 
-// This should be the very last line of your file
 export default EventDetails;
