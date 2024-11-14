@@ -70,29 +70,41 @@ const EventDetails = () => {
             window.alert("Please provide a reason for reporting the event.");
             return;
         }
-
         try {
-            // dertails to firebase
-            const reportData = {
-                eventId,
-                userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
-                reason: reportReason,
-                timestamp: new Date(),
-            };
-            console.log(reportData);
-
-            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
-
-
-            window.alert("Event reported successfully!");
-            setReportReason("");  
+            const user = auth.currentUser;
+            if (user) {
+                const notificationRef = collection(firestore, 'notifications');
+                const reportData = {
+                    type: 'event_report',
+                    eventId,
+                    userId: user.uid,
+                    userName: user.displayName,
+                    userEmail: user.email,
+                    reason: reportReason,
+                    timestamp: new Date(),
+                    isRead: false,
+                };
+                await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
+                console.log("Event reported successfully");
+        
+                const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+                const userSnapshot = await getDocs(userQuery);
+                userSnapshot.forEach(async (userDoc) => {
+                    await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+                        ...reportData,
+                        targetUserId: userDoc.id,
+                    });
+                });
+        
+                window.alert("Event reported successfully!");
+                setReportReason("");
+            }
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
         }
-    };
-
+        
+        
     if (!event) {
         return <div>Loading event details...</div>;
     }
