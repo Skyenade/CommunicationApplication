@@ -10,9 +10,19 @@ const EventFeed = () => {
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
+// <<<<<<< HEAD
+//   const [flagReason, setFlagReason] = useState('');
+//   const [flaggingCommentId, setFlaggingCommentId] = useState(null);
+//   const { currentUser } = useAuth();
+// =======
+
+  const { currentUser } = useAuth();
+
+
   const [flagReason, setFlagReason] = useState('');
   const [flaggingCommentId, setFlaggingCommentId] = useState(null);
-  const { currentUser } = useAuth();
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -123,6 +133,7 @@ const EventFeed = () => {
       console.error("Error disliking event:", error);
     }
   };
+
 
   return (
     <div className="event-feed">
