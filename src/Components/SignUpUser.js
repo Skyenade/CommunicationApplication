@@ -25,7 +25,9 @@ const SignUpUser = () => {
                 email,
                 username,
                 status: 'active',
-                accountType: 'User'               
+                accountType: 'User',
+                followers: [],
+                following: []
             });
 
             setEmail(email);

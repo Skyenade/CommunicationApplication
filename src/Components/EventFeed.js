@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-
-import { getAuth } from 'firebase/auth';
-import { collection, getDocs, updateDoc, query, where, addDoc, arrayUnion, arrayRemove, doc, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove, doc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { firestore } from '../firebase';
-import useAuth from "../hooks/useAuth";
+import useAuth from '../hooks/useAuth';
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
@@ -16,7 +14,7 @@ const EventFeed = () => {
 
   const navigate = useNavigate();
 
-  // Fetch events and set to state
+  useEffect(() => {
     const fetchEvents = async () => {
       try {
         const eventsCollection = collection(firestore, 'events');
@@ -30,7 +28,7 @@ const EventFeed = () => {
         console.error('Error fetching events: ', error);
       }
     };
-    useEffect(() => {
+
     fetchEvents();
   }, []);
 
@@ -56,7 +54,6 @@ const EventFeed = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log("Comments fetched for eventId", eventId, commentsList);
       setComments(prevComments => ({ ...prevComments, [eventId]: commentsList }));
     });
 
@@ -70,19 +67,13 @@ const EventFeed = () => {
     }
 
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-
-      if (user) {
-        const userEmail = user.email;
-
+      if (currentUser) {
         await addDoc(collection(firestore, 'comments'), {
           eventId,
-          userName: userEmail,
+          userName: currentUser.email,
           text: newComment,
           timestamp: new Date(),
         });
-
         setNewComment('');
       } else {
         console.log('User not logged in');
@@ -157,28 +148,48 @@ const EventFeed = () => {
               {event.images && event.images.length > 0 && (
                 <img src={event.images[0]} alt={event.title} className="event-image" />
               )}
+    <div className="event-feed">
+      <h1 className="home-heading">Event Feed</h1>
+      {events.length > 0 ? (
+        events.map((event) => (
+          <div key={event.id} className="event-card">
+            <h2>{event.title}</h2>
+            <p><strong>Date & Time:</strong> {new Date(event.dateTime).toLocaleString()}</p>
+            <p><strong>Location:</strong> {event.location}</p>
+            <p><strong>Details:</strong> {event.details}</p>
 
-              <div>
-                <button className="like_btn" onClick={() => handleLike(event.id)}>Like</button>
-                <button className="dislike_btn" onClick={() => handleDislike(event.id)}>Dislike</button>
-                <button
-                  className="comment_btn"
-                  onClick={() => toggleCommentSection(event.id)}
-                >
-                  {showCommentSection === event.id ? 'Hide Comments' : 'Comments'}
-                </button>
-              </div>
+            <div>
+              <p>Likes: {event.likes ? event.likes.length : 0}</p>
+              <p>Dislikes: {event.dislikes ? event.dislikes.length : 0}</p>
+            </div>
 
-              {showCommentSection === event.id && (
-                <div className="comments-section">
-                  <div className="add-comment">
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Add a comment..."
-                    />
-                    <button className='post_btn' onClick={() => handleAddComment(event.id)}>Post Comment</button>
-                  </div>
+            <button className="like_btn" onClick={() => handleEventDetailsClick(event.id)}>EventDetails</button>
+
+            {event.images && event.images.length > 0 && (
+              <img src={event.images[0]} alt={event.title} className="event-image" />
+            )}
+
+            <div>
+              <button className="like_btn" onClick={() => handleLike(event.id)}>Like</button>
+              <button className="dislike_btn" onClick={() => handleDislike(event.id)}>Dislike</button>
+              <button
+                className="comment_btn"
+                onClick={() => toggleCommentSection(event.id)}
+              >
+                {showCommentSection === event.id ? 'Hide Comments' : 'Comments'}
+              </button>
+            </div>
+
+            {showCommentSection === event.id && (
+              <div className="comments-section">
+                <div className="add-comment">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                  />
+                  <button className='post_btn' onClick={() => handleAddComment(event.id)}>Post Comment</button>
+                </div>
 
                   <div className="comments-list">
                     {comments[event.id] && comments[event.id].length > 0 ? (
@@ -202,6 +213,27 @@ const EventFeed = () => {
           <p>No events to show.</p>
         )}
       </div>
+                <div className="comments-list">
+                  {comments[event.id] && comments[event.id].length > 0 ? (
+                    comments[event.id].map((comment) => (
+                      <div key={comment.id} className="comment">
+                        <p><strong>{comment.userName}:</strong> {comment.text}</p>
+                        <p className="comment-date">
+                          {comment.timestamp ? new Date(comment.timestamp.toDate()).toLocaleString() : 'Date not available'}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No comments yet.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <p>No events to show.</p>
+      )}
     </div>
   );
 };
