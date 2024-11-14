@@ -11,6 +11,10 @@ const EventFeed = () => {
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
+
+  const [flagReason, setFlagReason] = useState('');
+  const [flaggingCommentId, setFlaggingCommentId] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,6 +92,9 @@ const EventFeed = () => {
   const handleEventDetailsClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
+
+
+  
 
   return (
     <div>
