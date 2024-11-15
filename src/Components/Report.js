@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { firestore } from "../firebase";
@@ -44,5 +45,6 @@ const ReportPage = () => {
         </div>
     );
 };
+
 
 export default ReportPage;
