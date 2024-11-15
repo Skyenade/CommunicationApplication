@@ -1,53 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useNavigate,  } from "react-router-dom";
-import Header from "../Components/Header";
+import React, { useEffect, useState } from "react";
+import { firestore } from "../firebase";
+import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
+import { Link } from "react-router-dom";
+import Header from "./Header";
 import EventFeed from "./EventFeed";
-import useFollow from "../hooks/useFollow"; // Import useFollow hook
-import useAuth from "../hooks/useAuth"; // Import useAuth hook
-import '../Style.css';
 
 const ModeratorHome = () => {
-
-  const currentUser = useAuth(); // Get the current user
-  const { following, followers, followUser, unfollowUser } = useFollow(currentUser); // Destructure follow-related functions
-  const [searchTerm, setSearchTerm] = useState("");
-  const [userResults, setUserResults] = useState([]);
-  const [showFollowers, setShowFollowers] = useState(false); // Control followers list visibility
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for query parameter to show followers list
-    const queryParams = new URLSearchParams(location.search);
-    setShowFollowers(queryParams.get("showFollowers") === "true");
-  }, [location.search]);
+    const fetchNotifications = () => {
+      const notificationsRef = collection(firestore, "notifications");
+      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
 
-  // Handle navigation based on user type
-  const handleFollowersNavigation = () => {
-    navigate("/ModeratorHome?showFollowers=true"); // Always stays on ModeratorHome
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const notificationsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(notificationsList);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const notificationRef = doc(firestore, "notifications", notificationId);
+      await setDoc(notificationRef, { isRead: true }, { merge: true });
+      console.log("Notification marked as read");
+    } catch (err) {
+      console.error("Error marking notification as read: ", err);
+    }
   };
-
-  // Handle user search
-  const handleSearch = async () => {
-    if (!searchTerm) return;
-
-    // Replace with actual search logic to fetch users
-    const mockSearchResults = [
-      { id: "user123", username: "JohnDoe" },
-      { id: "user456", username: "JaneSmith" },
-    ];
-    setUserResults(mockSearchResults);
-  };
-
-  if (!currentUser) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    
-
-<div className="homeuser-container">
+    <div className="homeuser-container">
       <Header />
       <div className="homeuser-navbar-actions">
         <input
@@ -59,42 +52,14 @@ const ModeratorHome = () => {
         />
         <button className="Search-button" onClick={handleSearch}>Search</button>
         <button className="create-event-button">
-          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+          <h4>
+            <Link to="/CreateEvent" className="links">
+              Create An Event
+            </Link>
+          </h4>
         </button>
       </div>
 
-      {/* Show followers list */}
-      {showFollowers && (
-        <div className="followers-list">
-          <h3>Followers</h3>
-          {followers.length > 0 ? (
-            followers.map((followerId) => (
-              <p key={followerId}>{followerId}</p>
-            ))
-          ) : (
-            <p>No followers found</p>
-          )}
-        </div>
-      )}
-
-      {/* Display search results with follow/unfollow buttons */}
-      <div className="search-results">
-        {userResults.length > 0 ? (
-          userResults.map((user) => (
-            <div key={user.id} className="user-result">
-              <span>{user.username}</span>
-              {following.includes(user.id) ? (
-                <button onClick={() => unfollowUser(user.id)}>Unfollow</button>
-              ) : (
-                <button onClick={() => followUser(user.id)}>Follow</button>
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No users found</p>
-        )}
-      </div>
-      
       <div className="homeuser-content">
         <div className="homeuser-choose-options">
           <label>
@@ -108,7 +73,8 @@ const ModeratorHome = () => {
           </label>
           <br />
           <div className="location">
-            <label>Current Location:</label><br />
+            <label>Current Location:</label>
+            <br />
             <input type="text" placeholder="Choose your location" />
           </div>
         </div>
@@ -119,21 +85,66 @@ const ModeratorHome = () => {
 
         <div className="Home_Notification">
           <div className="moderator-dashboard">
-              <h4><Link to="/ModeratorDashboard" className="links">Moderator Dashboard</Link></h4>
-            </div>
+            <h4>
+              <Link to="/ModeratorDashboard" className="links">
+                Moderator Dashboard
+              </Link>
+            </h4>
+          </div>
+
           <div className="notifications">
             <h3>Notifications</h3>
             <ul>
-              <li>You have a new follower</li>
-              <li>You have a new like</li>
-              <li>New flagged content</li>
+              {loading ? (
+                <li>Loading notifications...</li>
+              ) : notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <li key={notification.id}>
+                    {notification.type === "comment_flag" ? (
+                      <>
+                        <p>
+                          <strong>You have a Flagged Comment</strong>
+                        </p>
+                        <p>Flagged by: {notification.userEmail}</p>
+                        <p>Reason: {notification.reason || "No reason provided"}</p>
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : notification.type === "event_report" ? (
+                      <>
+                         <p>
+                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
+                        <strong>You have a reported Event</strong>  
+                        </p>
+                        <p>
+                          <strong>Reported by:</strong> {notification.userEmail}
+                        </p>
+                        {/* <p>
+                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
+                        </p> */}
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : (
+                      <span>{notification.message}</span>
+                    )}
+                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">VIEWED</button>
+                  </li>
+                ))
+              ) : (
+                <li>No notifications</li>
+              )}
             </ul>
           </div>
         </div>
       </div>
     </div>
-
-    
   );
 };
 

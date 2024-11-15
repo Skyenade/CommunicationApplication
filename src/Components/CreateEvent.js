@@ -57,20 +57,19 @@ const CreateEvent = () => {
         imageBase64List.push(base64String);
       }
   
-      // Use userId instead of email to retrieve the user data
       const userId = auth.currentUser?.uid;
       const userRef = ref(database, `users/${userId}`);
       const userSnapshot = await get(userRef);
   
       if (userSnapshot.exists()) {
-        console.log('User data:', userSnapshot.val()); // Debugging step to check user data
+        console.log('User data:', userSnapshot.val());
       } else {
         console.warn('No user data found for this userId:', userId);
       }
   
       const createdBy = userSnapshot.exists() && userSnapshot.val().username 
                         ? userSnapshot.val().username 
-                        : auth.currentUser?.email; // Fallback if username not found
+                        : auth.currentUser?.email;
   
       const newEvent = {
         title: eventTitle,
@@ -87,7 +86,6 @@ const CreateEvent = () => {
         comments: [],
         comment: "",
         attendees: [],
-        followers: [],
       };
   
       await addDoc(collection(firestore, "events"), newEvent);
