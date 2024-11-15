@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ref, get, child, update } from "firebase/database";
 import { database } from "../firebase";
-
 import Header from "../Components/Header";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
+import useFollow from "../hooks/useFollow";
+import getFollowersCount from "../utils/getFollowersCount";
 import '../Style.css';
 
 const HomeUser = () => {
 
   const currentUser = useAuth();
+  const location = useLocation();
+  const { following, followers, followUser, unfollowUser } = useFollow(currentUser);
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
-  const [following, setFollowing] = useState([]);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
 
+  // Fetch following and followers lists
   useEffect(() => {
-    if (currentUser) {
-      const fetchFollowing = async () => {
-        try {
-          const userRef = ref(database, "users/" + currentUser.uid);
-          const snapshot = await get(userRef);
-          if (snapshot.exists()) {
-            setFollowing(snapshot.val().following || []);
-          }
-        } catch (error) {
-          console.error("Error fetching following list:", error);
-        }
-      };
-      fetchFollowing();
-    }
-  }, [currentUser]);
+    // Check for query parameter to show followers list
+    const queryParams = new URLSearchParams(location.search);
+    setShowFollowers(queryParams.get("showFollowers") === "true");
+  }, [location.search]);
 
+  // Llamada a la función para obtener el número de seguidores
+  useEffect(() => {
+    const fetchFollowersCount = async () => {
+      if (currentUser) {
+        const count = await getFollowersCount(currentUser.uid);  // Llama a la función
+        setFollowersCount(count);  // Actualiza el número de seguidores
+      }
+    };
+
+    fetchFollowersCount();
+  }, [currentUser]);
+  
   const handleSearch = async () => {
     if (!searchTerm) return;
 
@@ -42,7 +49,9 @@ const HomeUser = () => {
         const usersData = snapshot.val();
         const filteredUsers = Object.keys(usersData)
           .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) => user.username.toLowerCase().includes(searchTerm.toLowerCase()));
+          .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
 
         if (filteredUsers.length > 0) {
           setUserResults(filteredUsers);
@@ -57,39 +66,11 @@ const HomeUser = () => {
     }
   };
 
-  const followUser = async (userId) => {
-    if (!currentUser) return;
-
-    try {
-      const currentUserRef = ref(database, "users/" + currentUser.uid);
-      const userToFollowRef = ref(database, "users/" + userId);
-
-      await update(currentUserRef, { following: [...following, userId] });
-      await update(userToFollowRef, { followers: [currentUser.uid] });
-
-      setFollowing((prev) => [...prev, userId]);
-    } catch (error) {
-      console.error("Error following user:", error);
-    }
+  // Función para alternar la visualización de la lista de seguidores
+  const toggleFollowersList = () => {
+    setShowFollowers(!showFollowers);
   };
 
-  const unfollowUser = async (userId) => {
-    if (!currentUser) return;
-
-    try {
-      const currentUserRef = ref(database, "users/" + currentUser.uid);
-      const userToUnfollowRef = ref(database, "users/" + userId);
-
-      await update(currentUserRef, { following: following.filter(id => id !== userId) });
-      await update(userToUnfollowRef, { followers: [currentUser.uid] });
-
-      setFollowing((prev) => prev.filter((id) => id !== userId));
-    } catch (error) {
-      console.error("Error unfollowing user:", error);
-    }
-  };
-
-  
   if (!currentUser) {
     return <div>Loading...</div>;
   }
@@ -109,8 +90,28 @@ const HomeUser = () => {
         <button className="create-event-button">
           <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
         </button>
+        {/* Muestra el número de seguidores */}
+        <div className="followers-count">
+          <p>You have {followersCount} followers</p>
+        </div>
       </div>
 
+      {/* Show followers list */}
+      {showFollowers && (
+        <div className="followers-list">
+          <h3>Followers</h3>
+          {followers.length > 0 ? (
+            followers.map((followerId) => (
+              <p key={followerId}>{followerId}</p>
+            ))
+          ) : (
+            <p>No followers found</p>
+          )}
+        </div>
+      )}
+
+
+      {/* Display search results */}
       <div className="search-results">
         {userResults.length > 0 ? (
           userResults.map((user) => (

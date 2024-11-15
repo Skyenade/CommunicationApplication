@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, deleteUser } from 'firebase/auth';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import Header from './Header';
 import { database } from '../firebase';
-import { ref, onValue, set, remove } from "firebase/database";
+import { ref, onValue, set, remove, update } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import getFollowersCount from '../utils/getFollowersCount';
+import useAuth from '../hooks/useAuth';
 import './UserProfile.css';
 
 const UserProfile = () => {
@@ -14,8 +18,31 @@ const UserProfile = () => {
   const [events, setEvents] = useState([]);
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [newProfileImage, setNewProfileImage] = useState(null);
+  const [followersCount, setFollowersCount] = useState(0); 
+  const [followers, setFollowers] = useState([]);
+  const [isFollowing, setIsFollowing] = useState(false);
   const auth = getAuth();
   const storage = getStorage();
+  // const currentUser = useAuth();
+
+
+  const fetchFollowersCount = async (userId) => {
+    const currentUserId = auth.currentUser.uid;
+    const userRef = doc(db, "users", currentUserId);
+
+    try {
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        setFollowers(userData.followers || []);  // Establece la lista de seguidores
+        setFollowersCount(userData.followers.length);  // Establece el número de seguidores
+      }
+    } catch (error) {
+      console.error("Error fetching followers: ", error);
+    }
+
+
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -23,7 +50,7 @@ const UserProfile = () => {
         const userId = currentUser.uid;
         const userRef = ref(database, `users/${userId}`);
         const eventsRef = ref(database, 'events');
-        const attendanceRef = ref(database, `users/${userId}/attendanceHistory`);
+        // const attendanceRef = ref(database, `users/${userId}/attendanceHistory`);
 
         onValue(userRef, (snapshot) => {
           const data = snapshot.val();
@@ -41,10 +68,23 @@ const UserProfile = () => {
           setEvents(userEvents);
         });
 
-        onValue(attendanceRef, (snapshot) => {
-          const history = snapshot.val();
-          setAttendanceHistory(history ? Object.values(history) : []);
-        });
+        // onValue(attendanceRef, (snapshot) => {
+        //   const history = snapshot.val();
+        //   setAttendanceHistory(history ? Object.values(history) : []);
+        // });
+
+        // onValue(followersRef, (snapshot) => {
+        //   const followers = snapshot.val() || {};
+        //   setFollowersCount(Object.keys(followers).length);  // Contamos los seguidores
+        // });
+        // const fetchFollowersCount = async () => {
+        //   const count = await getFollowersCount(userId);
+        //   setFollowersCount(count);
+
+
+
+        
+        fetchFollowersCount(userId);
       } else {
         console.error('No user is logged in.');
       }
@@ -52,6 +92,62 @@ const UserProfile = () => {
 
     return () => unsubscribe();
   }, [auth]);
+
+  const checkIfFollowing = (userId, followers) => {
+    // Verificar si el usuario actual sigue a este usuario
+    const currentUserId = auth.currentUser.uid;
+    setIsFollowing(followers && followers.includes(currentUserId));
+  };
+
+  const handleFollow = async () => {
+    if (auth.currentUser) {
+      const currentUserId = auth.currentUser.uid;
+      const userId = user.uid;
+
+      try {
+        // Agregar el usuario actual a la lista de seguidores
+        await update(ref(database, `users/${userId}`), {
+          followers: [...(user.followers || []), currentUserId]
+        });
+
+        // Agregar al usuario seguido a la lista de seguidos del usuario actual
+        await update(ref(database, `users/${currentUserId}`), {
+          following: [...(user.following || []), userId]
+        });
+
+        setFollowersCount(prevCount => prevCount + 1);
+        setIsFollowing(true);  // Actualiza el estado a "siguiendo"
+        alert("You are now following this user!");
+      } catch (error) {
+        console.error("Error following user: ", error);
+      }
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (auth.currentUser) {
+      const currentUserId = auth.currentUser.uid;
+      const userId = user.uid;
+
+      try {
+        // Eliminar el usuario actual de la lista de seguidores
+        await update(ref(database, `users/${userId}`), {
+          followers: (user.followers || []).filter(id => id !== currentUserId)
+        });
+
+        // Eliminar al usuario seguido de la lista de seguidos del usuario actual
+        await update(ref(database, `users/${currentUserId}`), {
+          following: (user.following || []).filter(id => id !== userId)
+        });
+
+        setFollowersCount(prevCount => prevCount - 1);
+        setIsFollowing(false);  // Actualiza el estado a "no seguido"
+        alert("You have unfollowed this user.");
+      } catch (error) {
+        console.error("Error unfollowing user: ", error);
+      }
+    }
+  };
 
   const handleUsernameChange = (e) => setUsername(e.target.value);
   const handleBioChange = (e) => setBio(e.target.value);
@@ -127,6 +223,8 @@ const UserProfile = () => {
     }
   };
 
+  
+
   return (
 
     <div>
@@ -137,6 +235,8 @@ const UserProfile = () => {
             <>
               <h1>Hello, {username || 'User'}</h1>
               <p>Your email: {user.email}</p>
+
+              <p>Followers: {followersCount}</p>  {/* Mostrar el número de seguidores */}
 
               <p>Update your username:</p>
               <input
@@ -177,6 +277,9 @@ const UserProfile = () => {
                   <p>No attendance history available.</p>
                 )}
               </ul> */}
+              <button onClick={isFollowing ? handleUnfollow : handleFollow}>
+                {isFollowing ? 'Unfollow' : 'Follow'}
+              </button>
 
               <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
             </>
