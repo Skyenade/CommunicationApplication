@@ -60,32 +60,38 @@ const EventDetails = () => {
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
+        if (!event) return;
+    
         const userDocRef = doc(firestore, "users", auth.currentUser.uid);
         const eventDocRef = doc(firestore, "events", eventId);
-        const isAttending = event?.attendees?.includes(auth.currentUser.email);
-
+        const currentEmail = auth.currentUser.email;
+    
         try {
-            const userSnapshot = await getDoc(userDocRef);
-            if (!userSnapshot.exists()) {
-                await setDoc(userDocRef, { attendingEvents: [] });
-            }
-
+            
             if (isAttending) {
+                
                 await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
-                await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
-                setIsAttending(false);
+                await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
+            }
+            setIsAttending((prev) => !prev);
+    
+            if (isAttending) {
+                
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
                 window.alert("You are no longer attending this event.");
             } else {
+              
                 await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
-                await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
-                setIsAttending(true);
+                await updateDoc(eventDocRef, { attendees: arrayUnion(currentEmail) });
                 window.alert("You are now attending this event!");
             }
         } catch (error) {
             console.error("Error updating attendance:", error);
+            
+            setIsAttending((prev) => !prev);
         }
     };
-
     const handleReportEvent = async () => {
         if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
         if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
@@ -101,10 +107,10 @@ const EventDetails = () => {
                 status: "flagged"
             };
 
-            // Save the report to 'reports' collection
+            
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
-            // Send a notification to admin and moderator roles
+          
             const notificationRef = collection(firestore, "notifications");
             const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
             const userSnapshot = await getDocs(userQuery);
