@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, collection, query, where, onSnapshot, orderBy, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
 
+
 const EventDetails = () => {
     const { eventId } = useParams();
+    const [user,setUser] = useState("");
     const [event, setEvent] = useState(null);
     const [comments, setComments] = useState([]);
     const [reportReason, setReportReason] = useState("");
     const [isAttending, setIsAttending] = useState(false);
 
     useEffect(() => {
-        if (!eventId) {
-            console.error("No event ID provided.");
-            return;
-        }
+        if (!eventId) return console.error("No event ID provided.");
 
         const eventDocRef = doc(firestore, "events", eventId);
+
         const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
@@ -79,21 +79,62 @@ const EventDetails = () => {
     };
 
     const handleReportEvent = async () => {
-        if (reportReason.trim() === "") {
-            window.alert("Please provide a reason for reporting the event.");
-            return;
-        }
 
+        if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
+        if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
+    
         try {
+            const user = auth.currentUser;
+
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
                 userName: auth.currentUser.displayName,
+                email: auth.currentUser.email,
                 reason: reportReason,
                 timestamp: new Date(),
                 status: "flagged"
             };
+            
 
+            if (user) {
+                const notificationRef = collection(firestore, 'notifications');
+                const reportData = {
+                    type: 'event_report',
+                    eventId,
+                    userId: user.uid,
+                    userName: user.displayName,
+                    userEmail: user.email,
+                    reason: reportReason,
+                    timestamp: new Date(),
+                    isRead: false,
+                };
+                await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
+                console.log("Event reported successfully");
+            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+            
+           
+            // const notificationRef = collection(firestore, "notifications");
+            // await addDoc(notificationRef, {
+            //     message: "A new event report requires verification.",
+            //     eventId: eventId,
+            //     reportedBy: auth.currentUser.displayName,
+            //     timestamp: new Date(),
+            //     status: "unread"
+            // });
+
+                const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+                const userSnapshot = await getDocs(userQuery);
+                userSnapshot.forEach(async (userDoc) => {
+                    await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+                        ...reportData,
+                        targetUserId: userDoc.id,
+                    });
+                });
+
+                window.alert("Event reported successfully!");
+                setReportReason("");
+            }
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
             window.alert("Event reported successfully!");
@@ -103,66 +144,102 @@ const EventDetails = () => {
             window.alert("Failed to report the event.");
         }
     };
+    
+    const handleFlagComment = async (commentId, reason) => {
+        try {
+            const user = auth.currentUser;
 
-    if (!event) {
-        return <div>Loading event details...</div>;
-    }
+            if (user) {
+                const notificationData = {
+                    type: 'comment_flag',
+                    commentId,
+                    eventId,
+                    reason,
+                    userId: user.uid,
+                    userEmail: user.email,
+                    timestamp: new Date().toISOString(),
+                    isRead: false,
+                };
+
+                const notificationRef = collection(firestore, 'notifications');
+                await setDoc(doc(notificationRef, `${user.uid}_${commentId}`), notificationData);
+
+                const moderatorQuery = query(collection(firestore, 'users'), where('role', '==', 'moderator'));
+                const moderatorSnapshot = await getDocs(moderatorQuery);
+
+                moderatorSnapshot.forEach(async (moderator) => {
+                    const moderatorId = moderator.id;
+                    await setDoc(doc(notificationRef, `${moderatorId}_${commentId}`), notificationData);
+                });
+
+                window.alert("Comment flagged successfully!");
+            }
+        } catch (error) {
+            console.error("Error flagging comment:", error);
+            window.alert("Failed to flag the comment.");
+        }
+    };
+
+    if (!event) return <div>Loading event details...</div>;
 
     return (
         <div>
             <Header />
-            <div className="event-details">
-                <h1 className="title">{event.title}</h1>
-                <h2 className="event-header">Event Created by: {event.createdBy}</h2>
-                <h3 className="event-header">Date & Time: {new Date(event.dateTime).toLocaleString()}</h3>
+            <div>
+                <h1>{event.title}</h1>
+                <h2 className="event-by">Event Created by: {event.createdBy}</h2>
+            </div>
 
-                <div className="attend-event">
-                    <input 
-                        type="checkbox" 
-                        id="attendEvent" 
-                        checked={isAttending} 
-                        onChange={handleAttendanceChange} 
-                        disabled={isAttending} 
-                    />
-                    <label htmlFor="attendEvent">Attend this event</label>
-                </div>
+            <div className="date">
+                <h2 className="date">Date & Time: {event.dateTime}</h2>
+            </div>
 
-                <div className="report-event">
-                    <input 
-                        type="checkbox" 
-                        id="reportEvent" 
-                        onChange={() => setReportReason("")} 
-                    />
-                    <label htmlFor="reportEvent">Report this event</label>
-                    {reportReason && (
-                        <textarea
-                            value={reportReason}
-                            onChange={(e) => setReportReason(e.target.value)}
-                            placeholder="Enter reason for reporting"
-                        />
-                    )}
-                    <button onClick={handleReportEvent}>Submit Report</button>
-                </div>
+            <div>
+                <input 
+                    type="checkbox" 
+                    id="attendEvent" 
+                    checked={event.attendees?.includes(auth.currentUser.displayName)}
+                    onChange={handleAttendanceChange} 
+                />
+                <label htmlFor="attendEvent">Attend this event</label>
+            </div>
+               
 
-                <div className="attendees-list">
+            <div>
+                <textarea
+                    id="reportReason"
+                    placeholder="Provide reason for reporting"
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                />
+                <button onClick={handleReportEvent}>Report Event</button>
+            </div>
+
+            <div className="main-containered">
+                <ul>
                     <h3>List of Attendees</h3>
                     {event.attendees && event.attendees.length > 0 ? (
-                        <ul>
-                            {event.attendees.map((attendee, index) => (
-                                <li key={index}>{attendee}</li>
-                            ))}
-                        </ul>
+                        event.attendees.map((attendee, index) => (
+                            <li key={index}>{attendee}</li>
+                        ))
                     ) : (
-                        <p>No attendees yet</p>
+                        <li>No attendees yet</li>
                     )}
-                </div>
+                </ul>
+            </div>
 
-                <div className="event-image">
-                    {event.images && event.images.length > 0 && (
-                        <img src={event.images[0]} alt={event.title} />
-                    )}
-                </div>
+            <div className="container2">
+                {event.images && <img src={event.images} alt={event.title} />}
+            </div>
 
+{/* <<<<<<< HEAD
+            <div className="container3">
+                <h4>Event Details</h4>
+            </div>
+
+            <div className="container4">
+                <p>{event.details}</p>
+======= */}
                 <div className="event-details-text">
                     <h4>Event Details</h4>
                     <p>{event.details}</p>
@@ -188,8 +265,8 @@ const EventDetails = () => {
                     )}
                 </div>
             </div>
-        </div>
     );
 };
+
 
 export default EventDetails;
