@@ -3,10 +3,14 @@ import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { getDatabase, ref, update, get } from "firebase/database";
 import "../Style.css";
+import Header from "./Header"; 
+import { useNavigate } from "react-router-dom"; 
+import './ModeratorDashboard.css'; // Import useNavigate for navigation
 
 const ModeratorDashboard = () => {
   const [reports, setReports] = useState([]);
   const db = getDatabase();
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const reportsQuery = query(
@@ -99,9 +103,21 @@ const ModeratorDashboard = () => {
     }
   };
 
+  
+  const handleAdminAssistance = () => {
+    navigate("/RequestAssistance"); 
+  };
+
   return (
     <div>
+      <Header /> {}
       <h1>Moderator Dashboard</h1>
+      <div className="admin-assistance-container">
+        <button className="requestAdminAssistanceButton" onClick={handleAdminAssistance}>
+          Request Admin Assistance
+        </button>
+      </div>
+
       <div className="reports-container">
         <h3>Flagged Reports</h3>
         {reports.length > 0 ? (
