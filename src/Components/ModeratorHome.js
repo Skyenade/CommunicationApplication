@@ -8,8 +8,10 @@ import EventFeed from "./EventFeed";
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(""); // Define searchTerm state
-  const [searchResults, setSearchResults] = useState([]); // Define searchResults state
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -31,6 +33,10 @@ const ModeratorHome = () => {
     fetchNotifications();
   }, []);
 
+  const handleSearch = () => {
+    console.log("Searching for:", searchTerm);
+  };
+
   const handleMarkAsRead = async (notificationId) => {
     try {
       const notificationRef = doc(firestore, "notifications", notificationId);
@@ -43,9 +49,7 @@ const ModeratorHome = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Logic for handling search based on searchTerm
     console.log("Searching for:", searchTerm);
-    // Set searchResults based on search logic if necessary
   };
 
   return (
