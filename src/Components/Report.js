@@ -31,7 +31,7 @@ const ReportPage = () => {
                         <div key={report.id} className="report-item">
                             <h2>Report ID: {report.id}</h2>
                             <p><strong>Content ID:</strong> {report.eventId}</p>
-                            <p><strong>Reported by:</strong> {report.userName} ({report.userId})</p>
+                            <p><strong>Reported by:</strong> {report.username} ({report.userId})</p>
                             <p><strong>Report Reason:</strong> {report.reason}</p>
                             <p><strong>Date:</strong> {new Date(report.timestamp.toDate()).toLocaleString()}</p>
                             <button>View Content</button>
