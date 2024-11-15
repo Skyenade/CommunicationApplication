@@ -31,9 +31,8 @@ const AdminDashboard = () => {
           <div className="section">
             <Link to="/AdminAssistanceRequests" className='linking'>Assistance Requests</Link>
           </div>
-          {/* Section to access reports */}
           <div className="section">
-            <Link to="/AdminReports" className='linking'>Reports Management</Link> {/* Added link */}
+            <Link to="/AdminReports" className='linking'>Reports Management</Link>
           </div>
         </div>
       </div>
