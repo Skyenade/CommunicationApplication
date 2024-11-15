@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy, addDoc } from "firebase/firestore"; 
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
-
 
 const EventDetails = () => {
     const { eventId } = useParams();
@@ -13,6 +12,7 @@ const EventDetails = () => {
     const [comments, setComments] = useState([]);
     const [reportReason, setReportReason] = useState("");
     const [isAttending, setIsAttending] = useState(false);
+
 
     useEffect(() => {
         if (!eventId) return console.error("No event ID provided.");
@@ -27,6 +27,8 @@ const EventDetails = () => {
             } else {
                 console.log("No such event!");
             }
+
+       
         });
 
         const fetchComments = () => {
@@ -59,22 +61,44 @@ const EventDetails = () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();
         };
+
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
         const userDocRef = doc(firestore, "users", auth.currentUser.uid);
         const eventDocRef = doc(firestore, "events", eventId);
+// <<<<<<< HEAD
 
-        if (isAttending) {
-            await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
-            await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
-            setIsAttending(false);
-            window.alert("You are no longer attending this event.");
-        } else {
-            await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
-            await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
-            setIsAttending(true);
-            window.alert("You are now attending this event!");
+//         if (isAttending) {
+//             await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+//             await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+//             setIsAttending(false);
+//             window.alert("You are no longer attending this event.");
+//         } else {
+//             await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+//             await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+//             setIsAttending(true);
+//             window.alert("You are now attending this event!");
+// =======
+        const isAttending = event?.attendees?.includes(auth.currentUser.email);
+    
+        try {
+            const userSnapshot = await getDoc(userDocRef);
+            if (!userSnapshot.exists()) {
+                await setDoc(userDocRef, { attendingEvents: [] });
+            }
+    
+            if (isAttending) {
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+                window.alert("You are no longer attending this event.");
+            } else {
+                await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+                window.alert("You are now attending this event!");
+            }
+        } catch (error) {
+            console.error("Error updating attendance:", error);
         }
     };
 
@@ -136,9 +160,20 @@ const EventDetails = () => {
                 setReportReason("");
             }
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+            
+           
+            const notificationRef = collection(firestore, "notifications");
+            await addDoc(notificationRef, {
+                message: "A new event report requires verification.",
+                eventId: eventId,
+                reportedBy: auth.currentUser.displayName,
+                timestamp: new Date(),
+                status: "unread"
+            });
 
             window.alert("Event reported successfully!");
-            setReportReason(""); // Clear the reason after reporting
+
+            setReportReason("");  
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
@@ -203,7 +238,7 @@ const EventDetails = () => {
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
             </div>
-               
+
 
             <div>
                 <textarea
@@ -264,9 +299,15 @@ const EventDetails = () => {
                         <p>No comments yet.</p>
                     )}
                 </div>
+
+          
+            {/* <div className="container4">
+                <p>{event.details}</p> */}
             </div>
     );
 };
 
 
 export default EventDetails;
+
+
