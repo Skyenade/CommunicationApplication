@@ -1,149 +1,85 @@
-/* Overall layout and styling */
+
 h1 {
-    color: #333;
-    text-align: center;
-    font-size: 2rem;
-    margin-top: 30px;
+    color: black;
+    margin-top: 50px;
+    margin-left: 60px;
 }
 
-.admin-assistance-container {
-    text-align: right;
-    margin-bottom: 20px;
-    padding-right: 70Px;
-    padding-bottom: 30px;
+h2 {
+    color: black;
+    margin-top: 50px;
+    float: left;
+}
+
+.content {
+    flex: 1; 
+    padding: 20px; 
+    margin-left: 250px;
+    
 }
 
 .requestAdminAssistanceButton {
     background-color: #19646b;
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 25px 15px;
+    margin-bottom: 20px;
     cursor: pointer;
     border-radius: 5px;
-    font-weight: bold;
-    font-size: 1rem;
-    transition: background-color 0.3s;
+    float: right;
+    margin-top: -40px;
+    margin-right: 150px;
+    font-weight: bolder;
 }
 
-.requestAdminAssistanceButton:hover {
-    background-color: #154d47;
-}
-
-.reports-container {
-    width: 80%;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.reports-container h3 {
-    text-align: center;
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-
-/* Table styling */
-table {
+.flaggedPostsTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-th, td {
-    padding: 12px 15px;
+.flaggedPostsTable th {
+    background-color: #878b8b;
+}
+
+.flaggedPostsTable th,
+.flaggedPostsTable td {
+    border: 1px solid #ccc;
+    padding: 10px;
     text-align: left;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    color: #333;
+    color: black;
 }
 
-th {
-    background-color: #19646b;
+.actionButton {
+    background-color: #f44336;
     color: white;
-    font-weight: bold;
-}
-
-td {
-    background-color: #f9f9f9;
-}
-
-tr:hover {
-    background-color: #f2f2f2;
-}
-
-/* Button styling for actions */
-button {
-    padding: 8px 15px;
     border: none;
+    padding: 10px 10px;
+    margin-right: 5px;
     cursor: pointer;
-    border-radius: 5px;
-    font-weight: bold;
-    margin-right: 10px;
-    font-size: 1rem;
+    border-radius: 3px;
+    font-weight: bolder;
 }
 
-button:hover {
-    opacity: 0.9;
+#action{
+    width: 35%;
 }
-
-button:focus {
-    outline: none;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* Specific button colors */
-button.suspend-button {
-    background-color: #794a17;
-    color: white;
-}
-
-button.warning-button {
+#Warning{
     background-color: #dae078;
     color: black;
 }
 
-button.dismiss-button {
+
+#Suspend{
+    background-color: #794a17;
+}
+
+#Dismiss{
     background-color: #67dea6;
     color: black;
 }
-
-button.remove-button {
-    background-color: #f44336;
-    color: white;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     h1 {
-        font-size: 1.5rem;
+      font-size: 2rem;
     }
-
-    .requestAdminAssistanceButton {
-        font-size: 0.9rem;
-        padding: 10px 15px;
-    }
-
-    .reports-container {
-        width: 95%;
-    }
-
-    table {
-        font-size: 0.9rem;
-    }
-
-    th, td {
-        padding: 10px 12px;
-    }
-
-    button {
-        font-size: 0.9rem;
-        padding: 7px 12px;
-    }
-}
+  }

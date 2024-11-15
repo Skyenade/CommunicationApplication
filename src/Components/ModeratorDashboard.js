@@ -2,15 +2,14 @@ import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { getDatabase, ref, update, get } from "firebase/database";
-import "../Style.css";
-import Header from "./Header"; 
-import { useNavigate } from "react-router-dom"; 
-import './ModeratorDashboard.css'; // Import useNavigate for navigation
+import Header from "./Header";
+import "./ModeratorDashboard.css"
+import { Navigate, useNavigate } from "react-router-dom";
 
 const ModeratorDashboard = () => {
   const [reports, setReports] = useState([]);
   const db = getDatabase();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const reportsQuery = query(
@@ -103,25 +102,23 @@ const ModeratorDashboard = () => {
     }
   };
 
-  
   const handleAdminAssistance = () => {
     navigate("/RequestAssistance"); 
+    console.log("Admin assistance requested");
   };
 
   return (
-    <div>
-      <Header /> {}
-      <h1>Moderator Dashboard</h1>
-      <div className="admin-assistance-container">
-        <button className="requestAdminAssistanceButton" onClick={handleAdminAssistance}>
+    <div >
+    <Header/>
+    <div className='create-event'>
+      <div className="content">
+        <h1>Moderator Dashboard</h1>
+        <button className="requestAdminAssistanceButton"onClick={handleAdminAssistance}>
           Request Admin Assistance
         </button>
-      </div>
-
-      <div className="reports-container">
-        <h3>Flagged Reports</h3>
+        <h2 className="table">Flagged Posts and Content</h2>
         {reports.length > 0 ? (
-          <table>
+          <table className="flaggedPostsTable">
             <thead>
               <tr>
                 <th>Username</th>
@@ -130,29 +127,30 @@ const ModeratorDashboard = () => {
                 <th>Reason</th>
                 <th>Status</th>
                 <th>Timestamp</th>
-                <th>Actions</th>
+                <th id="action">Actions</th>
               </tr>
             </thead>
             <tbody>
               {reports.map((report) => (
                 <tr key={report.id}>
-                  <td>{report.userName}</td>
+                  <td>{report.username}</td>
                   <td>{report.email}</td>
                   <td>{report.eventId}</td>
                   <td>{report.reason}</td>
                   <td>{report.status}</td>
                   <td>{new Date(report.timestamp.seconds * 1000).toLocaleString()}</td>
                   <td>
-                    <button onClick={() => handleSuspendAccount(report.id, report.userId)}>
+                    <button className="actionButton" id="Suspend" onClick={() => handleSuspendAccount(report.id, report.userId)}>
                       Suspend Account
                     </button>
-                    <button onClick={() => handleWarning(report.id)}>
+                    <button className="actionButton" id="Warning"
+                     onClick={() => handleWarning(report.id)}>
                       Warning
                     </button>
-                    <button onClick={() => handleDismissReport(report.id)}>
+                    <button className="actionButton"  id="Dismiss" onClick={() => handleDismissReport(report.id)}>
                       Dismiss Report
                     </button>
-                    <button onClick={() => handleRemoveUser(report.id, report.userId)}>
+                    <button  className="actionButton" id="Remove" onClick={() => handleRemoveUser(report.id, report.userId)}>
                       Remove
                     </button>
                   </td>
@@ -164,6 +162,7 @@ const ModeratorDashboard = () => {
           <p>No flagged reports at the moment.</p>
         )}
       </div>
+    </div>
     </div>
   );
 };
