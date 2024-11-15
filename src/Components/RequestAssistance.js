@@ -3,7 +3,8 @@ import "../Style.css";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import { ref, get, push, set } from "firebase/database";
-import { auth, database } from "../firebase";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { auth, database, firestore } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 const RequestAssistance = () => {
@@ -52,6 +53,18 @@ const RequestAssistance = () => {
                 requestText,
                 status: "active",
             });
+
+            const notificationData = {
+                type: "assistance_request",
+                userId: auth.currentUser.uid,
+                userEmail: email,
+                requestText,
+                timestamp: new Date(),
+                isRead: false,
+            };
+            const notificationRef = doc(collection(firestore, "notifications"), `${auth.currentUser.uid}_assistance_request`);
+
+            await setDoc(notificationRef, notificationData);
             alert("Request submitted successfully!");
             navigate("/ModeratorDashboard");
         } catch (error) {
