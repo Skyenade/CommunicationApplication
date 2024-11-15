@@ -210,7 +210,7 @@ body {
     width: 500px;
 }
 
-.create-event-button {
+/* .create-event-button {
     width: 30%;
     padding: 15px;
     background-color: #01497C;
@@ -226,8 +226,8 @@ body {
 .create-event-button .links {
     color: #fff;
     text-decoration: none;
-}
-
+} */
+/* 
 .Search-button{
     width: 5%;
         padding: 15px;
@@ -241,7 +241,7 @@ body {
        
         
          
-        }
+        } */
 
 
 .moderator-home-container {
@@ -300,27 +300,46 @@ body {
 
 .homeuser-navbar-actions {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    width: 100vw;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100vw;
+    gap: 20px;
 }
 
-/* .search-bar {
+.create-event-button, .Search-button {
     flex: 1;
-    margin-right: 10px;
-    padding: 8px;
-} */
+    padding: 10px 15px;
+    background-color: #01497C;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+}
+
+.create-event-button {
+    background-color: #2A6F97;
+}
 
 .search-bar {
-    margin: 10px 30px;
-    padding: 8px 12px;
-    width: 100%;
-    max-width: 800px;
+    flex: 3;
+    padding: 10px 15px;
     border-radius: 4px;
-    border: 1px solid #ddd;
-    height: 50px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    height: 40px;
 }
+
+
+
+.Search-button:hover {
+    background-color: #007B9E;
+}
+
 
 
 
@@ -611,33 +630,6 @@ margin-right: 12%;
 
  }
 
-.request-assistance-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 400px; 
-    margin: 0 auto; 
-    padding: 20px;
-    background-color: #f7f7f7; 
-    border-radius: 8px;
-}
-
-.request-assistance-container label {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.request-assistance-container .request-textarea {
-    width: 100%;
-    height: 100px;
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    resize: none;
-}
 
 .request-assistance-container button {
     padding: 10px 20px;
@@ -670,6 +662,7 @@ margin-right: 12%;
     overflow: hidden;
     text-align: center;
 }
+
 
 .requests-table th,
 .requests-table td {
@@ -713,6 +706,13 @@ margin-right: 12%;
 }
 
 
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
 /* ---Notification button----- */
 
 .notif_viwedbtn{
@@ -721,11 +721,4 @@ margin-right: 12%;
     color: white;
     padding: 8px;
 font-weight: bolder;}
-
-.error-message {
-    color: red;
-    font-size: 14px;
-    margin-top: 10px;
-}
-
 
