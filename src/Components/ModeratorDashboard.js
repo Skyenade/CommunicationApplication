@@ -1,140 +1,182 @@
-import React, { useEffect, useState } from "react";
-import "./ModeratorDashboard.css"; 
-import Header from "./Header";
-import { database } from "../firebase"; 
-import { ref, onValue, remove } from "firebase/database";
-import { Navigate} from "react-router-dom"; 
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { firestore } from "../firebase";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDocs } from "firebase/firestore";
+import { getDatabase, ref, update, get } from "firebase/database"; // Added imports for Realtime Database
+import "../Style.css";
 
 const ModeratorDashboard = () => {
+  const [reports, setReports] = useState([]);
+  const db = getDatabase(); // Firebase Realtime Database instance
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    // Fetch all reports with "flagged" status from Firestore
+    const reportsRef = collection(firestore, "reports");
+    const reportsQuery = query(reportsRef, where("status", "==", "flagged"));
+    const unsubscribe = onSnapshot(reportsQuery, (querySnapshot) => {
+      const reportData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setReports(reportData);
+    });
 
-  const flaggedItems = [
-    {
-      user: "Kimi",
-      email: "kimi@example.com",
-      date: "2024-11-01",
-      Content: "Comment",
-      Reporttext: "Inappropriate language",
-    } 
-  ];
+    return () => unsubscribe();
+  }, []);
 
-  // const [flaggedItems, setFlaggedItems] = useState([]);
-  // const navigate = useNavigate();
+  // Handle suspending user account from Realtime Database and updating Firestore
+  const handleSuspendAccount = async (reportId, userId) => {
+    if (window.confirm("Are you sure you want to suspend this user?")) {
+      try {
+        console.log(`Attempting to suspend account for user: ${userId} with report ID: ${reportId}`);
 
-  // useEffect(() => {
-  //   const flaggedRef = ref(database, 'flaggedContent');
-    
-  //   onValue(flaggedRef, (snapshot) => {
-  //     const data = snapshot.val();
-  //     const itemsArray = [];
-  //     if (data) {
-  //       for (let id in data) {
-  //         itemsArray.push({ id, ...data[id] });
-  //       }
-  //     }
-  //     setFlaggedItems(itemsArray);
-  //   });
-  // }, []);
+        // Get a reference to the user in the Realtime Database
+        const userRef = ref(db, `users/${userId}`);
 
-  const handleAction = (action, itemId) => {
-    const itemRef = ref(database, `flaggedContent/${itemId}`);
+        // Check if the user exists
+        const userSnapshot = await get(userRef);
+        if (!userSnapshot.exists()) {
+          console.error("User does not exist in the database.");
+          window.alert("User does not exist.");
+          return;
+        }
 
-    switch (action) {
-      case 'Warning':
-        alert("Warning issued to the user.");
-        break;
-      case 'Remove':
-        if (window.confirm("Are you sure you want to remove the content?")) {
-          remove(itemRef)
-            .then(() => alert("Selected Content removed successfully."))
-            .catch((error) => alert("Error removing content: " + error.message));
-        }        break;
-      case 'Suspend':
-        alert("User suspended. Implement suspension logic here.");
-        break;
-      case 'Dismiss':
-        remove(itemRef).then(() => alert("Report dismissed successfully."));
-        break;
-      default:
-        break;
+        // Update the user's status to "suspended" in Realtime Database
+        const suspensionDate = new Date().toISOString(); // Store the suspension date
+        await update(userRef, { status: "suspended", suspensionDate });
+
+        console.log(`User ${userId} suspended successfully.`);
+
+        // Update the report status in Firestore
+        const reportRef = doc(firestore, "reports", reportId);
+        await updateDoc(reportRef, { status: "account_suspended" });
+
+        console.log(`Report ${reportId} marked as "account_suspended".`);
+        window.alert("User account suspended.");
+      } catch (error) {
+        console.error("Error suspending account:", error);
+        window.alert("Failed to suspend account. Please try again.");
+      }
     }
-
-    
   };
 
-  const handleAdminAssistance = () => {
-    navigate("/RequestAssistance"); 
+  // Handle issuing a warning to the user
+  const handleWarning = async (reportId) => {
+    if (window.confirm("Are you sure you want to issue a warning to this user?")) {
+      try {
+        // Update the report status in Firestore to "warning_issued"
+        const reportRef = doc(firestore, "reports", reportId);
+        await updateDoc(reportRef, { status: "warning_issued" });
+
+        console.log(`Report ${reportId} marked as "warning_issued".`);
+        window.alert("Warning issued to the user.");
+      } catch (error) {
+        console.error("Error issuing warning:", error);
+        window.alert("Failed to issue warning. Please try again.");
+      }
+    }
   };
 
+  // Handle dismissing a report
+  const handleDismissReport = async (reportId) => {
+    if (window.confirm("Are you sure you want to dismiss this report?")) {
+      try {
+        // Update the report status in Firestore to "dismissed"
+        const reportRef = doc(firestore, "reports", reportId);
+        await updateDoc(reportRef, { status: "dismissed" });
+
+        console.log(`Report ${reportId} dismissed.`);
+        window.alert("Report dismissed.");
+      } catch (error) {
+        console.error("Error dismissing report:", error);
+        window.alert("Failed to dismiss report. Please try again.");
+      }
+    }
+  };
+
+  // Handle clearing posts and reason field in the report (but not removing the user)
+  const handleRemoveUserPosts = async (reportId, userId) => {
+    if (window.confirm("Are you sure you want to clear this user's posts and remove the reason?")) {
+      try {
+        // Fetch posts for the user from Firestore
+        const postsRef = collection(firestore, "posts");
+        const postsQuery = query(postsRef, where("userId", "==", userId));  // Query for posts of this user
+        const querySnapshot = await getDocs(postsQuery);  // Get posts
+
+        // Check if posts exist
+        if (querySnapshot.empty) {
+          console.log(`No posts found for user ${userId}`);
+          window.alert("No posts found for this user.");
+          return;
+        }
+
+        // Update the posts' reason field to an empty string (clear the content)
+        querySnapshot.forEach(async (doc) => {
+          await updateDoc(doc.ref, { reason: "" });  // Clear the 'reason' field
+          console.log(`Post ${doc.id} reason cleared.`);
+        });
+
+        // Update the report's reason field to an empty string
+        const reportRef = doc(firestore, "reports", reportId);
+        await updateDoc(reportRef, { reason: "" });
+
+        console.log(`Report ${reportId} reason cleared.`);
+        window.alert("User's posts cleared and report reason removed.");
+      } catch (error) {
+        console.error("Error clearing posts and reason:", error);
+        window.alert("Failed to clear posts and reason. Please try again.");
+      }
+    }
+  };
 
   return (
-    <div >
-    <Header/>
-    <div className='create-event'>
-      <div className="content">
-        <h1>Moderator Dashboard</h1>
-        <button className="requestAdminAssistanceButton"onClick={handleAdminAssistance}>
-          Request Admin Assistance
-        </button>
-
-        <h2 className="table">Flagged Posts and Content</h2>
-        <table className="flaggedPostsTable">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Date</th>
-              <th>Content</th>
-              <th>Reporttext (Report Issue)</th>
-              <th id="action">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {flaggedItems.length > 0 ? (
-              flaggedItems.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.user}</td>
-                  <td>{item.email}</td>
-                  <td>{item.date}</td>
-                  <td>{item.Content}</td>
-                  <td>{item.Reporttext}</td>
+    <div>
+      <h1>Moderator Dashboard</h1>
+      <div className="reports-container">
+        <h3>Flagged Reports</h3>
+        {reports.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Event ID</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Timestamp</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((report) => (
+                <tr key={report.id}>
+                  <td>{report.userName}</td>
+                  <td>{report.email}</td>
+                  <td>{report.eventId}</td>
+                  <td>{report.reason}</td>
+                  <td>{report.status}</td>
+                  <td>{new Date(report.timestamp.seconds * 1000).toLocaleString()}</td>
                   <td>
-                    <button 
-                      className="actionButton" id="Warning"
-                      onClick={() => handleAction('Warning', item.id)}
-                       >Warning
+                    <button onClick={() => handleSuspendAccount(report.id, report.userId)}>
+                      Suspend Account
                     </button>
-                    <button 
-                      className="actionButton" id="Remove"
-                      onClick={() => handleAction('Remove', item.id)}
-                      >Remove
+                    <button onClick={() => handleWarning(report.id)}>
+                      Warning
                     </button>
-                    <button 
-                      className="actionButton" id="Suspend"
-                      onClick={() => handleAction('Suspend', item.id)}
-                      >Suspend Account
+                    <button onClick={() => handleDismissReport(report.id)}>
+                      Dismiss Report
                     </button>
-                    <button 
-                      className="actionButton"  id="Dismiss"
-                      onClick={() => handleAction('Dismiss', item.id)}
-                      >Dismiss Report
+                    <button onClick={() => handleRemoveUserPosts(report.id, report.userId)}>
+                      Remove Posts and Reason
                     </button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center' }}>There is no flagged content here!</td>
-                <td>
-                  
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div></div>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No flagged reports at the moment.</p>
+        )}
+      </div>
     </div>
   );
 };
