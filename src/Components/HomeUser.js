@@ -27,9 +27,9 @@ const HomeUser = () => {
   useEffect(() => {
     const fetchFollowersCount = async () => {
       if (currentUser) {
-        console.log("Current User ID:", currentUser.uid); // Debugging log
+        console.log("Current User ID:", currentUser.uid);
         const count = await getFollowersCount(currentUser.uid);
-        console.log("Fetched Followers Count:", count); // Debugging log
+        console.log("Fetched Followers Count:", count);
         setFollowersCount(count);
       }
     };
