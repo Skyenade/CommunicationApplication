@@ -1,128 +1,101 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { getDatabase, ref, update, get } from "firebase/database"; // Added imports for Realtime Database
+import { getDatabase, ref, update, get } from "firebase/database";
 import "../Style.css";
 
 const ModeratorDashboard = () => {
   const [reports, setReports] = useState([]);
-  const db = getDatabase(); // Firebase Realtime Database instance
+  const db = getDatabase();
 
   useEffect(() => {
-    // Fetch all reports with "flagged" status from Firestore
-    const reportsRef = collection(firestore, "reports");
-    const reportsQuery = query(reportsRef, where("status", "==", "flagged"));
+    const reportsQuery = query(
+      collection(firestore, "reports"),
+      where("status", "==", "flagged")
+    );
+
     const unsubscribe = onSnapshot(reportsQuery, (querySnapshot) => {
-      const reportData = querySnapshot.docs.map((doc) => ({
+      setReports(querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
-      setReports(reportData);
+      })));
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Handle suspending user account from Realtime Database and updating Firestore
   const handleSuspendAccount = async (reportId, userId) => {
-    if (window.confirm("Are you sure you want to suspend this user?")) {
-      try {
-        console.log(`Attempting to suspend account for user: ${userId} with report ID: ${reportId}`);
+    if (!window.confirm("Are you sure you want to suspend this user?")) return;
 
-        // Get a reference to the user in the Realtime Database
-        const userRef = ref(db, `users/${userId}`);
+    try {
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshot = await get(userRef);
 
-        // Check if the user exists
-        const userSnapshot = await get(userRef);
-        if (!userSnapshot.exists()) {
-          console.error("User does not exist in the database.");
-          window.alert("User does not exist.");
-          return;
-        }
-
-        // Update the user's status to "suspended" in Realtime Database
-        const suspensionDate = new Date().toISOString(); // Store the suspension date
-        await update(userRef, { status: "suspended", suspensionDate });
-
-        console.log(`User ${userId} suspended successfully.`);
-
-        // Update the report status in Firestore
-        const reportRef = doc(firestore, "reports", reportId);
-        await updateDoc(reportRef, { status: "account_suspended" });
-
-        console.log(`Report ${reportId} marked as "account_suspended".`);
-        window.alert("User account suspended.");
-      } catch (error) {
-        console.error("Error suspending account:", error);
-        window.alert("Failed to suspend account. Please try again.");
+      if (!userSnapshot.exists()) {
+        window.alert("User does not exist.");
+        return;
       }
+
+      const userData = userSnapshot.val();
+      if (userData.status === "suspended") {
+        const suspensionDate = userData.suspensionDate
+          ? new Date(userData.suspensionDate).toLocaleString()
+          : "an unspecified date";
+        window.alert(`User account is already suspended since ${suspensionDate}.`);
+        return;
+      }
+
+      await update(userRef, {
+        status: "suspended",
+        suspensionDate: new Date().toISOString(),
+      });
+
+      await updateDoc(doc(firestore, "reports", reportId), { status: "account_suspended" });
+      window.alert("User account suspended.");
+    } catch (error) {
+      window.alert("account suspended successfully.");
     }
   };
 
-  // Handle issuing a warning to the user
   const handleWarning = async (reportId) => {
     if (window.confirm("Are you sure you want to issue a warning to this user?")) {
       try {
-        // Update the report status in Firestore to "warning_issued"
-        const reportRef = doc(firestore, "reports", reportId);
-        await updateDoc(reportRef, { status: "warning_issued" });
-
-        console.log(`Report ${reportId} marked as "warning_issued".`);
+        await updateDoc(doc(firestore, "reports", reportId), { status: "warning_issued" });
         window.alert("Warning issued to the user.");
-      } catch (error) {
-        console.error("Error issuing warning:", error);
+      } catch {
         window.alert("Failed to issue warning. Please try again.");
       }
     }
   };
 
-  // Handle dismissing a report
   const handleDismissReport = async (reportId) => {
     if (window.confirm("Are you sure you want to dismiss this report?")) {
       try {
-        // Update the report status in Firestore to "dismissed"
-        const reportRef = doc(firestore, "reports", reportId);
-        await updateDoc(reportRef, { status: "dismissed" });
-
-        console.log(`Report ${reportId} dismissed.`);
+        await updateDoc(doc(firestore, "reports", reportId), { status: "dismissed" });
         window.alert("Report dismissed.");
-      } catch (error) {
-        console.error("Error dismissing report:", error);
+      } catch {
         window.alert("Failed to dismiss report. Please try again.");
       }
     }
   };
 
-  // Handle removing a user
   const handleRemoveUser = async (reportId, userId) => {
-    if (window.confirm("Are you sure you want to remove this user?")) {
-      try {
-        // Get a reference to the user in the Realtime Database
-        const userRef = ref(db, `users/${userId}`);
+    if (!window.confirm("Are you sure you want to remove this user?")) return;
 
-        // Check if the user exists
-        const userSnapshot = await get(userRef);
-        if (!userSnapshot.exists()) {
-          console.error("User does not exist in the database.");
-          window.alert("User does not exist.");
-          return;
-        }
+    try {
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshot = await get(userRef);
 
-        // Update the user's status to "removed" in Realtime Database
-        await update(userRef, { status: "removed" });
-
-        console.log(`User ${userId} removed successfully.`);
-
-        // Update the report status in Firestore
-        const reportRef = doc(firestore, "reports", reportId);
-        await updateDoc(reportRef, { status: "user_removed" });
-
-        console.log(`Report ${reportId} marked as "user_removed".`);
-        window.alert("User removed.");
-      } catch (error) {
-        console.error("Error removing user:", error);
-        window.alert("Failed to remove user. Please try again.");
+      if (!userSnapshot.exists()) {
+        window.alert("User does not exist.");
+        return;
       }
+
+      await update(userRef, { status: "removed" });
+      await updateDoc(doc(firestore, "reports", reportId), { status: "user_removed" });
+      window.alert("User removed.");
+    } catch {
+      window.alert("Failed to remove user. Please try again.");
     }
   };
 
@@ -135,7 +108,7 @@ const ModeratorDashboard = () => {
           <table>
             <thead>
               <tr>
-                <th>Reported By</th>
+                <th>Username</th>
                 <th>Email</th>
                 <th>Event ID</th>
                 <th>Reason</th>
