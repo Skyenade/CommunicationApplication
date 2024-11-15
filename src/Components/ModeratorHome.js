@@ -33,17 +33,11 @@ const ModeratorHome = () => {
     fetchNotifications();
   }, []);
 
-  const handleMarkAsRead = async (notificationId) => {
-    try {
-      const notificationRef = doc(firestore, "notifications", notificationId);
-      await setDoc(notificationRef, { isRead: true }, { merge: true });
-      console.log("Notification marked as read");
-    } catch (err) {
-      console.error("Error marking notification as read: ", err);
-    }
-  };
+  // Unified search function
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    console.log("Searching for:", searchTerm);
 
-  const handleSearch = async () => {
     if (!searchTerm) return;
 
     try {
@@ -58,7 +52,7 @@ const ModeratorHome = () => {
         setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
 
         if (filteredUsers.length > 0) {
-          setUserResults(filteredUsers);
+          console.log(filteredUsers);
         } else {
           console.log("No users found with that username.");
         }
@@ -67,6 +61,16 @@ const ModeratorHome = () => {
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const notificationRef = doc(firestore, "notifications", notificationId);
+      await setDoc(notificationRef, { isRead: true }, { merge: true });
+      console.log("Notification marked as read");
+    } catch (err) {
+      console.error("Error marking notification as read: ", err);
     }
   };
 

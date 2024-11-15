@@ -123,7 +123,7 @@ const EventDetails = () => {
             });
 
             window.alert("Event reported successfully!");
-            setReportReason(""); // Clear the reason after reporting
+            setReportReason("");
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");

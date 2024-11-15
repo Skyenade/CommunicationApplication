@@ -9,7 +9,7 @@ import EventFeed from "./EventFeed";
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
 import '../Style.css';
-// ok?
+
 const HomeUser = () => {
 
   const currentUser = useAuth();
@@ -20,9 +20,7 @@ const HomeUser = () => {
   const [showFollowers, setShowFollowers] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
 
-  // Fetch following and followers lists
   useEffect(() => {
-    // Check for query parameter to show followers list
     const queryParams = new URLSearchParams(location.search);
     setShowFollowers(queryParams.get("showFollowers") === "true");
   }, [location.search]);
@@ -31,8 +29,8 @@ const HomeUser = () => {
   useEffect(() => {
     const fetchFollowersCount = async () => {
       if (currentUser) {
-        const count = await getFollowersCount(currentUser.uid);  //Call the function
-        setFollowersCount(count);  // Update the number of followers
+        const count = await getFollowersCount(currentUser.uid);
+        setFollowersCount(count);
       }
     };
 
@@ -66,7 +64,6 @@ const HomeUser = () => {
     }
   };
 
-  // Function to toggle the display of the followers list
   const toggleFollowersList = () => {
     setShowFollowers(!showFollowers);
   };
@@ -90,13 +87,11 @@ const HomeUser = () => {
         <button className="create-event-button">
           <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
         </button>
-        {/* Shows the number of followers*/}
         <div className="followers-count">
           <p>You have {followersCount} followers</p>
         </div>
       </div>
 
-      {/* Show followers list */}
       {showFollowers && (
         <div className="followers-list">
           <h3>Followers</h3>
@@ -111,7 +106,6 @@ const HomeUser = () => {
       )}
 
 
-      {/* Display search results */}
       <div className="search-results">
         {userResults.length > 0 ? (
           userResults.map((user) => (
