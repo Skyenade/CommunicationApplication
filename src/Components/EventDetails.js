@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
-// =======
-// import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
-// import { doc, getDoc, collection, query, where, onSnapshot, orderBy, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
 
-// <<<<<<< HEAD
-// // Your component function starts here
-// =======
-// >>>>>>> dev
+
 const EventDetails = () => {
     const { eventId } = useParams();
     const [user,setUser] = useState("");
@@ -24,14 +18,7 @@ const EventDetails = () => {
         if (!eventId) return console.error("No event ID provided.");
 
         const eventDocRef = doc(firestore, "events", eventId);
-// <<<<<<< HEAD
-//         const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
-//             if (docSnapshot.exists()) setEvent(docSnapshot.data());
-//             else console.log("No such event!");
-//         });
 
-//         return () => unsubscribe();
-// =======
         const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
@@ -108,9 +95,8 @@ const EventDetails = () => {
                 timestamp: new Date(),
                 status: "flagged"
             };
+            
 
-
-// >>>>>>> jasp-2
             if (user) {
                 const notificationRef = collection(firestore, 'notifications');
                 const reportData = {
@@ -128,15 +114,14 @@ const EventDetails = () => {
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
             
            
-//             const notificationRef = collection(firestore, "notifications");
-//             await addDoc(notificationRef, {
-//                 message: "A new event report requires verification.",
-//                 eventId: eventId,
-//                 reportedBy: auth.currentUser.displayName,
-//                 timestamp: new Date(),
-//                 status: "unread"
-//             });
-// >>>>>>> origin/nazim-2
+            // const notificationRef = collection(firestore, "notifications");
+            // await addDoc(notificationRef, {
+            //     message: "A new event report requires verification.",
+            //     eventId: eventId,
+            //     reportedBy: auth.currentUser.displayName,
+            //     timestamp: new Date(),
+            //     status: "unread"
+            // });
 
                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
                 const userSnapshot = await getDocs(userQuery);
@@ -157,6 +142,41 @@ const EventDetails = () => {
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
+        }
+    };
+    
+    const handleFlagComment = async (commentId, reason) => {
+        try {
+            const user = auth.currentUser;
+
+            if (user) {
+                const notificationData = {
+                    type: 'comment_flag',
+                    commentId,
+                    eventId,
+                    reason,
+                    userId: user.uid,
+                    userEmail: user.email,
+                    timestamp: new Date().toISOString(),
+                    isRead: false,
+                };
+
+                const notificationRef = collection(firestore, 'notifications');
+                await setDoc(doc(notificationRef, `${user.uid}_${commentId}`), notificationData);
+
+                const moderatorQuery = query(collection(firestore, 'users'), where('role', '==', 'moderator'));
+                const moderatorSnapshot = await getDocs(moderatorQuery);
+
+                moderatorSnapshot.forEach(async (moderator) => {
+                    const moderatorId = moderator.id;
+                    await setDoc(doc(notificationRef, `${moderatorId}_${commentId}`), notificationData);
+                });
+
+                window.alert("Comment flagged successfully!");
+            }
+        } catch (error) {
+            console.error("Error flagging comment:", error);
+            window.alert("Failed to flag the comment.");
         }
     };
 
@@ -183,33 +203,7 @@ const EventDetails = () => {
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
             </div>
-                {/* <div className="attend-event">
-                    <input 
-                        type="checkbox" 
-                        id="attendEvent" 
-                        checked={isAttending} 
-                        onChange={handleAttendanceChange} 
-                        disabled={isAttending} 
-                    />
-                    <label htmlFor="attendEvent">Attend this event</label>
-                </div> */}
-
-                {/* <div className="report-event">
-                    <input 
-                        type="checkbox" 
-                        id="reportEvent" 
-                        onChange={() => setReportReason("")} 
-                    />
-                    <label htmlFor="reportEvent">Report this event</label>
-                    {reportReason && (
-                        <textarea
-                            value={reportReason}
-                            onChange={(e) => setReportReason(e.target.value)}
-                            placeholder="Enter reason for reporting"
-                        />
-                    )}
-                    <button onClick={handleReportEvent}>Submit Report</button>
-                </div> */}
+               
 
             <div>
                 <textarea
@@ -271,7 +265,6 @@ const EventDetails = () => {
                     )}
                 </div>
             </div>
-        // </div>
     );
 };
 
