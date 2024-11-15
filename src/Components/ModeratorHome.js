@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { firestore } from "../firebase";
+import { database, firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import Header from "./Header";
 import EventFeed from "./EventFeed";
+import { get, ref } from "firebase/database";
+import "../Style.css";
 
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [userResults, setUserResults] = useState([]);
+
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -39,6 +44,32 @@ const ModeratorHome = () => {
     }
   };
 
+  const handleSearch = async () => {
+    if (!searchTerm) return;
+
+    try {
+      const usersRef = ref(database, "users");
+      const snapshot = await get(usersRef);
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        const filteredUsers = Object.keys(usersData)
+          .map((key) => ({ id: key, ...usersData[key] }))
+          .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
+
+        if (filteredUsers.length > 0) {
+          setUserResults(filteredUsers);
+        } else {
+          console.log("No users found with that username.");
+        }
+      } else {
+        console.log("No users found.");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
   return (
     <div className="homeuser-container">
       <Header />

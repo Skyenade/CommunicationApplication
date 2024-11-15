@@ -1,38 +1,74 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, onSnapshot, getDocs, arrayRemove, orderBy, addDoc } from "firebase/firestore"; 
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
-import "../Style.css";
+import '../Style.css';
 
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
+    const [comments, setComments] = useState([]);
     const [reportReason, setReportReason] = useState("");
 
     useEffect(() => {
         if (!eventId) return console.error("No event ID provided.");
 
         const eventDocRef = doc(firestore, "events", eventId);
-        const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
-            if (docSnapshot.exists()) setEvent(docSnapshot.data());
-            else console.log("No such event!");
+
+        const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const eventData = docSnapshot.data();
+                setEvent(eventData);
+            } else {
+                console.log("No such event!");
+            }
         });
 
-        return () => unsubscribe();
+        const fetchComments = () => {
+            if (!eventId) {
+                console.error("Event ID is still undefined in fetchComments.");
+                return;
+            }
+
+            const commentsCollection = collection(firestore, "comments");
+            const commentsQuery = query(
+                commentsCollection,
+                where("eventId", "==", eventId),
+                orderBy("timestamp", "desc")
+            );
+
+            const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
+                const commentsList = commentsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setComments(commentsList);
+            });
+
+            return unsubscribeComments;
+        };
+
+        const unsubscribeComments = fetchComments();
+
+        return () => {
+            unsubscribeEvent();
+            unsubscribeComments && unsubscribeComments();
+        };
+
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
         const userDocRef = doc(firestore, "users", auth.currentUser.uid);
         const eventDocRef = doc(firestore, "events", eventId);
         const isAttending = event?.attendees?.includes(auth.currentUser.email);
-    
+
         try {
             const userSnapshot = await getDoc(userDocRef);
             if (!userSnapshot.exists()) {
                 await setDoc(userDocRef, { attendingEvents: [] });
             }
-    
+
             if (isAttending) {
                 await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
                 await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
@@ -55,7 +91,7 @@ const EventDetails = () => {
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
+                username: auth.currentUser.displayName,
                 email: auth.currentUser.email,
                 reason: reportReason,
                 timestamp: new Date(),
@@ -63,8 +99,7 @@ const EventDetails = () => {
             };
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
-            
-            // Send notification to moderators and admins
+
             const notificationRef = collection(firestore, "notifications");
             await addDoc(notificationRef, {
                 message: "A new event report requires verification.",
@@ -72,6 +107,15 @@ const EventDetails = () => {
                 reportedBy: auth.currentUser.displayName,
                 timestamp: new Date(),
                 status: "unread"
+            });
+
+            const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+            const userSnapshot = await getDocs(userQuery);
+            userSnapshot.forEach(async (userDoc) => {
+                await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+                    ...reportData,
+                    targetUserId: userDoc.id,
+                });
             });
 
             window.alert("Event reported successfully!");
@@ -93,7 +137,7 @@ const EventDetails = () => {
             </div>
 
             <div className="date">
-                <h2 className="date">Date & Time: {event.dateTime}</h2>
+                <h2>Date & Time: {event.dateTime}</h2>
             </div>
 
             <div>
@@ -139,6 +183,20 @@ const EventDetails = () => {
 
             <div className="container4">
                 <p>{event.details}</p>
+            </div>
+
+            <div className="comments-section">
+                <h4>Comments</h4>
+                {comments.length > 0 ? (
+                    comments.map((comment) => (
+                        <div key={comment.id} className="comment">
+                            <p><strong>{comment.username}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
+                            <p>{comment.text}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p>No comments yet.</p>
+                )}
             </div>
         </div>
     );
