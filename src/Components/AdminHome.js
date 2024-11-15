@@ -83,6 +83,7 @@ const AdminHome = () => {
           <div className="notifications">
             <h3>Notifications</h3>
             <ul>
+
               {loading ? (
                 <li>Loading notifications...</li>
               ) : notifications.length > 0 ? (
@@ -90,9 +91,7 @@ const AdminHome = () => {
                   <li key={notification.id}>
                     {notification.type === "comment_flag" ? (
                       <>
-                        <p>
-                          <strong>You have a Flagged Comment</strong>
-                        </p>
+                        <p><strong>You have a Flagged Comment</strong></p>
                         <p>Flagged by: {notification.userEmail}</p>
                         <p>Reason: {notification.reason || "No reason provided"}</p>
                         <small>
@@ -103,18 +102,21 @@ const AdminHome = () => {
                       </>
                     ) : notification.type === "event_report" ? (
                       <>
-                        <p>
-                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
-                        <strong>You have a reported Event</strong>  
-                        </p>
-                        <p>
-                          <strong>Reported by:</strong> {notification.userEmail}
-                        </p>
-                        {/* <p>
-                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p> */}
+                        <p><strong>You have a reported Event</strong></p>
+                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
                         <small>
                           {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : notification.type === "assistance_request" ? (
+                      <>
+                        <p><strong>Moderator Requested For Assistance </strong></p>
+                        <p>Requested by: {notification.userEmail}</p>
+                        <p>Message: {notification.requestText || "No message provided"}</p>
+                        <small>
+                        {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
                             : "No timestamp available"}
                         </small>
@@ -122,12 +124,13 @@ const AdminHome = () => {
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">VIEWED</button>
+                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">READ</button>
                   </li>
                 ))
               ) : (
                 <li>No notifications</li>
               )}
+
             </ul>
           </div>
         </div>

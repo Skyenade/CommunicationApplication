@@ -8,6 +8,7 @@ import EventFeed from "./EventFeed";
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -29,6 +30,10 @@ const ModeratorHome = () => {
     fetchNotifications();
   }, []);
 
+  const handleSearch = () => {
+    console.log("Searching for:", searchTerm);
+  };
+
   const handleMarkAsRead = async (notificationId) => {
     try {
       const notificationRef = doc(firestore, "notifications", notificationId);
@@ -46,9 +51,11 @@ const ModeratorHome = () => {
         <input
           type="text"
           className="search-bar"
-          id="search"
-          placeholder="Search events"
+          placeholder="Search for users"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <button className="Search-button" onClick={handleSearch}>Search</button>
         <button className="create-event-button">
           <h4>
             <Link to="/CreateEvent" className="links">
@@ -98,31 +105,17 @@ const ModeratorHome = () => {
               ) : notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "comment_flag" ? (
+                    {notification.type === "event_report" ? (
                       <>
                         <p>
-                          <strong>You have a Flagged Comment</strong>
-                        </p>
-                        <p>Flagged by: {notification.userEmail}</p>
-                        <p>Reason: {notification.reason || "No reason provided"}</p>
-                        <small>
-                          {notification.timestamp
-                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                            : "No timestamp available"}
-                        </small>
-                      </>
-                    ) : notification.type === "event_report" ? (
-                      <>
-                         <p>
-                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
-                        <strong>You have a reported Event</strong>  
+                          <strong>You have a reported event</strong>
                         </p>
                         <p>
                           <strong>Reported by:</strong> {notification.userEmail}
                         </p>
-                        {/* <p>
+                        <p>
                           <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p> */}
+                        </p>
                         <small>
                           {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()

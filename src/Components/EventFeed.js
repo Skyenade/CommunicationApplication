@@ -11,6 +11,7 @@ const EventFeed = () => {
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
 
+
   const { currentUser } = useAuth();
 
 
