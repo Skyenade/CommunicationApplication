@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { useParams } from "react-router-dom";
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
+// =======
+// import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
+// import { doc, getDoc, collection, query, where, onSnapshot, orderBy, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
 
+// <<<<<<< HEAD
+// // Your component function starts here
+// =======
+// >>>>>>> dev
 const EventDetails = () => {
     const { eventId } = useParams();
-    const [user, setUser] = useState("");
+    const [user,setUser] = useState("");
     const [event, setEvent] = useState(null);
     const [comments, setComments] = useState([]);
     const [reportReason, setReportReason] = useState("");
@@ -17,6 +24,14 @@ const EventDetails = () => {
         if (!eventId) return console.error("No event ID provided.");
 
         const eventDocRef = doc(firestore, "events", eventId);
+// <<<<<<< HEAD
+//         const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
+//             if (docSnapshot.exists()) setEvent(docSnapshot.data());
+//             else console.log("No such event!");
+//         });
+
+//         return () => unsubscribe();
+// =======
         const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
@@ -28,6 +43,11 @@ const EventDetails = () => {
         });
 
         const fetchComments = () => {
+            if (!eventId) {
+                console.error("Event ID is still undefined in fetchComments.");
+                return;
+            }
+
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
                 commentsCollection,
@@ -72,10 +92,13 @@ const EventDetails = () => {
     };
 
     const handleReportEvent = async () => {
+
         if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
         if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
-
+    
         try {
+            const user = auth.currentUser;
+
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
@@ -86,9 +109,51 @@ const EventDetails = () => {
                 status: "flagged"
             };
 
+
+// >>>>>>> jasp-2
+            if (user) {
+                const notificationRef = collection(firestore, 'notifications');
+                const reportData = {
+                    type: 'event_report',
+                    eventId,
+                    userId: user.uid,
+                    userName: user.displayName,
+                    userEmail: user.email,
+                    reason: reportReason,
+                    timestamp: new Date(),
+                    isRead: false,
+                };
+                await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
+                console.log("Event reported successfully");
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+            
+           
+//             const notificationRef = collection(firestore, "notifications");
+//             await addDoc(notificationRef, {
+//                 message: "A new event report requires verification.",
+//                 eventId: eventId,
+//                 reportedBy: auth.currentUser.displayName,
+//                 timestamp: new Date(),
+//                 status: "unread"
+//             });
+// >>>>>>> origin/nazim-2
+
+                const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+                const userSnapshot = await getDocs(userQuery);
+                userSnapshot.forEach(async (userDoc) => {
+                    await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+                        ...reportData,
+                        targetUserId: userDoc.id,
+                    });
+                });
+
+                window.alert("Event reported successfully!");
+                setReportReason("");
+            }
+            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+
             window.alert("Event reported successfully!");
-            setReportReason("");
+            setReportReason(""); // Clear the reason after reporting
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
@@ -113,16 +178,47 @@ const EventDetails = () => {
                 <input 
                     type="checkbox" 
                     id="attendEvent" 
-                    checked={isAttending} 
+                    checked={event.attendees?.includes(auth.currentUser.displayName)}
                     onChange={handleAttendanceChange} 
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
             </div>
+                {/* <div className="attend-event">
+                    <input 
+                        type="checkbox" 
+                        id="attendEvent" 
+                        checked={isAttending} 
+                        onChange={handleAttendanceChange} 
+                        disabled={isAttending} 
+                    />
+                    <label htmlFor="attendEvent">Attend this event</label>
+                </div> */}
 
-            <div className="report-event">
-                <Link to={`/report/${eventId}`}>
-                    <button>Report Event</button>
-                </Link>
+                {/* <div className="report-event">
+                    <input 
+                        type="checkbox" 
+                        id="reportEvent" 
+                        onChange={() => setReportReason("")} 
+                    />
+                    <label htmlFor="reportEvent">Report this event</label>
+                    {reportReason && (
+                        <textarea
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            placeholder="Enter reason for reporting"
+                        />
+                    )}
+                    <button onClick={handleReportEvent}>Submit Report</button>
+                </div> */}
+
+            <div>
+                <textarea
+                    id="reportReason"
+                    placeholder="Provide reason for reporting"
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                />
+                <button onClick={handleReportEvent}>Report Event</button>
             </div>
 
             <div className="main-containered">
@@ -142,32 +238,42 @@ const EventDetails = () => {
                 {event.images && <img src={event.images} alt={event.title} />}
             </div>
 
-            <div className="event-details-text">
+{/* <<<<<<< HEAD
+            <div className="container3">
                 <h4>Event Details</h4>
+            </div>
+
+            <div className="container4">
                 <p>{event.details}</p>
-            </div>
+======= */}
+                <div className="event-details-text">
+                    <h4>Event Details</h4>
+                    <p>{event.details}</p>
+                </div>
 
-            <div className="event-map">
-                {event.locationImage && (
-                    <img src={event.locationImage} alt="Event Map" />
-                )}
-            </div>
+                <div className="event-map">
+                    {event.locationImage && (
+                        <img src={event.locationImage} alt="Event Map" />
+                    )}
+                </div>
 
-            <div className="comments-section">
-                <h4>Comments</h4>
-                {comments.length > 0 ? (
-                    comments.map((comment) => (
-                        <div key={comment.id} className="comment">
-                            <p><strong>{comment.userName}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
-                            <p>{comment.text}</p>
-                        </div>
-                    ))
-                ) : (
-                    <p>No comments yet.</p>
-                )}
+                <div className="comments-section">
+                    <h4>Comments</h4>
+                    {comments.length > 0 ? (
+                        comments.map((comment) => (
+                            <div key={comment.id} className="comment">
+                                <p><strong>{comment.userName}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
+                                <p>{comment.text}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No comments yet.</p>
+                    )}
+                </div>
             </div>
-        </div>
+        // </div>
     );
 };
+
 
 export default EventDetails;
