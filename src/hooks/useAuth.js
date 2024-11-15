@@ -1,10 +1,10 @@
 // src/hooks/useAuth.js
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase"; // Asegúrate de que esta referencia sea correcta
+import { auth } from "../firebase"; // Make sure this reference is correct
 
 const useAuth = () => {
-    const [currentUser, setCurrentUser] = useState(undefined); // Cambia a undefined
+    const [currentUser, setCurrentUser] = useState(undefined); // Change to undefined
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {

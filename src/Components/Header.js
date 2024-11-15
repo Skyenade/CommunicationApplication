@@ -27,13 +27,28 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
     }, [userId]);
 
     const handleHomeNavigation = () => {
+
+        if (userType === "moderator") {
+            navigate("/ModeratorHome");
+        } else {
+            navigate("/HomeUser");
+        }
+
         // if (userType === "User") {
             navigate("/HomeUser");
         // } else if (userType === "Moderator") {
             // navigate("/ModeratorHome");
         // }
+
     };
 
+    const handleFollowersNavigation = () => {
+        if (userType === "moderator") {
+            navigate("/ModeratorHome?showFollowers=true");
+        } else {
+            navigate("/HomeUser?showFollowers=true");
+        }
+    };
     return (
         <div className="header-container">
             <h1 className="home-heading">EventUp</h1>
@@ -41,8 +56,9 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
             <div className="nav-links">
                 <a className="nav-item" onClick={handleHomeNavigation}>Home</a>
                 <a className="nav-item">My Events</a>
-                <a className="nav-item">My Followers</a>
+                <a className="nav-item" onClick={handleFollowersNavigation}>My Followers</a>
             </div>
+
 
             <div className="auth-buttons">
                 <button
