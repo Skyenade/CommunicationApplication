@@ -27,12 +27,12 @@ const HomeUser = () => {
     setShowFollowers(queryParams.get("showFollowers") === "true");
   }, [location.search]);
 
-  // Llamada a la función para obtener el número de seguidores
+ 
   useEffect(() => {
     const fetchFollowersCount = async () => {
       if (currentUser) {
-        const count = await getFollowersCount(currentUser.uid);  // Llama a la función
-        setFollowersCount(count);  // Actualiza el número de seguidores
+        const count = await getFollowersCount(currentUser.uid);  //Call the function
+        setFollowersCount(count);  // Update the number of followers
       }
     };
 
@@ -66,7 +66,7 @@ const HomeUser = () => {
     }
   };
 
-  // Función para alternar la visualización de la lista de seguidores
+  // Function to toggle the display of the followers list
   const toggleFollowersList = () => {
     setShowFollowers(!showFollowers);
   };
@@ -90,7 +90,7 @@ const HomeUser = () => {
         <button className="create-event-button">
           <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
         </button>
-        {/* Muestra el número de seguidores */}
+        {/* Shows the number of followers*/}
         <div className="followers-count">
           <p>You have {followersCount} followers</p>
         </div>

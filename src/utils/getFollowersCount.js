@@ -1,19 +1,19 @@
 // src/utils/getFollowersCount.js
 import { getDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';  // Asegúrate de tener correctamente importada tu configuración de Firestore
+import { db } from '../firebase';  //
 
-// Función para obtener el número de seguidores de un usuario
+// Function to get the number of followers of a user
 const getFollowersCount = async (userId) => {
     try {
-        const userRef = doc(db, 'users', userId);  // Obtén la referencia del documento del usuario
+        const userRef = doc(db, 'users', userId);  // Get the user's document reference
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
-            const followers = userSnap.data().followers || [];  // Obtén la lista de seguidores
-            return followers.length;  // Devuelve la cantidad de seguidores
+            const followers = userSnap.data().followers || [];  // Get the list of followers
+            return followers.length;  // Returns the number of followers
         } else {
             console.log('El usuario no existe');
-            return 0;  // Si el usuario no existe, retornamos 0 seguidores
+            return 0;  // If the user does not exist, we return 0 followers
         }
     } catch (error) {
         console.error('Error al obtener los seguidores:', error);

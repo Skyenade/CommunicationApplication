@@ -105,18 +105,18 @@ const UserProfile = () => {
       const userId = user.uid;
 
       try {
-        // Agregar el usuario actual a la lista de seguidores
+        // Add the current user to the followers list
         await update(ref(database, `users/${userId}`), {
           followers: [...(user.followers || []), currentUserId]
         });
 
-        // Agregar al usuario seguido a la lista de seguidos del usuario actual
+        // Add the followed user to the current user's following list
         await update(ref(database, `users/${currentUserId}`), {
           following: [...(user.following || []), userId]
         });
 
         setFollowersCount(prevCount => prevCount + 1);
-        setIsFollowing(true);  // Actualiza el estado a "siguiendo"
+        setIsFollowing(true);  // Update status to "following"
         alert("You are now following this user!");
       } catch (error) {
         console.error("Error following user: ", error);
@@ -130,18 +130,18 @@ const UserProfile = () => {
       const userId = user.uid;
 
       try {
-        // Eliminar el usuario actual de la lista de seguidores
+        // Remove current user from followers list
         await update(ref(database, `users/${userId}`), {
           followers: (user.followers || []).filter(id => id !== currentUserId)
         });
 
-        // Eliminar al usuario seguido de la lista de seguidos del usuario actual
+        // Remove the followed user from the current user's following list
         await update(ref(database, `users/${currentUserId}`), {
           following: (user.following || []).filter(id => id !== userId)
         });
 
         setFollowersCount(prevCount => prevCount - 1);
-        setIsFollowing(false);  // Actualiza el estado a "no seguido"
+        setIsFollowing(false);  // Update status to "unfollowed"
         alert("You have unfollowed this user.");
       } catch (error) {
         console.error("Error unfollowing user: ", error);
@@ -236,7 +236,7 @@ const UserProfile = () => {
               <h1>Hello, {username || 'User'}</h1>
               <p>Your email: {user.email}</p>
 
-              <p>Followers: {followersCount}</p>  {/* Mostrar el número de seguidores */}
+              <p>Followers: {followersCount}</p>  {/* Show the number of followers */}
 
               <p>Update your username:</p>
               <input
