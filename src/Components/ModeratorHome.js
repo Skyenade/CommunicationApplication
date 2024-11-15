@@ -8,6 +8,7 @@ import EventFeed from "./EventFeed";
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -28,6 +29,10 @@ const ModeratorHome = () => {
 
     fetchNotifications();
   }, []);
+
+  const handleSearch = () => {
+    console.log("Searching for:", searchTerm);
+  };
 
   const handleMarkAsRead = async (notificationId) => {
     try {

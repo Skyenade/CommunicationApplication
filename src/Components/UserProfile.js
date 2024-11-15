@@ -34,8 +34,8 @@ const UserProfile = () => {
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         const userData = userSnap.data();
-        setFollowers(userData.followers || []);  // Establece la lista de seguidores
-        setFollowersCount(userData.followers.length);  // Establece el número de seguidores
+        setFollowers(userData.followers || []);
+        setFollowersCount(userData.followers.length);
       }
     } catch (error) {
       console.error("Error fetching followers: ", error);
@@ -50,7 +50,6 @@ const UserProfile = () => {
         const userId = currentUser.uid;
         const userRef = ref(database, `users/${userId}`);
         const eventsRef = ref(database, 'events');
-        // const attendanceRef = ref(database, `users/${userId}/attendanceHistory`);
 
         onValue(userRef, (snapshot) => {
           const data = snapshot.val();
@@ -75,7 +74,7 @@ const UserProfile = () => {
 
         // onValue(followersRef, (snapshot) => {
         //   const followers = snapshot.val() || {};
-        //   setFollowersCount(Object.keys(followers).length);  // Contamos los seguidores
+        //   setFollowersCount(Object.keys(followers).length);
         // });
         // const fetchFollowersCount = async () => {
         //   const count = await getFollowersCount(userId);
@@ -94,7 +93,6 @@ const UserProfile = () => {
   }, [auth]);
 
   const checkIfFollowing = (userId, followers) => {
-    // Verificar si el usuario actual sigue a este usuario
     const currentUserId = auth.currentUser.uid;
     setIsFollowing(followers && followers.includes(currentUserId));
   };
@@ -105,18 +103,16 @@ const UserProfile = () => {
       const userId = user.uid;
 
       try {
-        // Add the current user to the followers list
         await update(ref(database, `users/${userId}`), {
           followers: [...(user.followers || []), currentUserId]
         });
 
-        // Add the followed user to the current user's following list
         await update(ref(database, `users/${currentUserId}`), {
           following: [...(user.following || []), userId]
         });
 
         setFollowersCount(prevCount => prevCount + 1);
-        setIsFollowing(true);  // Update status to "following"
+        setIsFollowing(true);
         alert("You are now following this user!");
       } catch (error) {
         console.error("Error following user: ", error);
@@ -130,18 +126,16 @@ const UserProfile = () => {
       const userId = user.uid;
 
       try {
-        // Remove current user from followers list
         await update(ref(database, `users/${userId}`), {
           followers: (user.followers || []).filter(id => id !== currentUserId)
         });
 
-        // Remove the followed user from the current user's following list
         await update(ref(database, `users/${currentUserId}`), {
           following: (user.following || []).filter(id => id !== userId)
         });
 
         setFollowersCount(prevCount => prevCount - 1);
-        setIsFollowing(false);  // Update status to "unfollowed"
+        setIsFollowing(false);
         alert("You have unfollowed this user.");
       } catch (error) {
         console.error("Error unfollowing user: ", error);
@@ -188,7 +182,6 @@ const UserProfile = () => {
         console.error('Error updating profile:', error);
       });
 
-      // Update attendance history if needed (modify logic as per requirements)
       await set(attendanceRef, attendanceHistory).catch(error => console.error('Error updating attendance history:', error));
     }
   };
@@ -236,7 +229,7 @@ const UserProfile = () => {
               <h1>Hello, {username || 'User'}</h1>
               <p>Your email: {user.email}</p>
 
-              <p>Followers: {followersCount}</p>  {/* Show the number of followers */}
+              <p>Followers: {followersCount}</p>
 
               <p>Update your username:</p>
               <input
