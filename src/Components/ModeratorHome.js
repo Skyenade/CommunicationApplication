@@ -8,6 +8,8 @@ import EventFeed from "./EventFeed";
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // Define searchTerm state
+  const [searchResults, setSearchResults] = useState([]); // Define searchResults state
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -37,6 +39,13 @@ const ModeratorHome = () => {
     } catch (err) {
       console.error("Error marking notification as read: ", err);
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Logic for handling search based on searchTerm
+    console.log("Searching for:", searchTerm);
+    // Set searchResults based on search logic if necessary
   };
 
   return (
@@ -115,16 +124,8 @@ const ModeratorHome = () => {
                       </>
                     ) : notification.type === "event_report" ? (
                       <>
-                         <p>
-                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
-                        <strong>You have a reported Event</strong>  
-                        </p>
-                        <p>
-                          <strong>Reported by:</strong> {notification.userEmail}
-                        </p>
-                        {/* <p>
-                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p> */}
+                        <p><strong>You have a reported Event</strong></p>
+                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
                         <small>
                           {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()

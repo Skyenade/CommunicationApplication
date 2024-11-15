@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-import { collection, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove, doc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, getDocs, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove, doc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import useAuth from '../hooks/useAuth';
+
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
@@ -25,10 +26,15 @@ const EventFeed = () => {
       try {
         const eventsCollection = collection(firestore, 'events');
         const eventsSnapshot = await getDocs(eventsCollection);
-        const eventsList = eventsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const eventsList = eventsSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...doc.data(),
+            likes: data.likes || [],  // Asegúrate de que likes y dislikes sean arrays
+            dislikes: data.dislikes || [],
+          };
+        });
         setEvents(eventsList);
       } catch (error) {
         console.error('Error fetching events: ', error);
@@ -94,6 +100,7 @@ const EventFeed = () => {
   };
 
   const handleLike = async (eventId) => {
+
     if (!currentUser || !currentUser.uid) {
       console.error("User is not authenticated or userId is undefined.");
       return;
@@ -101,10 +108,27 @@ const EventFeed = () => {
 
     try {
       const eventRef = doc(firestore, "events", eventId);
+      const eventDoc = await getDoc(eventRef);
+      const eventData = eventDoc.data();
+
+      if (eventData.likes.includes(currentUser.uid)) {
+        console.log("User has already liked this event.");
+        return; // No hacer nada si el usuario ya dio like
+      }
       await updateDoc(eventRef, {
         likes: arrayUnion(currentUser.uid),
         dislikes: arrayRemove(currentUser.uid)
       });
+
+
+      setEvents(prevEvents =>
+        prevEvents.map(event =>
+          event.id === eventId
+            ? { ...event, likes: [...event.likes, currentUser.uid], dislikes: event.dislikes.filter(uid => uid !== currentUser.uid) }
+            : event
+        )
+      );
+
       console.log("Event liked successfully.");
     } catch (error) {
       console.error("Error liking event:", error);
@@ -123,6 +147,16 @@ const EventFeed = () => {
         dislikes: arrayUnion(currentUser.uid),
         likes: arrayRemove(currentUser.uid)
       });
+
+
+      setEvents(prevEvents =>
+        prevEvents.map(event =>
+          event.id === eventId
+            ? { ...event, dislikes: [...event.dislikes, currentUser.uid], likes: event.likes.filter(uid => uid !== currentUser.uid) }
+            : event
+        )
+      );
+
       console.log("Event disliked successfully.");
     } catch (error) {
       console.error("Error disliking event:", error);
