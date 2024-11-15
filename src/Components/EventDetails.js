@@ -5,7 +5,6 @@ import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
 
-
 const EventDetails = () => {
     const { eventId } = useParams();
     const [user,setUser] = useState("");
