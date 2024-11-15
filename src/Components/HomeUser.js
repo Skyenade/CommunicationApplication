@@ -9,7 +9,7 @@ import EventFeed from "./EventFeed";
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
 import '../Style.css';
-
+// ok?
 const HomeUser = () => {
 
   const currentUser = useAuth();
