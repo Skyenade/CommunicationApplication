@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, onSnapshot, getDocs, arrayRemove, orderBy, addDoc } from "firebase/firestore"; 
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
@@ -10,6 +10,7 @@ const EventDetails = () => {
     const [event, setEvent] = useState(null);
     const [comments, setComments] = useState([]);
     const [reportReason, setReportReason] = useState("");
+    const [isAttending, setIsAttending] = useState(false);
 
     useEffect(() => {
         if (!eventId) return console.error("No event ID provided.");
@@ -20,6 +21,7 @@ const EventDetails = () => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
                 setEvent(eventData);
+                setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
             } else {
                 console.log("No such event!");
             }
@@ -55,7 +57,6 @@ const EventDetails = () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();
         };
-
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
@@ -72,10 +73,12 @@ const EventDetails = () => {
             if (isAttending) {
                 await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
                 await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+                setIsAttending(false);
                 window.alert("You are no longer attending this event.");
             } else {
                 await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
                 await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+                setIsAttending(true);
                 window.alert("You are now attending this event!");
             }
         } catch (error) {
@@ -98,28 +101,29 @@ const EventDetails = () => {
                 status: "flagged"
             };
 
+            // Save the report to 'reports' collection
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
+            // Send a notification to admin and moderator roles
             const notificationRef = collection(firestore, "notifications");
-            await addDoc(notificationRef, {
-                message: "A new event report requires verification.",
-                eventId: eventId,
-                reportedBy: auth.currentUser.displayName,
-                timestamp: new Date(),
-                status: "unread"
-            });
-
             const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
             const userSnapshot = await getDocs(userQuery);
             userSnapshot.forEach(async (userDoc) => {
                 await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
-                    ...reportData,
+                    type: 'event_report',
+                    eventId,
+                    userId: auth.currentUser.uid,
+                    userName: auth.currentUser.displayName,
+                    userEmail: auth.currentUser.email,
+                    reason: reportReason,
+                    timestamp: new Date(),
+                    isRead: false,
                     targetUserId: userDoc.id,
                 });
             });
 
             window.alert("Event reported successfully!");
-            setReportReason("");  
+            setReportReason(""); // Clear the reason after reporting
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
@@ -144,7 +148,7 @@ const EventDetails = () => {
                 <input 
                     type="checkbox" 
                     id="attendEvent" 
-                    checked={event.attendees?.includes(auth.currentUser.displayName)}
+                    checked={isAttending}
                     onChange={handleAttendanceChange} 
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
@@ -177,12 +181,15 @@ const EventDetails = () => {
                 {event.images && <img src={event.images} alt={event.title} />}
             </div>
 
-            <div className="container3">
+            <div className="event-details-text">
                 <h4>Event Details</h4>
+                <p>{event.details}</p>
             </div>
 
-            <div className="container4">
-                <p>{event.details}</p>
+            <div className="event-map">
+                {event.locationImage && (
+                    <img src={event.locationImage} alt="Event Map" />
+                )}
             </div>
 
             <div className="comments-section">

@@ -13,7 +13,6 @@ const ModeratorHome = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
-
   useEffect(() => {
     const fetchNotifications = () => {
       const notificationsRef = collection(firestore, "notifications");
@@ -70,6 +69,7 @@ const ModeratorHome = () => {
       console.error("Error fetching users:", error);
     }
   };
+
   return (
     <div className="homeuser-container">
       <Header />
@@ -79,7 +79,7 @@ const ModeratorHome = () => {
           className="search-bar"
           placeholder="Search for users"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)} 
         />
         <button className="Search-button" onClick={handleSearch}>Search</button>
         <button className="create-event-button">
