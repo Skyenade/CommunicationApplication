@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { ref, get, child, update } from "firebase/database";
+import { ref, get } from "firebase/database";
 import { database } from "../firebase";
 import Header from "../Components/Header";
 import useAuth from "../hooks/useAuth";
@@ -11,7 +11,6 @@ import getFollowersCount from "../utils/getFollowersCount";
 import '../Style.css';
 
 const HomeUser = () => {
-
   const currentUser = useAuth();
   const location = useLocation();
   const { following, followers, followUser, unfollowUser } = useFollow(currentUser);
@@ -25,18 +24,19 @@ const HomeUser = () => {
     setShowFollowers(queryParams.get("showFollowers") === "true");
   }, [location.search]);
 
- 
   useEffect(() => {
     const fetchFollowersCount = async () => {
       if (currentUser) {
+        console.log("Current User ID:", currentUser.uid); // Debugging log
         const count = await getFollowersCount(currentUser.uid);
+        console.log("Fetched Followers Count:", count); // Debugging log
         setFollowersCount(count);
       }
     };
 
     fetchFollowersCount();
   }, [currentUser]);
-  
+
   const handleSearch = async () => {
     if (!searchTerm) return;
 
@@ -104,7 +104,6 @@ const HomeUser = () => {
           )}
         </div>
       )}
-
 
       <div className="search-results">
         {userResults.length > 0 ? (
