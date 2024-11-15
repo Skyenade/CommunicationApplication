@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, getDocs,onSnapshot,arrayRemove,setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs, onSnapshot, orderBy } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
 
-
 const EventDetails = () => {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
-
     const [comments, setComments] = useState([]);
-
     const [reportReason, setReportReason] = useState("");
-    const [isAttending, setIsAttending] = useState(false); 
-  
-
+    const [isAttending, setIsAttending] = useState(false);
 
     useEffect(() => {
         if (!eventId) {
@@ -29,15 +23,12 @@ const EventDetails = () => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
                 setEvent(eventData);
-               
                 setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
             } else {
                 console.log("No such event!");
             }
         });
 
-
-        // Fetch comments related to the event
         const fetchComments = () => {
             if (!eventId) {
                 console.error("Event ID is still undefined in fetchComments.");
@@ -75,13 +66,11 @@ const EventDetails = () => {
         const eventDocRef = doc(firestore, "events", eventId);
 
         if (isAttending) {
-            
             await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
             await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
             setIsAttending(false);
             window.alert("You are no longer attending this event.");
         } else {
-           
             await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
             await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
             setIsAttending(true);
@@ -96,7 +85,6 @@ const EventDetails = () => {
         }
 
         try {
-
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
@@ -107,7 +95,6 @@ const EventDetails = () => {
             };
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
-
             window.alert("Event reported successfully!");
             setReportReason("");  
 
@@ -167,8 +154,8 @@ const EventDetails = () => {
                         type="checkbox" 
                         id="attendEvent" 
                         checked={isAttending} 
-                        onChange={handleAttendanceChange} 
-                        disabled={isAttending} 
+                        onChange={handleAttendanceChange}
+                        disabled={isAttending}  
                     />
                     <label htmlFor="attendEvent">Attend this event</label>
 
@@ -213,20 +200,18 @@ const EventDetails = () => {
                 </div>
 
                 <div className="comments-section">
-                    <h4>Comments </h4>
+                    <h4>Comments</h4>
                     {comments.length > 0 ? (
                         comments.map((comment) => (
                             <div key={comment.id} className="comment">
                                 <p><strong>{comment.userName}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
                                 <p>{comment.text}</p>
-
                             </div>
                         ))
                     ) : (
                         <p>No comments yet.</p>
                     )}
                 </div>
-
             </div>
         </div>
     );
