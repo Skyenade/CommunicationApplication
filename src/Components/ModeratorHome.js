@@ -46,9 +46,11 @@ const ModeratorHome = () => {
         <input
           type="text"
           className="search-bar"
-          id="search"
-          placeholder="Search events"
+          placeholder="Search for users"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <button className="Search-button" onClick={handleSearch}>Search</button>
         <button className="create-event-button">
           <h4>
             <Link to="/CreateEvent" className="links">
