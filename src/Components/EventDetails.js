@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
-
+import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
 
-
 const EventDetails = () => {
     const { eventId } = useParams();
-    const [user,setUser] = useState("");
     const [event, setEvent] = useState(null);
     const [reportReason, setReportReason] = useState("");
 
@@ -18,18 +14,9 @@ const EventDetails = () => {
         if (!eventId) return console.error("No event ID provided.");
 
         const eventDocRef = doc(firestore, "events", eventId);
-
-
-        const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const eventData = docSnapshot.data();
-                setEvent(eventData);
-                setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
-            } else {
-                console.log("No such event!");
-            }
-
-       
+        const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) setEvent(docSnapshot.data());
+            else console.log("No such event!");
         });
 
         return () => unsubscribe();
@@ -61,13 +48,10 @@ const EventDetails = () => {
     };
 
     const handleReportEvent = async () => {
-
         if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
         if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
     
         try {
-            const user = auth.currentUser;
-
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
@@ -77,49 +61,10 @@ const EventDetails = () => {
                 timestamp: new Date(),
                 status: "flagged"
             };
-            
 
-            if (user) {
-                const notificationRef = collection(firestore, 'notifications');
-                const reportData = {
-                    type: 'event_report',
-                    eventId,
-                    userId: user.uid,
-                    userName: user.displayName,
-                    userEmail: user.email,
-                    reason: reportReason,
-                    timestamp: new Date(),
-                    isRead: false,
-                };
-                await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
-                console.log("Event reported successfully");
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
             
-           
-            // const notificationRef = collection(firestore, "notifications");
-            // await addDoc(notificationRef, {
-            //     message: "A new event report requires verification.",
-            //     eventId: eventId,
-            //     reportedBy: auth.currentUser.displayName,
-            //     timestamp: new Date(),
-            //     status: "unread"
-            // });
-
-                const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
-                const userSnapshot = await getDocs(userQuery);
-                userSnapshot.forEach(async (userDoc) => {
-                    await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
-                        ...reportData,
-                        targetUserId: userDoc.id,
-                    });
-                });
-
-                window.alert("Event reported successfully!");
-                setReportReason("");
-            }
-            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
-            
-           
+            // Send notification to moderators and admins
             const notificationRef = collection(firestore, "notifications");
             await addDoc(notificationRef, {
                 message: "A new event report requires verification.",
@@ -134,41 +79,6 @@ const EventDetails = () => {
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
-        }
-    };
-    
-    const handleFlagComment = async (commentId, reason) => {
-        try {
-            const user = auth.currentUser;
-
-            if (user) {
-                const notificationData = {
-                    type: 'comment_flag',
-                    commentId,
-                    eventId,
-                    reason,
-                    userId: user.uid,
-                    userEmail: user.email,
-                    timestamp: new Date().toISOString(),
-                    isRead: false,
-                };
-
-                const notificationRef = collection(firestore, 'notifications');
-                await setDoc(doc(notificationRef, `${user.uid}_${commentId}`), notificationData);
-
-                const moderatorQuery = query(collection(firestore, 'users'), where('role', '==', 'moderator'));
-                const moderatorSnapshot = await getDocs(moderatorQuery);
-
-                moderatorSnapshot.forEach(async (moderator) => {
-                    const moderatorId = moderator.id;
-                    await setDoc(doc(notificationRef, `${moderatorId}_${commentId}`), notificationData);
-                });
-
-                window.alert("Comment flagged successfully!");
-            }
-        } catch (error) {
-            console.error("Error flagging comment:", error);
-            window.alert("Failed to flag the comment.");
         }
     };
 
@@ -195,7 +105,6 @@ const EventDetails = () => {
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
             </div>
-
 
             <div>
                 <textarea
@@ -224,27 +133,15 @@ const EventDetails = () => {
                 {event.images && <img src={event.images} alt={event.title} />}
             </div>
 
-{/* <<<<<<< HEAD
             <div className="container3">
                 <h4>Event Details</h4>
             </div>
 
             <div className="container4">
                 <p>{event.details}</p>
-======= */}
-                <div className="event-details-text">
-                    <h4>Event Details</h4>
-                    <p>{event.details}</p>
-                </div>
-=======
-
-          
-            <div className="container4">
-                <p>{event.details}</p>
             </div>
+        </div>
     );
 };
-
-
 
 export default EventDetails;
