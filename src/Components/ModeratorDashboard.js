@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { collection, query, where, onSnapshot, doc, updateDoc, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { getDatabase, ref, update, get } from "firebase/database"; // Added imports for Realtime Database
 import "../Style.css";
 
@@ -93,37 +93,35 @@ const ModeratorDashboard = () => {
     }
   };
 
-  // Handle clearing posts and reason field in the report (but not removing the user)
-  const handleRemoveUserPosts = async (reportId, userId) => {
-    if (window.confirm("Are you sure you want to clear this user's posts and remove the reason?")) {
+  // Handle removing a user
+  const handleRemoveUser = async (reportId, userId) => {
+    if (window.confirm("Are you sure you want to remove this user?")) {
       try {
-        // Fetch posts for the user from Firestore
-        const postsRef = collection(firestore, "posts");
-        const postsQuery = query(postsRef, where("userId", "==", userId));  // Query for posts of this user
-        const querySnapshot = await getDocs(postsQuery);  // Get posts
+        // Get a reference to the user in the Realtime Database
+        const userRef = ref(db, `users/${userId}`);
 
-        // Check if posts exist
-        if (querySnapshot.empty) {
-          console.log(`No posts found for user ${userId}`);
-          window.alert("No posts found for this user.");
+        // Check if the user exists
+        const userSnapshot = await get(userRef);
+        if (!userSnapshot.exists()) {
+          console.error("User does not exist in the database.");
+          window.alert("User does not exist.");
           return;
         }
 
-        // Update the posts' reason field to an empty string (clear the content)
-        querySnapshot.forEach(async (doc) => {
-          await updateDoc(doc.ref, { reason: "" });  // Clear the 'reason' field
-          console.log(`Post ${doc.id} reason cleared.`);
-        });
+        // Update the user's status to "removed" in Realtime Database
+        await update(userRef, { status: "removed" });
 
-        // Update the report's reason field to an empty string
+        console.log(`User ${userId} removed successfully.`);
+
+        // Update the report status in Firestore
         const reportRef = doc(firestore, "reports", reportId);
-        await updateDoc(reportRef, { reason: "" });
+        await updateDoc(reportRef, { status: "user_removed" });
 
-        console.log(`Report ${reportId} reason cleared.`);
-        window.alert("User's posts cleared and report reason removed.");
+        console.log(`Report ${reportId} marked as "user_removed".`);
+        window.alert("User removed.");
       } catch (error) {
-        console.error("Error clearing posts and reason:", error);
-        window.alert("Failed to clear posts and reason. Please try again.");
+        console.error("Error removing user:", error);
+        window.alert("Failed to remove user. Please try again.");
       }
     }
   };
@@ -137,7 +135,7 @@ const ModeratorDashboard = () => {
           <table>
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Reported By</th>
                 <th>Email</th>
                 <th>Event ID</th>
                 <th>Reason</th>
@@ -165,8 +163,8 @@ const ModeratorDashboard = () => {
                     <button onClick={() => handleDismissReport(report.id)}>
                       Dismiss Report
                     </button>
-                    <button onClick={() => handleRemoveUserPosts(report.id, report.userId)}>
-                      Remove Posts and Reason
+                    <button onClick={() => handleRemoveUser(report.id, report.userId)}>
+                      Remove
                     </button>
                   </td>
                 </tr>
