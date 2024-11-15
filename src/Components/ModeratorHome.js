@@ -98,31 +98,17 @@ const ModeratorHome = () => {
               ) : notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "comment_flag" ? (
+                    {notification.type === "event_report" ? (
                       <>
                         <p>
-                          <strong>You have a Flagged Comment</strong>
-                        </p>
-                        <p>Flagged by: {notification.userEmail}</p>
-                        <p>Reason: {notification.reason || "No reason provided"}</p>
-                        <small>
-                          {notification.timestamp
-                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                            : "No timestamp available"}
-                        </small>
-                      </>
-                    ) : notification.type === "event_report" ? (
-                      <>
-                         <p>
-                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
-                        <strong>You have a reported Event</strong>  
+                          <strong>You have a reported event</strong>
                         </p>
                         <p>
                           <strong>Reported by:</strong> {notification.userEmail}
                         </p>
-                        {/* <p>
+                        <p>
                           <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p> */}
+                        </p>
                         <small>
                           {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
