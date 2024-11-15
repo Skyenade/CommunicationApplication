@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
+// <<<<<<< HEAD
+// import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where,onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore"; 
+// import { firestore, auth } from "../firebase";
+// import Header from "../Components/Header";
+// import '../Style.css';
+
+// =======
+import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
-import '../Style.css';
-
+import "../Style.css";
 
 const EventDetails = () => {
     const { eventId } = useParams();
     const [user,setUser] = useState("");
     const [event, setEvent] = useState(null);
-    const [comments, setComments] = useState([]);
     const [reportReason, setReportReason] = useState("");
     const [isAttending, setIsAttending] = useState(false);
+
 
     useEffect(() => {
         if (!eventId) return console.error("No event ID provided.");
@@ -59,22 +65,50 @@ const EventDetails = () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();
         };
+        const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) setEvent(docSnapshot.data());
+            else console.log("No such event!");
+        });
+
+        return () => unsubscribe();
     }, [eventId]);
 
     const handleAttendanceChange = async () => {
         const userDocRef = doc(firestore, "users", auth.currentUser.uid);
         const eventDocRef = doc(firestore, "events", eventId);
+// <<<<<<< HEAD
 
-        if (isAttending) {
-            await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
-            await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
-            setIsAttending(false);
-            window.alert("You are no longer attending this event.");
-        } else {
-            await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
-            await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
-            setIsAttending(true);
-            window.alert("You are now attending this event!");
+//         if (isAttending) {
+//             await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+//             await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+//             setIsAttending(false);
+//             window.alert("You are no longer attending this event.");
+//         } else {
+//             await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+//             await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+//             setIsAttending(true);
+//             window.alert("You are now attending this event!");
+// =======
+        const isAttending = event?.attendees?.includes(auth.currentUser.email);
+    
+        try {
+            const userSnapshot = await getDoc(userDocRef);
+            if (!userSnapshot.exists()) {
+                await setDoc(userDocRef, { attendingEvents: [] });
+            }
+    
+            if (isAttending) {
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+                window.alert("You are no longer attending this event.");
+            } else {
+                await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+                window.alert("You are now attending this event!");
+            }
+        } catch (error) {
+            console.error("Error updating attendance:", error);
+// >>>>>>> jasp-2
         }
     };
 
@@ -86,15 +120,17 @@ const EventDetails = () => {
         try {
             const user = auth.currentUser;
 
-            const reportData = {
-                eventId,
-                userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
-                email: auth.currentUser.email,
-                reason: reportReason,
-                timestamp: new Date(),
-                status: "flagged"
-            };
+
+//             const reportData = {
+//                 eventId,
+//                 userId: auth.currentUser.uid,
+//                 userName: auth.currentUser.displayName,
+//                 email: auth.currentUser.email,
+//                 reason: reportReason,
+//                 timestamp: new Date(),
+//                 status: "flagged"
+//             };
+// <<<<<<< HEAD
             
 
             if (user) {
@@ -135,10 +171,12 @@ const EventDetails = () => {
                 window.alert("Event reported successfully!");
                 setReportReason("");
             }
+
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
             window.alert("Event reported successfully!");
-            setReportReason(""); // Clear the reason after reporting
+
+            setReportReason("");  
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
@@ -203,7 +241,6 @@ const EventDetails = () => {
                 />
                 <label htmlFor="attendEvent">Attend this event</label>
             </div>
-               
 
             <div>
                 <textarea
@@ -270,3 +307,17 @@ const EventDetails = () => {
 
 
 export default EventDetails;
+// =======
+//             <div className="container3">
+//                 <h4>Event Details</h4>
+//             </div>
+
+//             <div className="container4">
+//                 <p>{event.details}</p>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default EventDetails;
+// >>>>>>> jasp-2
