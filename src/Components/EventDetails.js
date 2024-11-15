@@ -19,7 +19,7 @@ const EventDetails = () => {
         }
 
         const eventDocRef = doc(firestore, "events", eventId);
-        const unsubscribe = onSnapshot(eventDocRef, (docSnapshot) => {
+        const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
                 setEvent(eventData);
@@ -30,11 +30,6 @@ const EventDetails = () => {
         });
 
         const fetchComments = () => {
-            if (!eventId) {
-                console.error("Event ID is still undefined in fetchComments.");
-
-                return;
-            }
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
                 commentsCollection,
@@ -42,22 +37,22 @@ const EventDetails = () => {
                 orderBy("timestamp", "desc")
             );
 
-            const unsubscribe = onSnapshot(commentsQuery, (commentsSnapshot) => {
+            return onSnapshot(commentsQuery, (commentsSnapshot) => {
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
                 setComments(commentsList);
             });
-
-            return unsubscribe;
         };
-        fetchEvent();
+
         const unsubscribeComments = fetchComments();
 
-        return () => unsubscribeComments && unsubscribeComments(); // Clean up listener on unmount
-
-        return () => unsubscribe(); 
+        // Clean up on unmount
+        return () => {
+            unsubscribeEvent();
+            unsubscribeComments();
+        };
 
     }, [eventId]);
 
@@ -96,41 +91,7 @@ const EventDetails = () => {
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
             window.alert("Event reported successfully!");
-            setReportReason("");  
-
-//             const user = auth.currentUser;
-
-//             if (user) {
-//                 const notificationRef = collection(firestore, 'notifications');
-
-//                 const reportData = {
-//                     type: 'event_report',
-//                     eventId,
-//                     userId: user.uid,
-//                     userName: user.displayName,
-//                     userEmail: user.email,
-//                     reason: reportReason,  
-//                     timestamp: new Date(),
-//                     isRead: false, 
-//                 };
-
-//                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
-//                 console.log("Event reported successfully");
-//                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
-//                 const userSnapshot = await getDocs(userQuery);
-
-//                 userSnapshot.forEach(async (userDoc) => {
-//                     const userData = userDoc.data();
-//                     await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
-//                         ...reportData,
-//                         targetUserId: userDoc.id, 
-//                     });
-//                 });
-
-//                 window.alert("Event reported successfully!");
-//                 setReportReason("");  
-//             }
-
+            setReportReason("");
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
@@ -154,8 +115,7 @@ const EventDetails = () => {
                         type="checkbox" 
                         id="attendEvent" 
                         checked={isAttending} 
-                        onChange={handleAttendanceChange}
-                        disabled={isAttending}  
+                        onChange={handleAttendanceChange} 
                     />
                     <label htmlFor="attendEvent">Attend this event</label>
 
@@ -189,14 +149,6 @@ const EventDetails = () => {
                 <div className="event-details-text">
                     <h4>Event Details</h4>
                     <p>{event.details}</p>
-                </div>
-
-
-                <div className="event-map">
-                    {/* Display map or location image if available */}
-                    {event.locationImage && (
-                        <img src={event.locationImage} alt="Event Map" />
-                    )}
                 </div>
 
                 <div className="comments-section">
