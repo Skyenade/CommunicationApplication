@@ -16,8 +16,7 @@ const AdminReports = () => {
                     querySnapshot.docs.map(async (docSnapshot) => {
                         const reportData = docSnapshot.data();
 
-                        // gets username who is reporting
-                        
+                       
                         if (reportData.userId) {
                             const reporterDocRef = doc(firestore, "users", reportData.userId);
                             const reporterSnapshot = await getDoc(reporterDocRef);
@@ -51,10 +50,10 @@ const AdminReports = () => {
                     <p>Loading reports...</p>
                 ) : reports.length > 0 ? (
                     <ul>
-                        {reports.map((report, index) => (
-                            <li key={index} className="report-card">
+                        {reports.map((report) => (
+                            <li key={report.id} className="report-card">
                                 <p>
-                                    <strong>Event ID:</strong> {report.eventId || "N/A"}
+                                    <strong>Content ID:</strong> {report.eventId || "N/A"}
                                 </p>
                                 <p>
                                     <strong>Reported By:</strong> {report.reporterUsername || "Unknown"}
