@@ -258,36 +258,6 @@ body {
     gap: 10px;
 }
 
-.user-management-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 80vw;
-    align-items: center;
-}
-
-.user-management-table {
-    border: 1px solid black;
-    padding: 20px;
-    background-color: white;
-}
-
-.admin-dashboard-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.create-account-button {
-    margin-left: 50px;
-    background-color: #013A63;
-    color: white;
-    border: none;
-    padding: 20px 50px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-}
 
 
 .homeuser-container {
@@ -661,63 +631,6 @@ body {
 
 
 
-.table-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    text-align: center;
-}
-
-.requests-table {
-    width: 80%; 
-    border-collapse: collapse;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-}
-
-
-.requests-table th,
-.requests-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.requests-table th {
-    background-color: #014F86;
-    color: white;
-    font-weight: bold;
-}
-
-.requests-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.solved-button {
-    padding: 6px 12px;
-    margin: 0 5px;
-    color: white;
-    background-color: #19646b;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.dismiss-button{
-    padding: 6px 12px;
-    margin: 0 5px;
-    color: white;
-    background-color: rgb(145, 42, 37);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.requests-table button:hover {
-    background-color: #145354;
-}
 
 
 .error-message {
