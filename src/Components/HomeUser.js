@@ -8,7 +8,7 @@ import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
-import '../Style.css';
+import "../Style.css";
 
 const HomeUser = () => {
   const currentUser = useAuth();
@@ -18,6 +18,7 @@ const HomeUser = () => {
   const [userResults, setUserResults] = useState([]);
   const [showFollowers, setShowFollowers] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
+  const [userWarning, setUserWarning] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -27,14 +28,32 @@ const HomeUser = () => {
   useEffect(() => {
     const fetchFollowersCount = async () => {
       if (currentUser) {
-        console.log("Current User ID:", currentUser.uid);
         const count = await getFollowersCount(currentUser.uid);
-        console.log("Fetched Followers Count:", count);
         setFollowersCount(count);
       }
     };
 
     fetchFollowersCount();
+  }, [currentUser]);
+
+ 
+  useEffect(() => {
+    const fetchUserWarning = async () => {
+      if (currentUser) {
+        try {
+          const userRef = ref(database, `users/${currentUser.uid}`);
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            setUserWarning(userData.warning || false);
+          }
+        } catch (error) {
+          console.error("Error fetching user warning:", error);
+        }
+      }
+    };
+
+    fetchUserWarning();
   }, [currentUser]);
 
   const handleSearch = async () => {
@@ -50,12 +69,6 @@ const HomeUser = () => {
           .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
 
         setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
-
-        if (filteredUsers.length > 0) {
-          setUserResults(filteredUsers);
-        } else {
-          console.log("No users found with that username.");
-        }
       } else {
         console.log("No users found.");
       }
@@ -83,77 +96,47 @@ const HomeUser = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className="Search-button" onClick={handleSearch}>Search</button>
-        <button className="create-event-button">
-          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+        <button className="Search-button" onClick={handleSearch}>
+          Search
         </button>
-        <div className="followers-count">
-          <p>You have {followersCount} followers</p>
-        </div>
+        <button className="followers-button" onClick={toggleFollowersList}>
+          {showFollowers ? "Hide Followers" : "Show Followers"}
+        </button>
       </div>
 
-      {showFollowers && (
-        <div className="followers-list">
-          <h3>Followers</h3>
-          {followers.length > 0 ? (
-            followers.map((followerId) => (
-              <p key={followerId}>{followerId}</p>
-            ))
-          ) : (
-            <p>No followers found</p>
-          )}
+      <div className="followers-count">Followers: {followersCount}</div>
+
+      {userWarning && (
+        <div className="user-warning">
+          <p className="warning-message">This account has a warning. Please review your activity.</p>
         </div>
       )}
 
-      <div className="search-results">
-        {userResults.length > 0 ? (
-          userResults.map((user) => (
-            <div key={user.id} className="user-result">
-              <span>{user.username}</span>
-              {following.includes(user.id) ? (
-                <button onClick={() => unfollowUser(user.id)}>Unfollow</button>
-              ) : (
-                <button onClick={() => followUser(user.id)}>Follow</button>
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No users found</p>
-        )}
-      </div>
+      <EventFeed following={following} />
 
-      <div className="homeuser-content">
-        <div className="homeuser-choose-options">
-          <label>
-            <input type="radio" name="options" value="Option 1" />
-            Events by followers
-          </label>
-          <br />
-          <label>
-            <input type="radio" name="options" value="Option 2" />
-            Events by Location
-          </label>
-          <br />
-          <div className="location">
-            <label>Current Location:</label><br />
-            <input type="text" placeholder="Choose your location" />
-          </div>
+      {showFollowers && (
+        <div className="followers-list">
+          <h3>Followers List</h3>
+          <ul>
+            {followers.map((follower) => (
+              <li key={follower.id}>
+                <Link to={`/user/${follower.id}`}>{follower.username}</Link>
+              </li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        <div className="event-feed">
-          <EventFeed />
-        </div>
-
-        <div className="Home_Notification">
-          <div className="notifications">
-            <h3>Notifications</h3>
+      <div className="user-results">
+        {userResults.length > 0 && (
+          <div className="user-results">
             <ul>
-              <li>You have a new follower</li>
-              <li>You have a new like</li>
-              <li>New flagged content</li>
+              {userResults.map((user) => (
+                <li key={user.id}>{user.username}</li>
+              ))}
             </ul>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
