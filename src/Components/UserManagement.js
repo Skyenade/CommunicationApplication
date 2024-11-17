@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, onValue, update } from "firebase/database";
-import Header from "./Header";
+import HeaderAdmin from "./HeaderAdmin";
 import { Link } from "react-router-dom";
 import "./UserManagement.css";
 
@@ -102,7 +102,7 @@ const UserManagement = () => {
 
   return (
     <div>
-      <Header />
+      <HeaderAdmin />
       <div className="user-management-container">
         <div className="admin-dashboard-button">
           <h1>Admin Dashboard</h1>
@@ -113,9 +113,9 @@ const UserManagement = () => {
           </button>
         </div>
 
-        <div>
+        <div className="user-table-container">
           <h2>User Management</h2>
-          <table className="user-management-table">
+          <table className="user-requests-table">
             <thead>
               <tr>
                 <th>Username</th>
@@ -149,10 +149,10 @@ const UserManagement = () => {
                       Moderator
                     </td>
                     <td>
-                      <button onClick={() => handleEdit(user.id)}>Edit</button>
-                      <button onClick={() => handleSuspend(user.id)}>Suspend</button>
-                      <button onClick={() => handleDelete(user.id)}>Delete</button>
-                      <button onClick={() => handleRestore(user.id)}>Restore</button>
+                      <button onClick={() => handleEdit(user.id)} className="edit-button">Edit</button>
+                      <button onClick={() => handleSuspend(user.id)} className="suspend-button">Suspend</button>
+                      <button onClick={() => handleDelete(user.id)} className="delete-button">Delete</button>
+                      <button onClick={() => handleRestore(user.id)} className="restore-button">Restore</button>
                     </td>
                   </tr>
                 ))

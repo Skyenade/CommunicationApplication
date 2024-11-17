@@ -1,0 +1,67 @@
+
+.table-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.requests-table {
+    width: 80%; 
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
+
+
+.requests-table th,
+.requests-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.requests-table th {
+    background-color: #014F86;
+    color: white;
+    font-weight: bold;
+}
+
+.requests-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.solved-button {
+    padding: 6px 12px;
+    margin: 0 5px;
+    color: white;
+    background-color: #19646b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.dismiss-button{
+    padding: 6px 12px;
+    margin: 0 5px;
+    color: white;
+    background-color: rgb(145, 42, 37);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.requests-table button:hover {
+    background-color: #145354;
+}
+
+.assistance-requests-heading{
+    text-align: center;
+}
