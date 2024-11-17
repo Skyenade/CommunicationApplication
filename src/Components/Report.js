@@ -4,7 +4,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { firestore } from "../firebase";
 import "../Style.css";
 
-const ReportPage = () => {
+const Report = () => {
     const [reports, setReports] = useState([]);
 
   
@@ -47,4 +47,4 @@ const ReportPage = () => {
 };
 
 
-export default ReportPage;
+export default Report;
