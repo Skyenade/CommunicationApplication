@@ -46,7 +46,6 @@ const EventDetails = () => {
 
 
             const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
-=======
 //             return onSnapshot(commentsQuery, (commentsSnapshot) => {
 
                 const commentsList = commentsSnapshot.docs.map(doc => ({
@@ -61,7 +60,6 @@ const EventDetails = () => {
         };
 
         const unsubscribeComments = fetchComments();
-=======
 //         };
 
 //         const unsubscribeComments = fetchComments();
