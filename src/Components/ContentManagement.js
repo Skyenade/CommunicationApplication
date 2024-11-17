@@ -1,151 +1,200 @@
 import React, { useState, useEffect } from "react";
-import { database } from "../firebase";
-import { ref, onValue, update, remove } from "firebase/database";
+import { firestore } from "../firebase";
+import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { getDatabase, ref, update, get } from "firebase/database";
+import Header from "./Header";
 import "./ContentManagement.css";
+import { Navigate, useNavigate } from "react-router-dom";
+import HeaderAdmin from "./HeaderAdmin";
 
 const ContentManagement = () => {
-  const [flaggedItems, setFlaggedItems] = useState([]);
-  const [userDetails, setUserDetails] = useState({});
+  const [reports, setReports] = useState([]);
+  const db = getDatabase();
+  const navigate = useNavigate();
 
-  
   useEffect(() => {
-    const flaggedPostsRef = ref(database, "flaggedPosts");
-    const usersRef = ref(database, "users");
+    const reportsQuery = query(
+      collection(firestore, "reports"),
+      where("status", "==", "flagged")
+    );
 
-    
-    const unsubscribeFlaggedPosts = onValue(flaggedPostsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const posts = [];
-        snapshot.forEach((childSnapshot) => {
-          posts.push({ id: childSnapshot.key, ...childSnapshot.val() }); // Include Firebase ID
-        });
-        setFlaggedItems(posts);
-      } else {
-        setFlaggedItems([]); 
-        console.log("No flagged posts found.");
-      }
+    const unsubscribe = onSnapshot(reportsQuery, (querySnapshot) => {
+      setReports(querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })));
     });
 
-    const fetchUserDetails = () => {
-      onValue(usersRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const users = {};
-          snapshot.forEach((userSnapshot) => {
-            const { username, email, warning } = userSnapshot.val();
-            users[userSnapshot.key] = { username, email, warning };
-          });
-          setUserDetails(users);
-        } else {
-          console.log("No users found.");
-        }
-      });
-    };
-
-    fetchUserDetails();
-
-
-    return () => unsubscribeFlaggedPosts();
+    return () => unsubscribe();
   }, []);
 
-  const handleAction = (action, id, userId) => {
-    const postRef = ref(database, `flaggedPosts/${id}`);
-    const userRef = ref(database, `users/${userId}`);
+  const handleSuspendAccount = async (reportId, userId) => {
+    if (!window.confirm("Are you sure you want to suspend this user?")) return;
 
-    switch (action) {
-      case "Warning":
-        update(userRef, { warning: true })
-          .then(() => alert("Warning issued to the user."))
-          .catch((error) => console.error("Error issuing warning:", error));
-        break;
-      case "Remove":
-        if (window.confirm("Are you sure you want to remove the content?")) {
-          remove(postRef)
-            .then(() => {
-              setFlaggedItems(flaggedItems.filter((post) => post.id !== id));
-              alert("Selected content removed successfully.");
-            })
-            .catch((error) => console.error("Error removing content:", error));
-        }
-        break;
-      case "Suspend":
-        update(userRef, { status: "suspended" })
-          .then(() => alert("User suspended."))
-          .catch((error) => console.error("Error suspending user:", error));
-        break;
-      case "Dismiss":
-        update(postRef, { reportDismissed: true })
-          .then(() => alert("Report dismissed successfully."))
-          .catch((error) => console.error("Error dismissing report:", error));
-        break;
-      default:
-        break;
+    try {
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshot = await get(userRef);
+
+      if (!userSnapshot.exists()) {
+        window.alert("User does not exist.");
+        return;
+      }
+
+      const userData = userSnapshot.val();
+      if (userData.status === "suspended") {
+        const suspensionDate = userData.suspensionDate
+          ? new Date(userData.suspensionDate).toLocaleString()
+          : "an unspecified date";
+        window.alert(`User account is already suspended since ${suspensionDate}.`);
+        return;
+      }
+
+      await update(userRef, {
+        status: "suspended",
+        suspensionDate: new Date().toISOString(),
+      });
+
+      await updateDoc(doc(firestore, "reports", reportId), { status: "account_suspended" });
+      window.alert("User account suspended.");
+    } catch (error) {
+      window.alert("account suspended successfully.");
     }
   };
 
+  const handleWarning = async (reportId, userId, currentWarningStatus) => {
+    if (window.confirm(currentWarningStatus ? "Remove warning from this user?" : "Issue a warning to this user?")) {
+      try {
+       
+        await updateDoc(doc(firestore, "reports", reportId), {
+          status: currentWarningStatus ? "flagged" : "warning_issued",
+        });
+
+        const userRef = ref(db, `users/${userId}`);
+        const userSnapshot = await get(userRef);
+
+        if (!userSnapshot.exists()) {
+          window.alert("User does not exist.");
+          return;
+        }
+
+        
+        await update(userRef, {
+          warning: !currentWarningStatus,  
+        });
+
+        window.alert(currentWarningStatus ? "Warning removed from user." : "Warning issued to the user.");
+      } catch {
+        window.alert("Failed to issue or remove warning. Please try again.");
+      }
+    }
+  };
+
+  const handleDismissReport = async (reportId) => {
+    if (window.confirm("Are you sure you want to dismiss this report?")) {
+      try {
+        await updateDoc(doc(firestore, "reports", reportId), { status: "dismissed" });
+        window.alert("Report dismissed.");
+      } catch {
+        window.alert("Failed to dismiss report. Please try again.");
+      }
+    }
+  };
+
+  const handleRemoveUser = async (reportId, userId) => {
+    if (!window.confirm("Are you sure you want to remove this user?")) return;
+
+    try {
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshot = await get(userRef);
+
+      if (!userSnapshot.exists()) {
+        window.alert("User does not exist.");
+        return;
+      }
+
+      await update(userRef, { status: "removed" });
+      await updateDoc(doc(firestore, "reports", reportId), { status: "user_removed" });
+      window.alert("User removed.");
+    } catch {
+      window.alert("Failed to remove user. Please try again.");
+    }
+  };
+
+  const handleAdminAssistance = () => {
+    navigate("/RequestAssistance");
+    console.log("Admin assistance requested");
+  };
+
   return (
-    <div className="moderatorDashboard">
-      <div className="content">
-        <h1>Admin Dashboard</h1>
-        <h2 className="table">Flagged Posts and Content</h2>
-        <table className="flaggedPostsTable">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Content</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {flaggedItems.length > 0 ? (
-              flaggedItems.map((post) => (
-                <tr key={post.id}>
-                  <td>{post.id}</td>
-                  <td>{userDetails[post.userId]?.username || "Unknown User"}</td>
-                  <td>{userDetails[post.userId]?.email || "No Email Available"}</td>
-                  <td>{post.date || "No Date Provided"}</td>
-                  <td>{post.type || "Unknown Type"}</td>
-                  <td>{post.content || "No Content Available"}</td>
-                  <td>
-                    <button
-                      className="actionButton warning-btn"
-                      onClick={() => handleAction("Warning", post.id, post.userId)}
-                    >
-                      Warning
-                    </button>
-                    <button
-                      className="actionButton remove-btn"
-                      onClick={() => handleAction("Remove", post.id)}
-                    >
-                      Remove
-                    </button>
-                    <button
-                      className="actionButton suspend-btn"
-                      onClick={() => handleAction("Suspend", post.id, post.userId)}
-                    >
-                      Suspend Account
-                    </button>
-                    <button
-                      className="actionButton dismiss-btn"
-                      onClick={() => handleAction("Dismiss", post.id)}
-                    >
-                      Dismiss Report
-                    </button>
-                  </td>
+    <div>
+      <HeaderAdmin />
+      <div className="create-event">
+        <div className="content">
+          <h1>Content Management</h1>
+          
+          <h2 className="table">Flagged Posts and Content</h2>
+          {reports.length > 0 ? (
+            <table className="flaggedPostsTable">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Event ID</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                  <th id="action">Actions</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
-                  No flagged posts available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {reports.map((report) => (
+                  <tr key={report.id}>
+                    <td>{report.username}</td>
+                    <td>{report.email}</td>
+                    <td>{report.eventId}</td>
+                    <td>{report.reason}</td>
+                    <td>{report.status}</td>
+                    <td>{new Date(report.timestamp.seconds * 1000).toLocaleString()}</td>
+                    <td>
+                      <button
+                        className="actionButton"
+                        id="Suspend"
+                        onClick={() => handleSuspendAccount(report.id, report.userId)}
+                      >
+                        Suspend Account
+                      </button>
+                      <button
+                        className="actionButton"
+                        id="Warning"
+                        onClick={() =>
+                          handleWarning(report.id, report.userId, report.status === "warning_issued")
+                        }
+                      >
+                        {report.status === "warning_issued" ? "Remove Warning" : "Issue Warning"}
+                      </button>
+                      <button
+                        className="actionButton"
+                        id="Dismiss"
+                        onClick={() => handleDismissReport(report.id)}
+                      >
+                        Dismiss Report
+                      </button>
+                      <button
+                        className="actionButton"
+                        id="Remove"
+                        onClick={() => handleRemoveUser(report.id, report.userId)}
+                      >
+                        Remove User
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No flagged reports at the moment.</p>
+          )}
+        </div>
       </div>
     </div>
   );
