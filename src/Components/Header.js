@@ -35,9 +35,9 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
         }
 
         // if (userType === "User") {
-            navigate("/HomeUser");
+        navigate("/HomeUser");
         // } else if (userType === "Moderator") {
-            // navigate("/ModeratorHome");
+        // navigate("/ModeratorHome");
         // }
 
     };
@@ -68,7 +68,8 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
                 >
                     User Profile
                 </button>
-                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
+                <button onClick={() => navigate("/")} className="btnSignOut">Sign Out</button>
+
             </div>
         </div>
     );
