@@ -5,26 +5,18 @@ import { collection, getDocs, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove
 import { firestore } from '../firebase';
 import useAuth from '../hooks/useAuth';
 
-
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [showCommentSection, setShowCommentSection] = useState(null);
-// <<<<<<< HEAD
-//   const [flagReason, setFlagReason] = useState('');
-//   const [flaggingCommentId, setFlaggingCommentId] = useState(null);
-//   const { currentUser } = useAuth();
-// =======
-
+  const [loadingComments, setLoadingComments] = useState(false); 
   const { currentUser } = useAuth();
-
-
   const [flagReason, setFlagReason] = useState('');
   const [flaggingCommentId, setFlaggingCommentId] = useState(null);
 
-
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -36,8 +28,9 @@ const EventFeed = () => {
           return {
             id: doc.id,
             ...doc.data(),
-            likes: data.likes || [],  // Asegúrate de que likes y dislikes sean arrays
+            likes: data.likes || [],
             dislikes: data.dislikes || [],
+            attendees: data.attendees || [],
           };
         });
         setEvents(eventsList);
@@ -59,6 +52,7 @@ const EventFeed = () => {
   };
 
   const fetchComments = (eventId) => {
+    setLoadingComments(true);
     const commentsCollection = collection(firestore, 'comments');
     const commentsQuery = query(
       commentsCollection,
@@ -72,6 +66,7 @@ const EventFeed = () => {
         ...doc.data(),
       }));
       setComments(prevComments => ({ ...prevComments, [eventId]: commentsList }));
+      setLoadingComments(false);
     });
 
     return unsubscribe;
@@ -105,7 +100,6 @@ const EventFeed = () => {
   };
 
   const handleLike = async (eventId) => {
-
     if (!currentUser || !currentUser.uid) {
       console.error("User is not authenticated or userId is undefined.");
       return;
@@ -118,13 +112,12 @@ const EventFeed = () => {
 
       if (eventData.likes.includes(currentUser.uid)) {
         console.log("User has already liked this event.");
-        return; // No hacer nada si el usuario ya dio like
+        return;
       }
       await updateDoc(eventRef, {
         likes: arrayUnion(currentUser.uid),
         dislikes: arrayRemove(currentUser.uid)
       });
-
 
       setEvents(prevEvents =>
         prevEvents.map(event =>
@@ -153,7 +146,6 @@ const EventFeed = () => {
         likes: arrayRemove(currentUser.uid)
       });
 
-
       setEvents(prevEvents =>
         prevEvents.map(event =>
           event.id === eventId
@@ -168,6 +160,59 @@ const EventFeed = () => {
     }
   };
 
+  const handleAttend = async (eventId) => {
+    if (!currentUser || !currentUser.email) {
+      console.error("User is not authenticated or email is undefined.");
+      return;
+    }
+
+    try {
+      const eventRef = doc(firestore, "events", eventId);
+      const eventDoc = await getDoc(eventRef);
+      const eventData = eventDoc.data();
+
+      const isAttending = eventData.attendees.includes(currentUser.email);
+      const updateData = isAttending
+        ? { attendees: arrayRemove(currentUser.email) }
+        : { attendees: arrayUnion(currentUser.email) };
+
+      await updateDoc(eventRef, updateData);
+
+      setEvents(prevEvents =>
+        prevEvents.map(event =>
+          event.id === eventId
+            ? { ...event, attendees: isAttending ? event.attendees.filter(email => email !== currentUser.email) : [...event.attendees, currentUser.email] }
+            : event
+        )
+      );
+
+      console.log(isAttending ? "Attendance canceled." : "Attendance confirmed.");
+    } catch (error) {
+      console.error("Error updating attendance:", error);
+    }
+  };
+
+  const handleReport = async (contentType, contentId) => {
+    const reason = prompt("Please provide a reason for reporting this content:");
+
+    if (!reason) return;
+
+    try {
+      const reportData = {
+        type: contentType,
+        contentId: contentId,
+        reportReason: reason,
+        reportedBy: currentUser.email,
+        timestamp: new Date(),
+        status: 'pending' 
+      };
+
+      await addDoc(collection(firestore, 'reports'), reportData);
+      alert('Content reported successfully.');
+    } catch (error) {
+      console.error('Error reporting content: ', error);
+    }
+  };
 
   return (
     <div className="event-feed">
@@ -183,6 +228,7 @@ const EventFeed = () => {
             <div>
               <p>Likes: {event.likes ? event.likes.length : 0}</p>
               <p>Dislikes: {event.dislikes ? event.dislikes.length : 0}</p>
+              <p>Attendees: {event.attendees ? event.attendees.length : 0}</p>
             </div>
 
             <button className="like_btn" onClick={() => handleEventDetailsClick(event.id)}>EventDetails</button>
@@ -194,11 +240,18 @@ const EventFeed = () => {
             <div>
               <button className="like_btn" onClick={() => handleLike(event.id)}>Like</button>
               <button className="dislike_btn" onClick={() => handleDislike(event.id)}>Dislike</button>
+              <button className="attend_btn" onClick={() => handleAttend(event.id)}>Attend</button>
               <button
                 className="comment_btn"
                 onClick={() => toggleCommentSection(event.id)}
               >
                 {showCommentSection === event.id ? 'Hide Comments' : 'Comments'}
+              </button>
+              <button
+                className="report_btn"
+                onClick={() => handleReport('event', event.id)}
+              >
+                Report Event
               </button>
             </div>
 
@@ -214,17 +267,24 @@ const EventFeed = () => {
                 </div>
 
                 <div className="comments-list">
-                  {comments[event.id] && comments[event.id].length > 0 ? (
-                    comments[event.id].map((comment) => (
-                      <div key={comment.id} className="comment">
-                        <p><strong>{comment.userName}:</strong> {comment.text}</p>
-                        <p className="comment-date">
-                          {comment.timestamp ? new Date(comment.timestamp.toDate()).toLocaleString() : 'Date not available'}
-                        </p>
-                      </div>
-                    ))
+                  {loadingComments ? (
+                    <p>Loading comments...</p>
                   ) : (
-                    <p>No comments yet.</p>
+                    comments[event.id] && comments[event.id].length > 0 ? (
+                      comments[event.id].map((comment) => (
+                        <div key={comment.id} className="comment-item">
+                          <p><strong>{comment.userName}</strong>: {comment.text}</p>
+                          <button
+                            className="report_btn"
+                            onClick={() => handleReport('comment', comment.id)}
+                          >
+                            Report Comment
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No comments yet.</p>
+                    )
                   )}
                 </div>
               </div>
@@ -232,7 +292,7 @@ const EventFeed = () => {
           </div>
         ))
       ) : (
-        <p>No events to show.</p>
+        <p>No events available</p>
       )}
     </div>
   );
