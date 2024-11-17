@@ -54,7 +54,6 @@ function App() {
           <Route path="/HomeUser" element={<HomeUser />} />
           <Route path="/UserProfile" element={<UserProfile />} />
           <Route path="/ContentManagement" element={<ContentManagement />} />
-          <Route path="/" element={<HomeUser />} />
           <Route path="/event/:eventId" element={<EventDetails />} />
           <Route path="/RequestAssistance" element={<RequestAssistance />} />
           <Route path="/AdminAssistanceRequests" element={<AdminAssistanceRequests />} />

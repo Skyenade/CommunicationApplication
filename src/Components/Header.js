@@ -28,7 +28,7 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
 
     const handleHomeNavigation = () => {
 
-        if (userType === "moderator") {
+        if (userType === "Moderator") {
             navigate("/ModeratorHome");
         } else {
             navigate("/HomeUser");
@@ -55,7 +55,7 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
 
             <div className="nav-links">
                 <a className="nav-item" onClick={handleHomeNavigation}>Home</a>
-                <a className="nav-item">My Events</a>
+                <a className="nav-item" onClick={() => navigate("/MyEvents")}>My Events</a>
                 <a className="nav-item" onClick={handleFollowersNavigation}>My Followers</a>
             </div>
 
@@ -64,10 +64,7 @@ const Header = ({ handleSignOut, isSignedIn, userId }) => {
                 <button
                     id="userprofile-button"
                     className="btn-user-profile"
-                    onClick={() => navigate("/UserProfile")}
-                >
-                    User Profile
-                </button>
+                    onClick={() => navigate("/UserProfile")}>User Profile</button>
                 <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
             </div>
         </div>
