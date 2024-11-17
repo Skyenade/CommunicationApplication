@@ -33,7 +33,6 @@ const ModeratorHome = () => {
     fetchNotifications();
   }, []);
 
-  // Unified search function
   const handleSearch = async (e) => {
     e.preventDefault();
     console.log("Searching for:", searchTerm);
