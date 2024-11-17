@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+
 import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore";
+
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import '../Style.css';
@@ -28,10 +30,12 @@ const EventDetails = () => {
         });
 
         const fetchComments = () => {
+
             if (!eventId) {
                 console.error("Event ID is still undefined in fetchComments.");
                 return;
             }
+
 
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
@@ -40,7 +44,11 @@ const EventDetails = () => {
                 orderBy("timestamp", "desc")
             );
 
+
             const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
+=======
+//             return onSnapshot(commentsQuery, (commentsSnapshot) => {
+
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -48,10 +56,22 @@ const EventDetails = () => {
                 setComments(commentsList);
             });
 
+
             return unsubscribeComments;
         };
 
         const unsubscribeComments = fetchComments();
+=======
+//         };
+
+//         const unsubscribeComments = fetchComments();
+
+//         // Clean up on unmount
+//         return () => {
+//             unsubscribeEvent();
+//             unsubscribeComments();
+//         };
+
 
         return () => {
             unsubscribeEvent();
@@ -75,6 +95,7 @@ const EventDetails = () => {
             }
             setIsAttending((prev) => !prev);
 
+
             if (isAttending) {
 
                 await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
@@ -90,6 +111,18 @@ const EventDetails = () => {
             console.error("Error updating attendance:", error);
 
             setIsAttending((prev) => !prev);
+
+//         if (isAttending) {
+//             await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+//             await updateDoc(eventDocRef, { attendees: arrayRemove(auth.currentUser.email) });
+//             setIsAttending(false);
+//             window.alert("You are no longer attending this event.");
+//         } else {
+//             await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+//             await updateDoc(eventDocRef, { attendees: arrayUnion(auth.currentUser.email) });
+//             setIsAttending(true);
+//             window.alert("You are now attending this event!");
+
         }
     };
     const handleReportEvent = async () => {
@@ -111,6 +144,7 @@ const EventDetails = () => {
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
 
+
             const notificationRef = collection(firestore, "notifications");
             const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
             const userSnapshot = await getDocs(userQuery);
@@ -128,6 +162,7 @@ const EventDetails = () => {
                 });
             });
 
+
             window.alert("Event reported successfully!");
             setReportReason("");
         } catch (error) {
@@ -141,11 +176,13 @@ const EventDetails = () => {
     return (
         <div>
             <Header />
+
             <h1 className="event-title">{event.title}</h1>
             <div className="event-details-container-1">
                 <div className="event-title-container">
 
                     <h2>Event Created by: {event.createdBy}</h2>
+
                 </div>
                 <div className="date">
                     <h2>Date & Time: {event.dateTime}</h2>
@@ -203,6 +240,7 @@ const EventDetails = () => {
                     <h4>Event Details</h4>
                     <p>{event.details}</p>
                 </div>
+
                 <div className="comments-section">
                     <h4>Comments</h4>
                     {comments.length > 0 ? (
