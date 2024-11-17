@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { firestore } from "../firebase";
+import { database, firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import Header from "./Header";
 import EventFeed from "./EventFeed";
+import { get, ref } from "firebase/database";
+import "../Style.css";
 
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [userResults, setUserResults] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -29,6 +33,36 @@ const ModeratorHome = () => {
     fetchNotifications();
   }, []);
 
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    console.log("Searching for:", searchTerm);
+
+    if (!searchTerm) return;
+
+    try {
+      const usersRef = ref(database, "users");
+      const snapshot = await get(usersRef);
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        const filteredUsers = Object.keys(usersData)
+          .map((key) => ({ id: key, ...usersData[key] }))
+          .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
+
+        if (filteredUsers.length > 0) {
+          console.log(filteredUsers);
+        } else {
+          console.log("No users found with that username.");
+        }
+      } else {
+        console.log("No users found.");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
   const handleMarkAsRead = async (notificationId) => {
     try {
       const notificationRef = doc(firestore, "notifications", notificationId);
@@ -46,9 +80,11 @@ const ModeratorHome = () => {
         <input
           type="text"
           className="search-bar"
-          id="search"
-          placeholder="Search events"
+          placeholder="Search for users"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} 
         />
+        <button className="Search-button" onClick={handleSearch}>Search</button>
         <button className="create-event-button">
           <h4>
             <Link to="/CreateEvent" className="links">
@@ -98,31 +134,17 @@ const ModeratorHome = () => {
               ) : notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "comment_flag" ? (
+                    {notification.type === "event_report" ? (
                       <>
                         <p>
-                          <strong>You have a Flagged Comment</strong>
-                        </p>
-                        <p>Flagged by: {notification.userEmail}</p>
-                        <p>Reason: {notification.reason || "No reason provided"}</p>
-                        <small>
-                          {notification.timestamp
-                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                            : "No timestamp available"}
-                        </small>
-                      </>
-                    ) : notification.type === "event_report" ? (
-                      <>
-                         <p>
-                          {/* <strong>Reported Event:</strong> {notification.eventId} */}
-                        <strong>You have a reported Event</strong>  
+                          <strong>You have a reported event</strong>
                         </p>
                         <p>
                           <strong>Reported by:</strong> {notification.userEmail}
                         </p>
-                        {/* <p>
+                        <p>
                           <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p> */}
+                        </p>
                         <small>
                           {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()

@@ -258,36 +258,6 @@ body {
     gap: 10px;
 }
 
-.user-management-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 80vw;
-    align-items: center;
-}
-
-.user-management-table {
-    border: 1px solid black;
-    padding: 20px;
-    background-color: white;
-}
-
-.admin-dashboard-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.create-account-button {
-    margin-left: 50px;
-    background-color: #013A63;
-    color: white;
-    border: none;
-    padding: 20px 50px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-}
 
 
 .homeuser-container {
@@ -557,79 +527,93 @@ body {
   /* -------------EventDetails */
   
 
-
- h1{
+.event-title{
     text-align: center;
- }
- .column-date{
-    margin-left: 65%;
-   margin-right:15%;
- }
- .main-containered {
-     display: grid;
-     grid-template-columns: 1fr 1fr 1fr;
-     grid-template-rows: auto auto auto;
-
- }
-
- .container1 {
-     grid-column: 1 / 2;
-     grid-row: 1 / 2;
-     margin-left: 60%;
- }
-
- .container2 {
-     grid-column: 1 / 3;
-     grid-row: 1 / 2;
-   
-           
- }
- .container3 {
-     grid-column: 2 / 3;
-     grid-row: 2 / 3;
-     margin-left: 50%;
- }
-
- .container4 {
-     grid-column: 2 / 3;
-     grid-row: 3 / 4;
- }
-
- .container6 {
-     grid-column: 3 / 4;
-     grid-row: 1 / 2;
-
-   margin-top: 5%;
-        padding: 5px;
-      
-     
- }
-
- .container5 {
-     grid-column: 3 / 4;
-     grid-row: 2 / 3;
-  
- }
-
- .container7 {
-     grid-column: 3 / 4;
-     grid-row: 3 / 4;
-   
- }
-.event-by{
-    margin-right: 12%;
-    margin-left: 5%;
-    justify-content: space-between;
 }
- .date,
- .attend-checkbox {
+.event-details-container-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    width: 80%;
+    text-align: center;
+    gap: 80px;
+}
+
+.event-details-container-1 > div {
+    margin: 0 10px;
+}
+
+.event-details-container-2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    width: 80%;
+    text-align: center;
+    gap: 90px;
+}
+
+.event-details-container-2 > div {
+    margin: 0 10px;
+}
+
+.attendees-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 1200px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+.attendees-container {
+    flex: 1; 
+    padding: 10px;
+    text-align: center; 
+}
+
+.image-container {
+    flex: 1; 
+    text-align: center; 
+}
+
+.image-container img {
+    max-width: 100%; 
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover; 
+}
+
+.comment-details-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 20px auto;
+    width: 90%;
+    gap: 20px; 
+}
+
+.event-details-text, .comments-section {
+    flex: 1 1 45%;
+    max-width: 45%;
+    margin: 0 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+
  
-margin-right: 12%;
-    margin-left: 5%;
-        justify-content: space-between;
 
- }
-
+  /* Request Assistance */
 
 .request-assistance-container button {
     padding: 10px 20px;
@@ -647,63 +631,6 @@ margin-right: 12%;
 
 
 
-.table-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    text-align: center;
-}
-
-.requests-table {
-    width: 80%; 
-    border-collapse: collapse;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-}
-
-
-.requests-table th,
-.requests-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.requests-table th {
-    background-color: #014F86;
-    color: white;
-    font-weight: bold;
-}
-
-.requests-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.solved-button {
-    padding: 6px 12px;
-    margin: 0 5px;
-    color: white;
-    background-color: #19646b;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.dismiss-button{
-    padding: 6px 12px;
-    margin: 0 5px;
-    color: white;
-    background-color: rgb(145, 42, 37);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.requests-table button:hover {
-    background-color: #145354;
-}
 
 
 .error-message {

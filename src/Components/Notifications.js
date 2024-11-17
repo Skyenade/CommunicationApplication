@@ -52,15 +52,12 @@ export const handleFlagComment = async (commentId, eventId, setFlaggingCommentId
             isRead: false,
         };
 
-        // Save the report to the notifications collection
         await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
         console.log('Event reported successfully');
 
-        // Notify moderators about the event report
         const moderatorQuery = query(collection(firestore, 'users'), where('role', '==', 'moderator'));
         const moderatorSnapshot = await getDocs(moderatorQuery);
 
-        // For each moderator, create a separate notification
         moderatorSnapshot.forEach(async (moderator) => {
             await setDoc(doc(notificationRef, `${moderator.id}_${eventId}`), {
                 ...reportData,
