@@ -1,20 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { ref, get } from "firebase/database";
+// <<<<<<< HEAD
+// import React, { useState, useEffect } from "react";
+// import { useLocation } from "react-router-dom";
+// import { Link } from "react-router-dom";
+// import { ref, get } from "firebase/database";
+// import { database, firestore } from "../firebase";
+// import Header from "../Components/Header";
+// import useAuth from "../hooks/useAuth";
+// import EventFeed from "./EventFeed";
+// import useFollow from "../hooks/useFollow";
+// import getFollowersCount from "../utils/getFollowersCount";
+// import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
+// import '../Style.css';
+// =======
+import React, { useState, useEffect } from "react"; // Eliminado `ref`
+import { useLocation, Link } from "react-router-dom";
 import { database, firestore } from "../firebase";
 import Header from "../Components/Header";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
-import useFollow from "../hooks/useFollow";
-import getFollowersCount from "../utils/getFollowersCount";
-import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
-import '../Style.css';
+import { collection, query as queryFS, where, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore"; // Renombrar query de Firestore
+import { ref as refDB, get, query as queryDB, orderByChild, startAt, endAt, update, query } from "firebase/database"; // Renombrar ref de Database
+import "../Style.css";
 
 const HomeUser = () => {
   const currentUser = useAuth();
   const location = useLocation();
-  const { following, followers, followUser, unfollowUser } = useFollow(currentUser);
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
   const [showFollowers, setShowFollowers] = useState(false);
@@ -22,23 +32,32 @@ const HomeUser = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    setShowFollowers(queryParams.get("showFollowers") === "true");
-  }, [location.search]);
 
+  // Declare status for counters
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+
+  // Load the list of followed users for the current user
   useEffect(() => {
-    const fetchFollowersCount = async () => {
-      if (currentUser) {
-        console.log("Current User ID:", currentUser.uid);
-        const count = await getFollowersCount(currentUser.uid);
-        console.log("Fetched Followers Count:", count);
-        setFollowersCount(count);
+    const fetchUserData = async () => {
+      const userRef = refDB(database, "users/yourUserId"); 
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const followingArray = data.following ? Object.keys(data.following) : [];
+        setFollowing(followingArray);
+
+        const followersArray = data.followers ? Object.keys(data.followers) : [];
+        setFollowers(followersArray);
       }
     };
+    fetchUserData();
+  }, []);
 
-    fetchFollowersCount();
-  }, [currentUser]);
+  // Function to follow a user
+  const handleFollow = async (userId) => {
+    const userRef = refDB(database, `users/yourUserId/following`); // Usar refDB
+    const userFollowersRef = refDB(database, `users/${userId}/followers`); // Usar refDB
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -60,37 +79,74 @@ const HomeUser = () => {
     fetchNotifications();
   }, []);
 
-  const handleSearch = async () => {
-    if (!searchTerm) return;
+  // const handleSearch = async () => {
+  //   if (!searchTerm) return;
+
+  //   await update(userRef, {
+  //     [userId]: true,
+  //   });
+
+  //   await update(userFollowersRef, {
+  //     ["yourUserId"]: true,
+  //   });
+
+  //   // Actualizar el estado local
+  //   setFollowing((prev) => [...prev, userId]);
+  // };
+
+  // Function to unfollow a user
+  const handleUnfollow = async (userId) => {
+    const userRef = refDB(database, `users/yourUserId/following`); // Usar refDB
+    const userFollowersRef = refDB(database, `users/${userId}/followers`); // Usar refDB
+
+    await update(userRef, {
+      [userId]: null,
+    });
+
+    await update(userFollowersRef, {
+      ["yourUserId"]: null,
+    });
+
+    setFollowing((prev) => prev.filter((id) => id !== userId));
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    console.log("Searching for:", searchTerm);
+
+    if (!searchTerm.trim()) {
+      console.log("Search term is empty.");
+      return;
+    }
 
     try {
-      const usersRef = ref(database, "users");
+      const usersRef = refDB(database, "users"); // Usar refDB
       const snapshot = await get(usersRef);
       if (snapshot.exists()) {
         const usersData = snapshot.val();
         const filteredUsers = Object.keys(usersData)
           .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
+          .filter((user) =>
+            user.username &&
+            user.username.toLowerCase().includes(searchTerm.toLowerCase())
+          );
 
-        setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
+        setUserResults(filteredUsers);
 
         if (filteredUsers.length > 0) {
-          setUserResults(filteredUsers);
+          console.log("Users found:", filteredUsers);
         } else {
           console.log("No users found with that username.");
         }
       } else {
-        console.log("No users found.");
+        console.log("No users found in the database.");
       }
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
-  const toggleFollowersList = () => {
-    setShowFollowers(!showFollowers);
-  };
-
+  // If there is no authenticated user
   if (!currentUser) {
     return <div>Loading...</div>;
   }
@@ -106,6 +162,7 @@ const HomeUser = () => {
       console.error("Error marking notification as read: ", err);
     }
   };
+  }
 
   
   return (
@@ -119,27 +176,21 @@ const HomeUser = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className="Search-button" onClick={handleSearch}>Search</button>
-        <button className="create-event-button">
-          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+        <button className="Search-button" onClick={handleSearch}>
+          Search
         </button>
-        <div className="followers-count">
-          <p>You have {followersCount} followers</p>
+        <button className="create-event-button">
+          <h4>
+            <Link to="/CreateEvent" className="links">
+              Create An Event
+            </Link>
+          </h4>
+        </button>
+        <div className="followers-following">
+          <h3>Followers: {followers.length}</h3>
+          <h3>Following: {following.length}</h3>
         </div>
       </div>
-
-      {showFollowers && (
-        <div className="followers-list">
-          <h3>Followers</h3>
-          {followers.length > 0 ? (
-            followers.map((followerId) => (
-              <p key={followerId}>{followerId}</p>
-            ))
-          ) : (
-            <p>No followers found</p>
-          )}
-        </div>
-      )}
 
       <div className="search-results">
         {userResults.length > 0 ? (
@@ -147,9 +198,9 @@ const HomeUser = () => {
             <div key={user.id} className="user-result">
               <span>{user.username}</span>
               {following.includes(user.id) ? (
-                <button onClick={() => unfollowUser(user.id)}>Unfollow</button>
+                <button onClick={() => handleUnfollow(user.id)}>Unfollow</button>
               ) : (
-                <button onClick={() => followUser(user.id)}>Follow</button>
+                <button onClick={() => handleFollow(user.id)}>Follow</button>
               )}
             </div>
           ))
@@ -171,7 +222,8 @@ const HomeUser = () => {
           </label>
           <br />
           <div className="location">
-            <label>Current Location:</label><br />
+            <label>Current Location:</label>
+            <br />
             <input type="text" placeholder="Choose your location" />
           </div>
         </div>
@@ -190,16 +242,12 @@ const HomeUser = () => {
       {notifications.map((notification) => (
         <li key={notification.id}>
           {notification.type === "like" ? (
-            // Display like notification
             `${notification.userEmail} liked your event`
           ) : notification.type === "comment" ? (
-            // Display comment notification
             `${notification.userEmail} commented on your event: "${notification.commentText}"`
           ) : notification.type === "attendance" ? (
-            // Display attendance notification
             `${notification.userEmail} is attending your event`
           ) : notification.type === "event_report" ? (
-            // Display event report notification
             <>
               <p><strong>You have a reported event</strong></p>
               <p><strong>Reported by:</strong> {notification.userEmail}</p>
