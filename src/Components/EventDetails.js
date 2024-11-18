@@ -46,6 +46,7 @@ const EventDetails = () => {
             );
     
             const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
+
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -58,7 +59,7 @@ const EventDetails = () => {
         };
     
         const unsubscribeComments = fetchComments();
-    
+
         return () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();

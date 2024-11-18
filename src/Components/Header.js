@@ -55,7 +55,8 @@ const Header = ({ handleSignOut }) => {
                 >
                     User Profile
                 </button>
-                <button onClick={handleSignOut} className="btnSignOut">Sign Out</button>
+                <button onClick={() => navigate("/")} className="btnSignOut">Sign Out</button>
+
             </div>
         </div>
     );
