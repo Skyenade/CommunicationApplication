@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ref, get } from "firebase/database";
-import { database } from "../firebase";
+import { database, firestore } from "../firebase";
 import Header from "../Components/Header";
+import { collection, onSnapshot, query, where, doc, updateDoc } from "firebase/firestore";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
 import useFollow from "../hooks/useFollow";
@@ -18,7 +19,7 @@ const HomeUser = () => {
   const [userResults, setUserResults] = useState([]);
   const [showFollowers, setShowFollowers] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
-  const [userWarning, setUserWarning] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -36,24 +37,24 @@ const HomeUser = () => {
     fetchFollowersCount();
   }, [currentUser]);
 
- 
   useEffect(() => {
-    const fetchUserWarning = async () => {
-      if (currentUser) {
-        try {
-          const userRef = ref(database, `users/${currentUser.uid}`);
-          const snapshot = await get(userRef);
-          if (snapshot.exists()) {
-            const userData = snapshot.val();
-            setUserWarning(userData.warning || false);
-          }
-        } catch (error) {
-          console.error("Error fetching user warning:", error);
-        }
-      }
-    };
+    if (currentUser && currentUser.uid) {
+      const notificationsRef = collection(firestore, "notifications");
+      const notificationsQuery = query(
+        notificationsRef,
+        where("userId", "==", currentUser.uid)
+      );
 
-    fetchUserWarning();
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const fetchedNotifications = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(fetchedNotifications);
+      });
+
+      return () => unsubscribe();
+    }
   }, [currentUser]);
 
   const handleSearch = async () => {
@@ -66,7 +67,9 @@ const HomeUser = () => {
         const usersData = snapshot.val();
         const filteredUsers = Object.keys(usersData)
           .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
+          .filter((user) =>
+            user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())
+          );
 
         setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
       } else {
@@ -79,6 +82,16 @@ const HomeUser = () => {
 
   const toggleFollowersList = () => {
     setShowFollowers(!showFollowers);
+  };
+
+  const markAsRead = async (notificationId) => {
+    try {
+      const notificationRef = doc(firestore, "notifications", notificationId);
+      await updateDoc(notificationRef, { read: true });
+      console.log("Notification marked as read.");
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
   if (!currentUser) {
@@ -96,47 +109,85 @@ const HomeUser = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className="Search-button" onClick={handleSearch}>
-          Search
+        <button className="search-button" onClick={handleSearch}>Search</button>
+        <button className="create-event-button">
+          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
         </button>
-        <button className="followers-button" onClick={toggleFollowersList}>
-          {showFollowers ? "Hide Followers" : "Show Followers"}
-        </button>
-      </div>
-
-      <div className="followers-count">Followers: {followersCount}</div>
-
-      {userWarning && (
-        <div className="user-warning">
-          <p className="warning-message">This account has a warning. Please review your activity.</p>
+        <div className="followers-count">
+          <p>You have {followersCount} followers</p>
         </div>
-      )}
-
-      <EventFeed following={following} />
+      </div>
 
       {showFollowers && (
         <div className="followers-list">
-          <h3>Followers List</h3>
-          <ul>
-            {followers.map((follower) => (
-              <li key={follower.id}>
-                <Link to={`/user/${follower.id}`}>{follower.username}</Link>
-              </li>
-            ))}
-          </ul>
+          <h3>Followers</h3>
+          {followers.length > 0 ? (
+            followers.map((followerId) => (
+              <p key={followerId}>{followerId}</p>
+            ))
+          ) : (
+            <p>No followers found</p>
+          )}
         </div>
       )}
 
-      <div className="user-results">
-        {userResults.length > 0 && (
-          <div className="user-results">
-            <ul>
-              {userResults.map((user) => (
-                <li key={user.id}>{user.username}</li>
-              ))}
-            </ul>
-          </div>
+      <div className="search-results">
+        {userResults.length > 0 ? (
+          userResults.map((user) => (
+            <div key={user.id} className="user-result">
+              <span>{user.username}</span>
+              {following.includes(user.id) ? (
+                <button onClick={() => unfollowUser(user.id)}>Unfollow</button>
+              ) : (
+                <button onClick={() => followUser(user.id)}>Follow</button>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No users found</p>
         )}
+      </div>
+
+      <div className="homeuser-content">
+        <div className="homeuser-choose-options">
+          <label>
+            <input type="radio" name="options" value="Option 1" />
+            Events by followers
+          </label>
+          <br />
+          <label>
+            <input type="radio" name="options" value="Option 2" />
+            Events by Location
+          </label>
+          <br />
+          <div className="location">
+            <label>Current Location:</label><br />
+            <input type="text" placeholder="Choose your location" />
+          </div>
+        </div>
+
+        <div className="event-feed">
+          <EventFeed />
+        </div>
+
+        <div className="notifications">
+          <h3>Notifications</h3>
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`notification ${notification.read ? "read" : "unread"}`}
+              >
+                <p>{notification.message}</p>
+                {!notification.read && (
+                  <button onClick={() => markAsRead(notification.id)}>Mark as Read</button>
+                )}
+              </div>
+            ))
+          ) : (
+            <p>No notifications</p>
+          )}
+        </div>
       </div>
     </div>
   );
