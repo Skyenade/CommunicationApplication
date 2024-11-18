@@ -9,17 +9,14 @@ const AdminDashboard = () => {
   const [reportedUsers, setReportedUsers] = useState([]);
   const [reportedContent, setReportedContent] = useState([]);
 
-
   useEffect(() => {
     const fetchReportedData = async () => {
       try {
-       
         const usersRef = firestore.collection('reports').where('type', '==', 'user');
         const userSnapshot = await usersRef.get();
         const userReports = userSnapshot.docs.map(doc => doc.data());
         setReportedUsers(userReports);
 
-        
         const contentRef = firestore.collection('reports').where('type', '==', 'content');
         const contentSnapshot = await contentRef.get();
         const contentReports = contentSnapshot.docs.map(doc => doc.data());
@@ -49,12 +46,12 @@ const AdminDashboard = () => {
             <Link to="/" className='linking'>Database Management</Link>
           </div>
           <div className="section">
-            <Link to="/" className='linking'>
+            <Link to="/HistoryOfReportedUsers" className='linking'>
               History of Reported Users ({reportedUsers.length})
             </Link>
           </div>
           <div className="section">
-            <Link to="/" className='linking'>
+            <Link to="/HistoryOfReportedContent" className='linking'>
               History of Reported Content ({reportedContent.length})
             </Link>
           </div>
