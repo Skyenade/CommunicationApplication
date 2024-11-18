@@ -1,42 +1,32 @@
-import { useState, useEffect } from 'react';
-import { ref, get, update } from 'firebase/database';
-import { database } from '../firebase';
+import { ref, set, remove } from "firebase/database";
+import { database } from "../firebase";
 
-const useFollow = (currentUser) => {
-    const [following, setFollowing] = useState([]);
-    const [followers, setFollowers] = useState([]);
+// Función para seguir a un usuario
+export const followUser = async (currentUserId, userIdToFollow) => {
+    const followingRef = ref(database, `users/${currentUserId}/following/${userIdToFollow}`);
+    const followersRef = ref(database, `users/${userIdToFollow}/followers/${currentUserId}`);
 
-    useEffect(() => {
-        if (currentUser) {
-            const fetchFollowingData = async () => {
-                const userRef = ref(database, "users/" + currentUser.uid);
-                const snapshot = await get(userRef);
-                if (snapshot.exists()) {
-                    setFollowing(snapshot.val().following || []);
-                    setFollowers(snapshot.val().followers || []);
-                }
-            };
-            fetchFollowingData();
-        }
-    }, [currentUser]);
-
-    const followUser = async (userId) => {
-        const currentUserRef = ref(database, "users/" + currentUser.uid);
-        const userToFollowRef = ref(database, "users/" + userId);
-        await update(currentUserRef, { following: [...following, userId] });
-        await update(userToFollowRef, { followers: [currentUser.uid] });
-        setFollowing(prev => [...prev, userId]);
-    };
-
-    const unfollowUser = async (userId) => {
-        const currentUserRef = ref(database, "users/" + currentUser.uid);
-        const userToUnfollowRef = ref(database, "users/" + userId);
-        await update(currentUserRef, { following: following.filter(id => id !== userId) });
-        await update(userToUnfollowRef, { followers: followers.filter(id => id !== currentUser.uid) });
-        setFollowing(prev => prev.filter(id => id !== userId));
-    };
-
-    return { following, followers, followUser, unfollowUser };
+    try {
+        // Agregar usuario a las listas de siguiendo y seguidores
+        await set(followingRef, true);
+        await set(followersRef, true);
+    } catch (error) {
+        console.error("Error al seguir al usuario:", error);
+        throw error; // Permite manejar errores donde se llame esta función
+    }
 };
 
-export default useFollow;
+// Función para dejar de seguir a un usuario
+export const unfollowUser = async (currentUserId, userIdToUnfollow) => {
+    const followingRef = ref(database, `users/${currentUserId}/following/${userIdToUnfollow}`);
+    const followersRef = ref(database, `users/${userIdToUnfollow}/followers/${currentUserId}`);
+
+    try {
+        // Eliminar usuario de las listas de siguiendo y seguidores
+        await remove(followingRef);
+        await remove(followersRef);
+    } catch (error) {
+        console.error("Error al dejar de seguir al usuario:", error);
+        throw error; // Permite manejar errores donde se llame esta función
+    }
+};

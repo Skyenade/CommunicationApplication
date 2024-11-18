@@ -18,7 +18,7 @@ const UserProfile = () => {
   const [events, setEvents] = useState([]);
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [newProfileImage, setNewProfileImage] = useState(null);
-  const [followersCount, setFollowersCount] = useState(0); 
+  const [followersCount, setFollowersCount] = useState(0);
   const [followers, setFollowers] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const auth = getAuth();
@@ -82,7 +82,7 @@ const UserProfile = () => {
 
 
 
-        
+
         fetchFollowersCount(userId);
       } else {
         console.error('No user is logged in.');
@@ -216,7 +216,7 @@ const UserProfile = () => {
     }
   };
 
-  
+
 
   return (
 
@@ -279,62 +279,62 @@ const UserProfile = () => {
           ) : (
             <p>Loading user data...</p>
 
-//     <div> 
-//       <Header/>
-//     <div className="user-profile">
-//       <div className="user-details">
-//         {user ? (
-//           <>
-//             <h1>Hello, {user.username || 'User'}</h1>
-//             <p>Your email: {user.email}</p>
+            //     <div> 
+            //       <Header/>
+            //     <div className="user-profile">
+            //       <div className="user-details">
+            //         {user ? (
+            //           <>
+            //             <h1>Hello, {user.username || 'User'}</h1>
+            //             <p>Your email: {user.email}</p>
 
-//             <p>Your bio:</p>
-//             <textarea
-//               value={bio}
-//               onChange={handleBioChange}
-//               placeholder="Update your bio"
-//               className="create-event-textarea"
-//             />
-//             <h2>Your Previous Events:</h2>
-//             <ul>
-//               {events.length > 0 ? (
-//                 events.map((event, index) => (
-//                   <li key={index}>
-//                     <strong>{event.title}</strong> on {event.dateTime}
-//                   </li>
-//                 ))
-//               ) : (
-//                 <p>No previous events found.</p>
-//               )}
+            //             <p>Your bio:</p>
+            //             <textarea
+            //               value={bio}
+            //               onChange={handleBioChange}
+            //               placeholder="Update your bio"
+            //               className="create-event-textarea"
+            //             />
+            //             <h2>Your Previous Events:</h2>
+            //             <ul>
+            //               {events.length > 0 ? (
+            //                 events.map((event, index) => (
+            //                   <li key={index}>
+            //                     <strong>{event.title}</strong> on {event.dateTime}
+            //                   </li>
+            //                 ))
+            //               ) : (
+            //                 <p>No previous events found.</p>
+            //               )}
 
-//             </ul>
-//             {/* <button onClick={handleAddEvent}>Add Event</button> */}
-//             <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
-//           </>
-//         ) : (
-//           <p>Loading user data...</p>
-//         )}
-//       </div>
+            //             </ul>
+            //             {/* <button onClick={handleAddEvent}>Add Event</button> */}
+            //             <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
+            //           </>
+            //         ) : (
+            //           <p>Loading user data...</p>
+            //         )}
+            //       </div>
 
-//       <div className="user-profile-actions">
-//         {profileImageUrl ? (
-//           <img src={profileImageUrl} alt="Profile" className="profile-image" />
-//         ) : (
-//           <p>No profile picture set.</p>
-//         )}
+            //       <div className="user-profile-actions">
+            //         {profileImageUrl ? (
+            //           <img src={profileImageUrl} alt="Profile" className="profile-image" />
+            //         ) : (
+            //           <p>No profile picture set.</p>
+            //         )}
 
-//         <div className="profile-image-actions">
-//           <label htmlFor="profileImageUpload" className="choose-file-label">
-//             Change Profile Picture
-//           </label>
-//           <input
-//             type="file"
-//             accept="image/*"
-//             id="profileImageUpload"
-//             onChange={handleProfileImageChange}
-//             style={{ display: 'none' }}
-//           />
-//           <button onClick={handleDeleteProfileImage} className="delete-picture-btn">Delete Picture</button>
+            //         <div className="profile-image-actions">
+            //           <label htmlFor="profileImageUpload" className="choose-file-label">
+            //             Change Profile Picture
+            //           </label>
+            //           <input
+            //             type="file"
+            //             accept="image/*"
+            //             id="profileImageUpload"
+            //             onChange={handleProfileImageChange}
+            //             style={{ display: 'none' }}
+            //           />
+            //           <button onClick={handleDeleteProfileImage} className="delete-picture-btn">Delete Picture</button>
           )}
         </div>
 
