@@ -17,6 +17,8 @@ import HomeUser from './Components/HomeUser';
 import CreateUser from './Components/CreateUser';
 import RequestAssistance from './Components/RequestAssistance';
 import AdminAssistanceRequests from './Components/AdminAssistanceRequests';
+import Report from './Components/Report';
+import AdminReports from './Components/AdminReports';
 import EventFeed from './Components/EventFeed';
 import MyEvents from './Components/MyEvents';
 import Home from './Components/Home';
@@ -32,6 +34,7 @@ function App() {
   }, [userEmail]);
 
   return (
+
     <UserContextProvider>
       <Router>
         <div className="App">
@@ -54,10 +57,13 @@ function App() {
             <Route path="/AdminAssistanceRequests" element={<AdminAssistanceRequests />} />
             <Route path="/EventFeed" element={<EventFeed />} />
             <Route path="/MyEvents" element={<MyEvents />} />
+            <Route path="/Report" element={<Report />} />
+          <Route path="/AdminReports" element={<AdminReports />} />
           </Routes>
         </div>
       </Router>
     </UserContextProvider>
+
   );
 }
 
