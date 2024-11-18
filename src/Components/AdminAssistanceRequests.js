@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../Style.css";
+import "./AdminAssistanceRequests.css";
 import HeaderAdmin from "./HeaderAdmin";
 import { ref, get, update } from "firebase/database";
 import { database } from "../firebase";
@@ -46,7 +46,7 @@ const AdminAssistanceRequests = () => {
     return (
         <div>
             <HeaderAdmin />
-            <h1>Assistance Requests</h1>
+            <h1 className="assistance-requests-heading">Assistance Requests</h1>
             {loading ? (
                 <p>Loading...</p>
             ) : requests.length === 0 ? (

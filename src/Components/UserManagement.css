@@ -1,73 +1,121 @@
-.user-management {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    margin-top: 50px;
-    width: 800px;
-  }
-  
-  .user-management h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .user-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .user-table th,
-  .user-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
-  }
-  
-  .user-table th {
-    background-color: #7c7d7f;
-    color: white;
-  }
-  
-  .radio-group {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-  }
-  
-  .radio-group label {
-    margin-right: 10px;
-  }
-  
-  .edit-button,
-  .suspend-button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .edit-button {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  .suspend-button {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .edit-button:hover {
-    background-color: #218838;
-  }
-  
-  .suspend-button:hover {
-    background-color: #c82333;
-  }
-  
-  .linking{
-    text-decoration: none;
+.user-management-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-dashboard-button {
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+  align-items: center;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.radio-group label {
+  margin-right: 10px;
+}
+
+.linking {
+  text-decoration: none;
   color: white;
   display: block;
+}
+
+.user-table-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.user-requests-table{
+  width: 80%; 
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.user-requests-table th,
+.user-requests-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-requests-table th {
+    background-color: #014F86;
+    color: white;
+    font-weight: bold;
+}
+
+.user-requests-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.create-account-button {
+  margin-left: 50px;
+  background-color: #013A63;
+  color: white;
+  border: none;
+  padding: 20px 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.edit-button,
+.suspend-button,
+.delete-button,
+.restore-button {
+  color: white;
+  border: none;
+  padding: 10px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+  font-weight: 600;
+  width: 80px;
+}
+
+.edit-button {
+  background-color: #19646b;
+}
+
+.suspend-button {
+  background-color: #d75e1c;
+}
+
+.delete-button {
+  background-color: #d82626;
+}
+
+.restore-button {
+  background-color: #193a6b;
+}
+
+.edit-button:hover {
+  background-color: #134b50;
+}
+
+.suspend-button:hover {
+  background-color: #944215;
+}
+
+.delete-button:hover {
+  background-color: #941c1c;
+}
+
+.restore-button:hover {
+  background-color: #235298;
 }
