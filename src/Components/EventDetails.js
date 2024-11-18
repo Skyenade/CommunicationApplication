@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import {
-  doc,
-  setDoc,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  getDocs,
-  arrayUnion,
-  arrayRemove,
-  orderBy,
-  updateDoc,
-} from "firebase/firestore";
+
+import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore";
+
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
 import "../Style.css";
@@ -24,56 +14,61 @@ const EventDetails = () => {
   const [reportReason, setReportReason] = useState("");
   const [isAttending, setIsAttending] = useState(false);
 
-  useEffect(() => {
-    if (!eventId) {
-      console.error("No event ID provided.");
-      return;
-    }
+    useEffect(() => {
+        if (!eventId) return console.error("No event ID provided.");
+        return;}
 
-    // Fetch event details
-    const eventDocRef = doc(firestore, "events", eventId);
 
-    const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const eventData = docSnapshot.data();
-        console.log("Fetched event:", eventData);
-        setEvent(eventData);
-        setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
-      } else {
-        console.log("No event found for this ID");
-        setEvent(null);
-      }
-    });
+        const eventDocRef = doc(firestore, "events", eventId);
 
-    // Fetch comments
-    const fetchComments = () => {
-      const commentsCollection = collection(firestore, "comments");
-      const commentsQuery = query(
-        commentsCollection,
-        where("eventId", "==", eventId),
-        orderBy("timestamp", "desc")
-      );
+        const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const eventData = docSnapshot.data();
+                setEvent(eventData);
+                setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
+            } else {
+                console.log("No such event!");
+                setEvent(null);
+            }
+        });
 
-      const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
-        const commentsList = commentsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        console.log("Fetched comments:", commentsList);
-        setComments(commentsList);
-      });
+        const fetchComments = () => {
 
-      return unsubscribeComments;
-    };
+            if (!eventId) {
+                console.error("Event ID is still undefined in fetchComments.");
+                return;
+            }
 
-    const unsubscribeComments = fetchComments();
 
-    // Cleanup on unmount
-    return () => {
-      unsubscribeEvent();
-      unsubscribeComments && unsubscribeComments();
-    };
-  }, [eventId]);
+            const commentsCollection = collection(firestore, "comments");
+            const commentsQuery = query(
+                commentsCollection,
+                where("eventId", "==", eventId),
+                orderBy("timestamp", "desc")
+            );
+
+
+            const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
+
+                const commentsList = commentsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                console.log("fetched comments:", commentsList);
+                setComments(commentsList);
+            });
+
+
+            return unsubscribeComments;
+        };
+
+        const unsubscribeComments = fetchComments();
+
+        return () => {
+            unsubscribeEvent();
+            unsubscribeComments && unsubscribeComments();
+        };
+    }, [eventId]);
 
   // Handle attendance toggle
   const handleAttendanceChange = async () => {
@@ -83,58 +78,69 @@ const EventDetails = () => {
     const eventDocRef = doc(firestore, "events", eventId);
     const currentEmail = auth.currentUser.email;
 
-    try {
-      if (isAttending) {
-        await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
-        await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
-        window.alert("You are no longer attending this event.");
-      } else {
-        await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
-        await updateDoc(eventDocRef, { attendees: arrayUnion(currentEmail) });
-        window.alert("You are now attending this event!");
-      }
-      setIsAttending((prev) => !prev);
-    } catch (error) {
-      console.error("Error updating attendance:", error);
-      setIsAttending((prev) => !prev);
-    }
-  };
+        try {
 
-  // Handle event report
-  const handleReportEvent = async () => {
-    if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
-    if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
+            if (isAttending) {
 
-    try {
-      const reportData = {
-        eventId,
-        userId: auth.currentUser.uid,
-        username: auth.currentUser.displayName,
-        email: auth.currentUser.email,
-        reason: reportReason,
-        timestamp: new Date(),
-        status: "flagged",
-      };
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
+            }
+            setIsAttending((prev) => !prev);
 
-      await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
-      // Notify admins/moderators
-      const notificationRef = collection(firestore, "notifications");
-      const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
-      const userSnapshot = await getDocs(userQuery);
-      userSnapshot.forEach(async (userDoc) => {
-        await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
-          type: "event_report",
-          eventId,
-          userId: auth.currentUser.uid,
-          userName: auth.currentUser.displayName,
-          userEmail: auth.currentUser.email,
-          reason: reportReason,
-          timestamp: new Date(),
-          isRead: false,
-          targetUserId: userDoc.id,
-        });
-      });
+            if (isAttending) {
+
+                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
+                window.alert("You are no longer attending this event.");
+            } else {
+
+                await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
+                await updateDoc(eventDocRef, { attendees: arrayUnion(currentEmail) });
+                window.alert("You are now attending this event!");
+            }
+        } catch (error) {
+            console.error("Error updating attendance:", error);
+
+            setIsAttending((prev) => !prev);
+
+    const handleReportEvent = async () => {
+        if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
+        if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
+
+        try {
+            const reportData = {
+                eventId,
+                userId: auth.currentUser.uid,
+                username: auth.currentUser.displayName,
+                email: auth.currentUser.email,
+                reason: reportReason,
+                timestamp: new Date(),
+                status: "flagged"
+            };
+
+
+            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+
+
+
+            const notificationRef = collection(firestore, "notifications");
+            const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+            const userSnapshot = await getDocs(userQuery);
+            userSnapshot.forEach(async (userDoc) => {
+                await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+                    type: 'event_report',
+                    eventId,
+                    userId: auth.currentUser.uid,
+                    userName: auth.currentUser.displayName,
+                    userEmail: auth.currentUser.email,
+                    reason: reportReason,
+                    timestamp: new Date(),
+                    isRead: false,
+                    targetUserId: userDoc.id,
+                });
+            });
+
 
       window.alert("Event reported successfully!");
       setReportReason("");
@@ -150,15 +156,17 @@ const EventDetails = () => {
     <div>
       <Header />
 
-      <h1 className="event-title">{event.title}</h1>
-      <div className="event-details-container-1">
-        <div className="event-title-container">
-          <h2>Event Created by: {event.createdBy}</h2>
-        </div>
-        <div className="date">
-          <h2>Date & Time: {event.dateTime}</h2>
-        </div>
-      </div>
+            <h1 className="event-title">{event.title}</h1>
+            <div className="event-details-container-1">
+                <div className="event-title-container">
+
+                    <h2>Event Created by: {event.createdBy}</h2>
+
+                </div>
+                <div className="date">
+                    <h2>Date & Time: {event.dateTime}</h2>
+                </div>
+            </div>
 
       <div className="event-details-container-2">
         <div className="attend-report-container">
@@ -172,33 +180,39 @@ const EventDetails = () => {
             <label htmlFor="attendEvent">Attend this event</label>
           </div>
 
-          <div className="report-event-container">
-            <textarea
-              id="reportReason"
-              placeholder="Provide reason for reporting"
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-            />
-            <button onClick={handleReportEvent}>Report Event</button>
-          </div>
-        </div>
-      </div>
+                    <div className="report-event-container">
+                        <textarea
+                            id="reportReason"
+                            placeholder="Provide reason for reporting"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                        />
+                        <button onClick={handleReportEvent}>Report Event</button>
+                    </div>
+                </div>
+            </div>
 
-      <div className="attendees-image-container">
-        <div className="image-container">
-          {event.images && <img src={event.images} alt={event.title} />}
-        </div>
-        <div className="attendees-container">
-          <ul>
-            <h3>List of Attendees</h3>
-            {event.attendees && event.attendees.length > 0 ? (
-              event.attendees.map((attendee, index) => <li key={index}>{attendee}</li>)
-            ) : (
-              <li>No attendees yet</li>
-            )}
-          </ul>
-        </div>
-      </div>
+
+
+
+            <div className="attendees-image-container">
+                <div className="image-container">
+                    {event.images && <img src={event.images} alt={event.title} />}
+                </div>
+                <div className="attendees-container">
+                    <ul>
+                        <h3>List of Attendees</h3>
+                        {event.attendees && event.attendees.length > 0 ? (
+                            event.attendees.map((attendee, index) => (
+                                <li key={index}>{attendee}</li>
+                            ))
+                        ) : (
+                            <li>No attendees yet</li>
+                        )}
+                    </ul>
+                </div>
+
+            </div>
 
       <div className="comment-details-container">
         <div className="event-details-text">
@@ -206,25 +220,26 @@ const EventDetails = () => {
           <p>{event.details}</p>
         </div>
 
-        <div className="comments-section">
-          <h4>Comments</h4>
-          {comments.length > 0 ? (
-            comments.map((comment) => (
-              <div key={comment.id} className="comment">
-                <p>
-                  <strong>{comment.username}</strong> (
-                  {new Date(comment.timestamp.seconds * 1000).toLocaleString()}):
-                </p>
-                <p>{comment.text}</p>
-              </div>
-            ))
-          ) : (
-            <p>No comments yet.</p>
-          )}
+                <div className="comments-section">
+                    <h4>Comments</h4>
+                    {comments.length > 0 ? (
+                        comments.map((comment) => (
+                            <div key={comment.id} className="comment">
+                                <p><strong>{comment.username}</strong> ({new Date(comment.timestamp.seconds * 1000).toLocaleString()}):</p>
+                                <p>{comment.text}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No comments yet.</p>
+                    )}
+                </div>
+            </div>
+
+
+
+           
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default EventDetails;

@@ -6,6 +6,9 @@ import "./UserManagement.css";
 
 const UserManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
   const db = getDatabase();
 
   useEffect(() => {
@@ -51,8 +54,25 @@ const UserManagement = () => {
       .catch((error) => console.error("Error updating account type:", error));
   };
 
-  const handleEdit = (userId) => {
-    alert(`Edit user with ID: ${userId}`);
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setUsername(user.username);
+    setBio(user.bio);
+  };
+
+  const handleSave = (userId) => {
+    const userRef = ref(db, `users/${userId}`);
+    update(userRef, {
+      username,
+      bio,
+    })
+      .then(() => {
+        setEditingUser(null);
+        alert("User updated successfully!");
+      })
+      .catch((error) => {
+        console.error("Error updating user:", error);
+      });
   };
 
   const handleSuspend = (userId) => {
@@ -107,9 +127,7 @@ const UserManagement = () => {
         <div className="admin-dashboard-button">
           <h1>Admin Dashboard</h1>
           <button className="create-account-button">
-            <Link to="/CreateUser" className="linking">
-              Create a User's Account
-            </Link>
+            <Link to="/CreateUser" className="linking">Create a User's Account</Link>
           </button>
         </div>
 
@@ -128,31 +146,63 @@ const UserManagement = () => {
               {allUsers.length > 0 ? (
                 allUsers.map((user) => (
                   <tr key={user.id}>
-                    <td>{user.username}</td>
-                    <td>{user.email}</td>
                     <td>
+                      {editingUser?.id === user.id ? (
+                        <>
+                          <label>New username:</label>
+                          <br></br>
+                          <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="new-input"
+                          />
+                        </>
+
+                      ) : (
+                        user.username
+                      )}
+                    </td>
+                    <td>{user.email}</td>
+                    <td className="account-type-cell">
                       <input
                         type="radio"
                         name={`accountType-${user.id}`}
                         value="User"
                         checked={user.accountType === "User"}
                         onChange={() => handleAccountTypeChange(user.id, "User")}
-                      />{" "}
-                      User
+                      />{" "} User
                       <input
                         type="radio"
                         name={`accountType-${user.id}`}
                         value="Moderator"
                         checked={user.accountType === "Moderator"}
                         onChange={() => handleAccountTypeChange(user.id, "Moderator")}
-                      />{" "}
-                      Moderator
+                      />{" "} Moderator
                     </td>
                     <td>
-                      <button onClick={() => handleEdit(user.id)} className="edit-button">Edit</button>
-                      <button onClick={() => handleSuspend(user.id)} className="suspend-button">Suspend</button>
-                      <button onClick={() => handleDelete(user.id)} className="delete-button">Delete</button>
-                      <button onClick={() => handleRestore(user.id)} className="restore-button">Restore</button>
+                      {editingUser?.id === user.id ? (
+                        <>
+                          <label>New bio:</label>
+                          <br></br>
+                          <input
+                            type="text"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            className="new-input"
+                          />
+                          <button onClick={() => handleSave(user.id)} className="save-button">Save</button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => handleEdit(user)} className="edit-button">Edit</button>
+                          <button onClick={() => handleSuspend(user.id)} className="suspend-button">Suspend</button>
+                          <button onClick={() => handleDelete(user.id)} className="delete-button">Delete</button>
+                          {user.status === "suspended" && (
+                            <button onClick={() => handleRestore(user.id)} className="restore-button">Restore</button>
+                          )}
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))
