@@ -1,108 +1,94 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
-import { doc, getDoc, updateDoc, arrayUnion, setDoc, collection, query, where, onSnapshot, getDocs, arrayRemove, orderBy } from "firebase/firestore";
-
+import { doc, setDoc, collection, query, where, onSnapshot, getDocs, arrayUnion, arrayRemove, orderBy, updateDoc } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import Header from "../Components/Header";
-import "../Style.css";
+import '../Style.css';
 
 const EventDetails = () => {
-  const { eventId } = useParams();
-  const [event, setEvent] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [reportReason, setReportReason] = useState("");
-  const [isAttending, setIsAttending] = useState(false);
+    const { eventId } = useParams();
+    const [event, setEvent] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [reportReason, setReportReason] = useState("");
+    const [isAttending, setIsAttending] = useState(false);
 
     useEffect(() => {
-        if (!eventId) return console.error("No event ID provided.");
-        return;}
-
-
+        if (!eventId) {
+            console.error("No event ID provided.");
+            return;
+        }
+    
         const eventDocRef = doc(firestore, "events", eventId);
-
+    
         const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
+                console.log("Fetched event:", eventData);
                 setEvent(eventData);
                 setIsAttending(eventData.attendees?.includes(auth.currentUser.email));
             } else {
-                console.log("No such event!");
+                console.log("No event found for this ID");
                 setEvent(null);
             }
         });
-
+    
         const fetchComments = () => {
-
             if (!eventId) {
                 console.error("Event ID is still undefined in fetchComments.");
                 return;
             }
-
-
+    
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
                 commentsCollection,
                 where("eventId", "==", eventId),
                 orderBy("timestamp", "desc")
             );
-
-
+    
             const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
-
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
-                console.log("fetched comments:", commentsList);
+                console.log("Fetched comments:", commentsList);
                 setComments(commentsList);
             });
-
-
+    
             return unsubscribeComments;
         };
-
+    
         const unsubscribeComments = fetchComments();
-
+    
         return () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();
         };
     }, [eventId]);
+    
 
-  // Handle attendance toggle
-  const handleAttendanceChange = async () => {
-    if (!event) return;
+    const handleAttendanceChange = async () => {
+        if (!event) return;
 
-    const userDocRef = doc(firestore, "users", auth.currentUser.uid);
-    const eventDocRef = doc(firestore, "events", eventId);
-    const currentEmail = auth.currentUser.email;
+        const userDocRef = doc(firestore, "users", auth.currentUser.uid);
+        const eventDocRef = doc(firestore, "events", eventId);
+        const currentEmail = auth.currentUser.email;
 
         try {
-
             if (isAttending) {
-
-                await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
-                await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
-            }
-            setIsAttending((prev) => !prev);
-
-
-            if (isAttending) {
-
                 await updateDoc(userDocRef, { attendingEvents: arrayRemove(eventId) });
                 await updateDoc(eventDocRef, { attendees: arrayRemove(currentEmail) });
                 window.alert("You are no longer attending this event.");
             } else {
-
                 await updateDoc(userDocRef, { attendingEvents: arrayUnion(eventId) });
                 await updateDoc(eventDocRef, { attendees: arrayUnion(currentEmail) });
                 window.alert("You are now attending this event!");
             }
+            setIsAttending((prev) => !prev);
         } catch (error) {
             console.error("Error updating attendance:", error);
-
             setIsAttending((prev) => !prev);
+        }
+    };
 
     const handleReportEvent = async () => {
         if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
@@ -119,10 +105,7 @@ const EventDetails = () => {
                 status: "flagged"
             };
 
-
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
-
-
 
             const notificationRef = collection(firestore, "notifications");
             const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
@@ -141,44 +124,41 @@ const EventDetails = () => {
                 });
             });
 
+            window.alert("Event reported successfully!");
+            setReportReason("");
+        } catch (error) {
+            console.error("Error reporting event:", error);
+            window.alert("Failed to report the event.");
+        }
+    };
 
-      window.alert("Event reported successfully!");
-      setReportReason("");
-    } catch (error) {
-      console.error("Error reporting event:", error);
-      window.alert("Failed to report the event.");
-    }
-  };
+    if (!event) return <div>Loading event details...</div>;
 
-  if (!event) return <div>Loading event details...</div>;
-
-  return (
-    <div>
-      <Header />
+    return (
+        <div>
+            <Header />
 
             <h1 className="event-title">{event.title}</h1>
             <div className="event-details-container-1">
                 <div className="event-title-container">
-
                     <h2>Event Created by: {event.createdBy}</h2>
-
                 </div>
                 <div className="date">
                     <h2>Date & Time: {event.dateTime}</h2>
                 </div>
             </div>
 
-      <div className="event-details-container-2">
-        <div className="attend-report-container">
-          <div className="attend-event-container">
-            <input
-              type="checkbox"
-              id="attendEvent"
-              checked={isAttending}
-              onChange={handleAttendanceChange}
-            />
-            <label htmlFor="attendEvent">Attend this event</label>
-          </div>
+            <div className="event-details-container-2">
+                <div className="attend-report-container">
+                    <div className="attend-event-container">
+                        <input
+                            type="checkbox"
+                            id="attendEvent"
+                            checked={isAttending}
+                            onChange={handleAttendanceChange}
+                        />
+                        <label htmlFor="attendEvent">Attend this event</label>
+                    </div>
 
                     <div className="report-event-container">
                         <textarea
@@ -191,9 +171,6 @@ const EventDetails = () => {
                     </div>
                 </div>
             </div>
-
-
-
 
             <div className="attendees-image-container">
                 <div className="image-container">
@@ -211,14 +188,13 @@ const EventDetails = () => {
                         )}
                     </ul>
                 </div>
-
             </div>
 
-      <div className="comment-details-container">
-        <div className="event-details-text">
-          <h4>Event Details</h4>
-          <p>{event.details}</p>
-        </div>
+            <div className="comment-details-container">
+                <div className="event-details-text">
+                    <h4>Event Details</h4>
+                    <p>{event.details}</p>
+                </div>
 
                 <div className="comments-section">
                     <h4>Comments</h4>
@@ -234,10 +210,6 @@ const EventDetails = () => {
                     )}
                 </div>
             </div>
-
-
-
-           
         </div>
     );
 };
