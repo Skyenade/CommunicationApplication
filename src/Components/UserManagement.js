@@ -140,6 +140,7 @@ const UserManagement = () => {
                 <th>Email</th>
                 <th>Account Type</th>
                 <th>Actions</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -195,15 +196,17 @@ const UserManagement = () => {
                         </>
                       ) : (
                         <>
-                          <button onClick={() => handleEdit(user)} className="edit-button">Edit</button>
-                          <button onClick={() => handleSuspend(user.id)} className="suspend-button">Suspend</button>
-                          <button onClick={() => handleDelete(user.id)} className="delete-button">Delete</button>
-                          {user.status === "suspended" && (
-                            <button onClick={() => handleRestore(user.id)} className="restore-button">Restore</button>
-                          )}
+                          <button onClick={() => handleEdit(user)} className="edit-button">Edit profile</button>
+                          <button onClick={() => handleSuspend(user.id)} className="suspend-button">Suspend Account</button>
+                          <button onClick={() => handleDelete(user.id)} className="delete-button">Delete Account</button>
+                          <button onClick={() => handleRestore(user.id)} className="restore-button">Restore Account</button>
+                          <button className="delete-button">Delete Profile</button>
+                          <button className="restore-button">Restore Profile</button>
+
                         </>
                       )}
                     </td>
+                    <td>{user.status}</td>
                   </tr>
                 ))
               ) : (
