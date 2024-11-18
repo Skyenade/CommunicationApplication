@@ -5,6 +5,7 @@ import myImage from '../Images/home-page-image.jpeg';
 import { auth, database } from '../firebase';
 import { ref, get, child } from "firebase/database";
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useUserContext } from '../UserContext';
 
 const Home = () => {
     const [email, setEmail] = useState("");
@@ -12,36 +13,41 @@ const Home = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    const { setUserUid, setUserEmail } = useUserContext();  
+
     const handleLogIn = async (e) => {
         e.preventDefault();
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const emailOfUser = userCredential.user.email;
-    
+
+            setUserUid(userCredential.user.uid);
+            setUserEmail(userCredential.user.email);
+
             if (emailOfUser === "admin@gmail.com" && password === "admin1234") {
-                navigate('/AdminHome', { state: { email: emailOfUser } });
+                navigate('/AdminHome');
             } else {
                 const dbRef = ref(database);
                 const snapshot = await get(child(dbRef, `users/${userCredential.user.uid}`));
-    
+
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
-    
+
                     if (userData.status === 'suspended') {
                         setError("Your account is suspended.");
                         return;
                     } else if (userData.status === 'deleted') {
                         setError("Your account has been deleted.");
-                        return; 
+                        return;
                     } else if (userData.status !== 'active') {
                         setError("Your account is not active.");
                         return;
                     }
-    
+
                     if (userData.accountType === "Moderator") {
-                        navigate('/ModeratorHome', { state: { email: emailOfUser } });
+                        navigate('/ModeratorHome');
                     } else {
-                        navigate('/homeUser', { state: { email: emailOfUser } });
+                        navigate('/homeUser');
                     }
                 } else {
                     setError("No user data found");
@@ -51,7 +57,6 @@ const Home = () => {
             setError(error.message);
         }
     };
-    
 
     return (
         <div className="main-container">
@@ -61,7 +66,7 @@ const Home = () => {
                 <img className="home-image" src={myImage} alt="event logo" />
             </div>
             <form className="home-form" onSubmit={handleLogIn}>
-                <input 
+                <input
                     className='home-input'
                     type="email"
                     required
@@ -69,23 +74,23 @@ const Home = () => {
                     placeholder="Email"
                     onChange={(e) => setEmail(e.target.value)}
                 />
-                <input 
+                <input
                     className='home-input'
                     type="password"
                     required
                     value={password}
-                    placeholder="Password" 
+                    placeholder="Password"
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button className='home-login-button'>Log in</button>
-                <span 
-                    className='home-forgot-password' 
+                <span
+                    className='home-forgot-password'
                     onClick={() => navigate("/ForgotPassword")}>
                     Forgot Password?
                 </span>
-                <button 
-                    className='home-create-account-button' 
-                    onClick={() => navigate("/SignupUser")} 
+                <button
+                    className='home-create-account-button'
+                    onClick={() => navigate("/SignupUser")}
                     type="button">
                     Create new account
                 </button>
