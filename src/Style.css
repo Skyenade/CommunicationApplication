@@ -388,3 +388,9 @@ body {
         grid-column: span 12;
     }
 }
+.followers-following{
+    margin-right: 20%;
+}
+.search-results{
+    margin-left: 2%;
+}
