@@ -71,7 +71,7 @@ const ModeratorDashboard = () => {
     }
   };
 
-  const handleDismissReport = async (reportId) => {
+  const handleDismissReport = async (reportId,) => {
     if (window.confirm("Are you sure you want to dismiss this report?")) {
       try {
         await updateDoc(doc(firestore, "reports", reportId), { status: "dismissed" });
