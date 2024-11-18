@@ -1,42 +1,61 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { ref, get } from "firebase/database";
 import { database } from "../firebase";
 import Header from "../Components/Header";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
-import useFollow from "../hooks/useFollow";
-import getFollowersCount from "../utils/getFollowersCount";
-import '../Style.css';
+import { followUser, unfollowUser } from "../hooks/useFollow";
+import { useRealTimeCounts } from "../hooks/useRealTimeCounts";
+import "../Style.css";
 
 const HomeUser = () => {
   const currentUser = useAuth();
   const location = useLocation();
-  const { following, followers, followUser, unfollowUser } = useFollow(currentUser);
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
-  const [showFollowers, setShowFollowers] = useState(false);
+  const [following, setFollowing] = useState([]);
+
+  // Declare status for counters
   const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    setShowFollowers(queryParams.get("showFollowers") === "true");
-  }, [location.search]);
+  // Call the useRealTimeCounts hook every time, and handle the values ​​with defaults
+  const { followersCount: realTimeFollowersCount = 0, followingCount: realTimeFollowingCount = 0 } =
+    useRealTimeCounts(currentUser ? currentUser.uid : null) || {};
 
+  // Use the values ​​from the useRealTimeCounts hook for initial loading
   useEffect(() => {
-    const fetchFollowersCount = async () => {
-      if (currentUser) {
-        console.log("Current User ID:", currentUser.uid);
-        const count = await getFollowersCount(currentUser.uid);
-        console.log("Fetched Followers Count:", count);
-        setFollowersCount(count);
+    if (currentUser) {
+      setFollowersCount(realTimeFollowersCount);
+      setFollowingCount(realTimeFollowingCount);
+    }
+  }, [currentUser, realTimeFollowersCount, realTimeFollowingCount]);
+
+  // Load the list of followed users for the current user
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!currentUser) {
+        console.error("Usuario no autenticado");
+        return;
+      }
+
+      try {
+        // Get the list of users that the current user follows
+        const followingRef = ref(database, `users/${currentUser.uid}/following`);
+        const snapshot = await get(followingRef);
+        if (snapshot.exists()) {
+          setFollowing(Object.keys(snapshot.val())); // List of tracked user IDs
+        }
+      } catch (error) {
+        console.error("Error al cargar datos de seguidores o seguidos:", error);
       }
     };
 
-    fetchFollowersCount();
-  }, [currentUser]);
+    fetchData();
+  }, [currentUser]); // Only executed when the currentUser changes
 
+  // Handle user search
   const handleSearch = async () => {
     if (!searchTerm) return;
 
@@ -47,27 +66,48 @@ const HomeUser = () => {
         const usersData = snapshot.val();
         const filteredUsers = Object.keys(usersData)
           .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        setUserResults(filteredUsers.length > 0 ? filteredUsers : []);
-
-        if (filteredUsers.length > 0) {
-          setUserResults(filteredUsers);
-        } else {
-          console.log("No users found with that username.");
-        }
-      } else {
-        console.log("No users found.");
+          .filter((user) =>
+            user.username && // Make sure the `username` property exists
+            user.username.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        setUserResults(filteredUsers);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error al buscar usuarios:", error);
     }
   };
 
-  const toggleFollowersList = () => {
-    setShowFollowers(!showFollowers);
+  // Handle the action of following a user
+  const handleFollow = async (userId) => {
+    if (!currentUser) return;
+
+    try {
+      await followUser(currentUser.uid, userId);
+      setFollowing([...following, userId]); // Update the list of followed users
+
+      // Update counters locally
+      setFollowingCount(followingCount + 1); // Increment the following counter
+    } catch (error) {
+      console.error("Error al seguir al usuario:", error);
+    }
   };
 
+  // Handle the action of unfollowing a user
+  const handleUnfollow = async (userId) => {
+    if (!currentUser) return;
+
+    try {
+      await unfollowUser(currentUser.uid, userId);
+      setFollowing(following.filter((id) => id !== userId)); // Remove from list of followed users
+
+      // Update counters locally
+      setFollowingCount(followingCount - 1); // Decrement the following counter
+    } catch (error) {
+      console.error("Error al dejar de seguir al usuario:", error);
+    }
+  };
+
+  // If there is no authenticated user
   if (!currentUser) {
     return <div>Loading...</div>;
   }
@@ -83,27 +123,23 @@ const HomeUser = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className="Search-button" onClick={handleSearch}>Search</button>
+        <button className="Search-button" onClick={handleSearch}>
+          Search
+        </button>
         <button className="create-event-button">
-          <h4><Link to="/CreateEvent" className="links">Create An Event</Link></h4>
+          <h4>
+            <Link to="/CreateEvent" className="links">
+              Create An Event
+            </Link>
+          </h4>
         </button>
         <div className="followers-count">
           <p>You have {followersCount} followers</p>
         </div>
-      </div>
-
-      {showFollowers && (
-        <div className="followers-list">
-          <h3>Followers</h3>
-          {followers.length > 0 ? (
-            followers.map((followerId) => (
-              <p key={followerId}>{followerId}</p>
-            ))
-          ) : (
-            <p>No followers found</p>
-          )}
+        <div className="following-count">
+          <p>You are following {followingCount} users</p>
         </div>
-      )}
+      </div>
 
       <div className="search-results">
         {userResults.length > 0 ? (
@@ -111,9 +147,9 @@ const HomeUser = () => {
             <div key={user.id} className="user-result">
               <span>{user.username}</span>
               {following.includes(user.id) ? (
-                <button onClick={() => unfollowUser(user.id)}>Unfollow</button>
+                <button onClick={() => handleUnfollow(user.id)}>Unfollow</button>
               ) : (
-                <button onClick={() => followUser(user.id)}>Follow</button>
+                <button onClick={() => handleFollow(user.id)}>Follow</button>
               )}
             </div>
           ))
@@ -135,7 +171,8 @@ const HomeUser = () => {
           </label>
           <br />
           <div className="location">
-            <label>Current Location:</label><br />
+            <label>Current Location:</label>
+            <br />
             <input type="text" placeholder="Choose your location" />
           </div>
         </div>
