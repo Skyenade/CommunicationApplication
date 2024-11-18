@@ -1,0 +1,126 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Rules for events collection
+    match /events/{eventId} {
+      // Allow read access to all authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow create access to the user who created the event
+      allow create: if request.auth != null && request.resource.data.createdBy == request.auth.uid;
+
+      // Allow updates specifically to the 'attendees' field for authenticated users
+      allow update: if request.auth != null &&
+        request.resource.data.keys().hasOnly(['attendees']) &&
+        request.resource.data.attendees is list &&
+        (
+          // Adding the user's email to the attendees list
+          !resource.data.attendees.contains(request.auth.token.email) &&  
+          request.resource.data.attendees.contains(request.auth.token.email)
+          || 
+          // Removing the user's email from the attendees list
+          resource.data.attendees.contains(request.auth.token.email) && 
+          !request.resource.data.attendees.contains(request.auth.token.email)
+        );
+
+      // Restrict write access to valid fields during event creation or update
+      allow write: if request.resource.data.keys().hasOnly([
+        'title', 'dateTime', 'location', 'coordinates', 'details', 
+        'images', 'createdBy', 'report', 'warning', 'suspended', 
+        'likes', 'comments', 'comment', 'eventId', 'attendees', 'followers'
+      ]);
+    }
+
+    // Rules for comments collection
+    match /comments/{commentId} {
+      // Allow read and write access to authenticated users
+      allow read, write: if request.auth != null;
+      
+      // Allow creation of comments for a specific event
+      allow create: if request.auth != null && request.resource.data.eventId != null;
+      
+      // Allow updating and deleting only by the comment creator
+      allow update: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+    }
+
+    // Rules for users collection
+    match /users/{userId} {
+      // Allow read access to authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow write access only to the authenticated user for their own document
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow updates specifically to 'attendingEvents'
+      allow update: if request.auth != null && 
+        request.auth.uid == userId &&
+        request.resource.data.keys().hasOnly(['attendingEvents']);
+    }
+
+    // Rules for flagged_comments collection
+    match /flagged_comments/{flaggedCommentId} {
+      // Allow read and write access to authenticated users
+      allow read, write: if request.auth != null;
+    }
+
+    // Rules for notifications collection
+     match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null;
+    } 
+    
+    // Rules for reports collection
+    match /reports/{reportId} {
+      // Allow any authenticated user to read reports
+      allow read: if request.auth != null; 
+      
+      // Allow any authenticated user to create a report
+      allow create: if request.auth != null;
+      
+      // Only the report creator can update or delete their report
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Admins or moderators can also delete reports
+      allow delete: if request.auth != null && request.auth.token.role in ['admin', 'moderator'];
+    }
+    
+    match /events/{eventId} {
+      // Allow reading events if the user is authenticated
+      allow read: if request.auth != null;
+
+      // Allow updating likes and dislikes only if the user is authenticated
+      allow update: if request.auth != null && request.resource.data.keys().hasAny(['likes', 'dislikes']);
+
+      // Optionally, add other rules for event creation or deletion as needed
+      allow create: if request.auth != null;
+      allow delete: if request.auth != null && request.resource.data.keys().hasAny(['likes', 'dislikes']);
+    }
+
+    // Add rules for other collections (e.g., comments, reports)
+    match /comments/{commentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+    
+    match /notifications/{notificationId} {
+      // Allow reading notifications only if the user is authenticated and the notification belongs to them
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Allow creating notifications only if the user is authenticated
+      allow create: if request.auth != null;
+    }
+    
+    
+  }
+  
+}
+
+
+
+
+
+

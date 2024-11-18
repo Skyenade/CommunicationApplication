@@ -22,6 +22,7 @@ import AdminReports from './Components/AdminReports';
 import EventFeed from './Components/EventFeed';
 import MyEvents from './Components/MyEvents';
 import Home from './Components/Home';
+import FirebaseManagement from './Components/FirebaseManagement';
 
 import { UserContextProvider } from './UserContext';
 
@@ -58,7 +59,8 @@ function App() {
             <Route path="/EventFeed" element={<EventFeed />} />
             <Route path="/MyEvents" element={<MyEvents />} />
             <Route path="/Report" element={<Report />} />
-          <Route path="/AdminReports" element={<AdminReports />} />
+            <Route path="/AdminReports" element={<AdminReports />} />
+            <Route path="/FirebaseManagement" element={<FirebaseManagement />} />
           </Routes>
         </div>
       </Router>
