@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from "react"; // Eliminado `ref`
+import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { database } from "../firebase";
 import Header from "../Components/Header";
+import {
+  collection,
+  query as queryFS,
+  where,
+  onSnapshot,
+  doc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { ref as refDB, get, update } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
-import { collection, query as queryFS, where, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore"; // Renombrar query de Firestore
-import { ref as refDB, get, query as queryDB, orderByChild, startAt, endAt, update } from "firebase/database"; // Renombrar ref de Database
 import "../Style.css";
 
 const HomeUser = () => {
@@ -14,14 +22,14 @@ const HomeUser = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
-  // Declare status for counters
+  // Declare states for counters
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
   // Load the list of followed users for the current user
   useEffect(() => {
     const fetchUserData = async () => {
-      const userRef = refDB(database, "users/yourUserId"); // Usar refDB
+      const userRef = refDB(database, "users/yourUserId");
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -37,8 +45,8 @@ const HomeUser = () => {
 
   // Function to follow a user
   const handleFollow = async (userId) => {
-    const userRef = refDB(database, `users/yourUserId/following`); // Usar refDB
-    const userFollowersRef = refDB(database, `users/${userId}/followers`); // Usar refDB
+    const userRef = refDB(database, `users/yourUserId/following`);
+    const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
     await update(userRef, {
       [userId]: true,
@@ -48,14 +56,14 @@ const HomeUser = () => {
       ["yourUserId"]: true,
     });
 
-    // Actualizar el estado local
+    // Update local state
     setFollowing((prev) => [...prev, userId]);
   };
 
   // Function to unfollow a user
   const handleUnfollow = async (userId) => {
-    const userRef = refDB(database, `users/yourUserId/following`); // Usar refDB
-    const userFollowersRef = refDB(database, `users/${userId}/followers`); // Usar refDB
+    const userRef = refDB(database, `users/yourUserId/following`);
+    const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
     await update(userRef, {
       [userId]: null,
@@ -78,7 +86,7 @@ const HomeUser = () => {
     }
 
     try {
-      const usersRef = refDB(database, "users"); // Usar refDB
+      const usersRef = refDB(database, "users");
       const snapshot = await get(usersRef);
       if (snapshot.exists()) {
         const usersData = snapshot.val();
@@ -104,7 +112,6 @@ const HomeUser = () => {
     }
   };
 
-  // If there is no authenticated user
   if (!currentUser) {
     return <div>Loading...</div>;
   }
@@ -174,17 +181,6 @@ const HomeUser = () => {
 
         <div className="event-feed">
           <EventFeed />
-        </div>
-
-        <div className="Home_Notification">
-          <div className="notifications">
-            <h3>Notifications</h3>
-            <ul>
-              <li>You have a new follower</li>
-              <li>You have a new like</li>
-              <li>New flagged content</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
