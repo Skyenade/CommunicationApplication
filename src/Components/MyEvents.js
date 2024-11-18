@@ -98,10 +98,10 @@ const MyEvents = () => {
                                     <p>Date & Time: {event.dateTime}</p>
                                     <p>Location: {event.location}</p>
                                     <button
-                                        className="like_btn"
+                                        className="event-details-button"
                                         onClick={() => handleEventDetailsClick(event.id)}
                                     >
-                                        EventDetails
+                                        Event Details
                                     </button>
                                 </li>
                             ))}
@@ -121,10 +121,10 @@ const MyEvents = () => {
                                     <p>Date & Time: {event.dateTime}</p>
                                     <p>Location: {event.location}</p>
                                     <button
-                                        className="like_btn"
+                                        className="event-details-button"
                                         onClick={() => handleEventDetailsClick(event.id)}
                                     >
-                                        EventDetails
+                                        Event Details
                                     </button>
                                 </li>
                             ))}

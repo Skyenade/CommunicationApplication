@@ -50,6 +50,26 @@
     align-items: flex-start;
 }
 
+.event-details-button {
+    height: 20px;
+    width: 100%;
+    padding: 15px;
+    border-radius: 5px;
+    border: solid 1px lightgray;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: large;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-details-button:hover {
+    background-color: #919191;
+    color: white;
+}
+
 @media (max-width: 768px) {
     .my-events-container {
         flex-direction: column;
