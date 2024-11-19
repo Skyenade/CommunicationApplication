@@ -126,8 +126,8 @@ const UserManagement = () => {
 
   const handleDeleteProfile = (userId) => {
     const user = allUsers.find((user) => user.id === userId);
-    setPreviousUsername(user.username); // Save current username before deletion
-    setPreviousBio(user.bio);           // Save current bio before deletion
+    setPreviousUsername(user.username); 
+    setPreviousBio(user.bio);          
 
     if (window.confirm("Are you sure you want to delete this user's profile information?")) {
       const userRef = ref(db, `users/${userId}`);
@@ -152,7 +152,7 @@ const UserManagement = () => {
     if (window.confirm("Are you sure you want to restore this user's profile information?")) {
       const userRef = ref(db, `users/${userId}`);
       
-      // Fetch the current user data from Firebase
+      
       onValue(
         userRef,
         (snapshot) => {
@@ -183,7 +183,7 @@ const UserManagement = () => {
             alert("User data not found in Firebase.");
           }
         },
-        { onlyOnce: true } // Use onlyOnce to fetch data once
+        { onlyOnce: true } 
       );
     }
   };
