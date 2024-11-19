@@ -217,13 +217,7 @@ const ModeratorHome = () => {
               <ul>
                 {notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "like" ? (
-
- `${notification.userEmail} liked your event`           
-         ) : notification.type === "event_report" ? (
-
-                      `${notification.userEmail} liked your event`
-                    ) : notification.type === "event_report" ? (
+                    { notification.type === "event_report" ? (
 
                       <>
                         <p>
