@@ -210,14 +210,16 @@ const ModeratorHome = () => {
           </div>
 
           <div className="notifications">
-            <h3>Notifications</h3>
-            <ul>
-              {loading ? (
-                <li>Loading notifications...</li>
-              ) : notifications.length > 0 ? (
-                notifications.map((notification) => (
+          <h3>Notifications</h3>
+            {loading ? (
+              <p>Loading notifications...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "event_report" ? (
+                    {notification.type === "like" ? (
+ `${notification.userEmail} liked your event`           
+         ) : notification.type === "event_report" ? (
                       <>
                         <p>
                           <strong>You have a reported event</strong>
@@ -237,13 +239,18 @@ const ModeratorHome = () => {
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">VIEWED</button>
+                    <button
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="notif_viwedbtn"
+                    >
+                      VIEWED
+                    </button>
                   </li>
-                ))
-              ) : (
-                <li>No notifications</li>
-              )}
-            </ul>
+                ))}
+              </ul>
+            ) : (
+              <p>No notifications</p>
+            )}
           </div>
         </div>
       </div>

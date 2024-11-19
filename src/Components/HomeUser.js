@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
-import { database } from "../firebase";
+
+import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { ref, get } from "firebase/database";
+import { database, firestore } from "../firebase";
+
 import Header from "../Components/Header";
 import {
   collection,
@@ -14,13 +18,24 @@ import {
 import { ref as refDB, get, update } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
-import "../Style.css";
+
+import useFollow from "../hooks/useFollow";
+import getFollowersCount from "../utils/getFollowersCount";
+import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
+import '../Style.css';
+
 
 const HomeUser = () => {
   const currentUser = useAuth();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
+
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
 
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
@@ -75,10 +90,35 @@ const HomeUser = () => {
     e.preventDefault();
     console.log("Searching for:", searchTerm);
 
+
     if (!searchTerm.trim()) {
       console.log("Search term is empty.");
       return;
     }
+
+  useEffect(() => {
+    const fetchNotifications = () => {
+      const notificationsRef = collection(firestore, "notifications");
+      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
+
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const notificationsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(notificationsList);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    };
+
+    fetchNotifications();
+  }, []);
+
+//   const handleSearch = async () => {
+//     if (!searchTerm) return;
+
 
     try {
       const usersRef = refDB(database, "users");
@@ -111,6 +151,19 @@ const HomeUser = () => {
     return <div>Loading...</div>;
   }
 
+
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const notificationRef = doc(firestore, "notifications", notificationId);
+      await setDoc(notificationRef, { isRead: true }, { merge: true });
+      console.log("Notification marked as read");
+    } catch (err) {
+      console.error("Error marking notification as read: ", err);
+    }
+  };
+
+  
   return (
     <div className="homeuser-container">
       <Header />
@@ -177,6 +230,56 @@ const HomeUser = () => {
         <div className="event-feed">
           <EventFeed />
         </div>
+
+
+        <div className="Home_Notification">
+        <div className="notifications">
+  <h3>Notifications</h3>
+  {loading ? (
+    <p>Loading notifications...</p>
+  ) : notifications.length > 0 ? (
+    <ul>
+      {notifications.map((notification) => (
+        <li key={notification.id}>
+          {notification.type === "like" ? (
+            // Display like notification
+            `${notification.userEmail} liked your event`
+          ) : notification.type === "comment" ? (
+            // Display comment notification
+            `${notification.userEmail} commented on your event: "${notification.commentText}"`
+          ) : notification.type === "attendance" ? (
+            // Display attendance notification
+            `${notification.userEmail} is attending your event`
+          ) : notification.type === "event_report" ? (
+            // Display event report notification
+            <>
+              <p><strong>You have a reported event</strong></p>
+              <p><strong>Reported by:</strong> {notification.userEmail}</p>
+              <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
+              <small>
+                {notification.timestamp
+                  ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                  : "No timestamp available"}
+              </small>
+            </>
+          ) : (
+            <span>{notification.message}</span>
+          )}
+          <button
+            onClick={() => handleMarkAsRead(notification.id)}
+            className="notif_viwedbtn"
+          >
+            VIEWED
+          </button>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>No notifications</p>
+  )}
+</div>
+        </div>
+
       </div>
     </div>
   );
