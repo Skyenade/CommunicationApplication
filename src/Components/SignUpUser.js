@@ -29,6 +29,8 @@ const SignUpUser = () => {
                 followers: [],
                 following: [],
                 warning: false,
+                likeCount: 0,
+                followerCount: 0,
             });
 
             setEmail(email);

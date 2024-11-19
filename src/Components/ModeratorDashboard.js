@@ -3,7 +3,7 @@ import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { getDatabase, ref, update, get } from "firebase/database";
 import Header from "./Header";
-import "./ModeratorDashboard.css"
+import "./ModeratorDashboard.css";
 import { Navigate, useNavigate } from "react-router-dom";
 
 const ModeratorDashboard = () => {
@@ -60,13 +60,30 @@ const ModeratorDashboard = () => {
     }
   };
 
-  const handleWarning = async (reportId) => {
-    if (window.confirm("Are you sure you want to issue a warning to this user?")) {
+  const handleWarning = async (reportId, userId, currentWarningStatus) => {
+    if (window.confirm(currentWarningStatus ? "Remove warning from this user?" : "Issue a warning to this user?")) {
       try {
-        await updateDoc(doc(firestore, "reports", reportId), { status: "warning_issued" });
-        window.alert("Warning issued to the user.");
+       
+        await updateDoc(doc(firestore, "reports", reportId), {
+          status: currentWarningStatus ? "flagged" : "warning_issued",
+        });
+
+        const userRef = ref(db, `users/${userId}`);
+        const userSnapshot = await get(userRef);
+
+        if (!userSnapshot.exists()) {
+          window.alert("User does not exist.");
+          return;
+        }
+
+        
+        await update(userRef, {
+          warning: !currentWarningStatus,  
+        });
+
+        window.alert(currentWarningStatus ? "Warning removed from user." : "Warning issued to the user.");
       } catch {
-        window.alert("Failed to issue warning. Please try again.");
+        window.alert("Failed to issue or remove warning. Please try again.");
       }
     }
   };
@@ -103,66 +120,83 @@ const ModeratorDashboard = () => {
   };
 
   const handleAdminAssistance = () => {
-    navigate("/RequestAssistance"); 
+    navigate("/RequestAssistance");
     console.log("Admin assistance requested");
   };
 
   return (
-    <div >
-    <Header/>
-    <div className='create-event'>
-      <div className="content">
-        <h1>Moderator Dashboard</h1>
-        <button className="requestAdminAssistanceButton"onClick={handleAdminAssistance}>
-          Request Admin Assistance
-        </button>
-        <h2 className="table">Flagged Posts and Content</h2>
-        {reports.length > 0 ? (
-          <table className="flaggedPostsTable">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Event ID</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Timestamp</th>
-                <th id="action">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((report) => (
-                <tr key={report.id}>
-                  <td>{report.username}</td>
-                  <td>{report.email}</td>
-                  <td>{report.eventId}</td>
-                  <td>{report.reason}</td>
-                  <td>{report.status}</td>
-                  <td>{new Date(report.timestamp.seconds * 1000).toLocaleString()}</td>
-                  <td>
-                    <button className="actionButton" id="Suspend" onClick={() => handleSuspendAccount(report.id, report.userId)}>
-                      Suspend Account
-                    </button>
-                    <button className="actionButton" id="Warning"
-                     onClick={() => handleWarning(report.id)}>
-                      Warning
-                    </button>
-                    <button className="actionButton"  id="Dismiss" onClick={() => handleDismissReport(report.id)}>
-                      Dismiss Report
-                    </button>
-                    <button  className="actionButton" id="Remove" onClick={() => handleRemoveUser(report.id, report.userId)}>
-                      Remove
-                    </button>
-                  </td>
+    <div>
+      <Header />
+      <div className="create-event">
+        <div className="content">
+          <h1>Moderator Dashboard</h1>
+          <button className="requestAdminAssistanceButton" onClick={handleAdminAssistance}>
+            Request Admin Assistance
+          </button>
+          <h2 className="table">Flagged Posts and Content</h2>
+          {reports.length > 0 ? (
+            <table className="flaggedPostsTable">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Event ID</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                  <th id="action">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No flagged reports at the moment.</p>
-        )}
+              </thead>
+              <tbody>
+                {reports.map((report) => (
+                  <tr key={report.id}>
+                    <td>{report.username}</td>
+                    <td>{report.email}</td>
+                    <td>{report.eventId}</td>
+                    <td>{report.reason}</td>
+                    <td>{report.status}</td>
+                    <td>{new Date(report.timestamp.seconds * 1000).toLocaleString()}</td>
+                    <td>
+                      <button
+                        className="actionButton"
+                        id="Suspend"
+                        onClick={() => handleSuspendAccount(report.id, report.userId)}
+                      >
+                        Suspend Account
+                      </button>
+                      <button
+                        className="actionButton"
+                        id="Warning"
+                        onClick={() =>
+                          handleWarning(report.id, report.userId, report.status === "warning_issued")
+                        }
+                      >
+                        {report.status === "warning_issued" ? "Remove Warning" : "Issue Warning"}
+                      </button>
+                      <button
+                        className="actionButton"
+                        id="Dismiss"
+                        onClick={() => handleDismissReport(report.id)}
+                      >
+                        Dismiss Report
+                      </button>
+                      <button
+                        className="actionButton"
+                        id="Remove"
+                        onClick={() => handleRemoveUser(report.id, report.userId)}
+                      >
+                        Remove User
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No flagged reports at the moment.</p>
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 };
