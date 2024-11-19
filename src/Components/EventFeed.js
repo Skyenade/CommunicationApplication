@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
-import { collection, getDocs, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove, doc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, getDocs, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove, doc, query, where, onSnapshot, orderBy, serverTimestamp } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import useAuth from '../hooks/useAuth';
+import firebase from 'firebase/compat/app';
 
 const EventFeed = () => {
   const [events, setEvents] = useState([]);
@@ -104,21 +105,22 @@ const EventFeed = () => {
       console.error("User is not authenticated or userId is undefined.");
       return;
     }
-
+  
     try {
       const eventRef = doc(firestore, "events", eventId);
       const eventDoc = await getDoc(eventRef);
       const eventData = eventDoc.data();
-
+  
       if (eventData.likes.includes(currentUser.uid)) {
         console.log("User has already liked this event.");
         return;
       }
+  
       await updateDoc(eventRef, {
         likes: arrayUnion(currentUser.uid),
-        dislikes: arrayRemove(currentUser.uid)
+        dislikes: arrayRemove(currentUser.uid), 
       });
-
+  
       setEvents(prevEvents =>
         prevEvents.map(event =>
           event.id === eventId
@@ -126,12 +128,28 @@ const EventFeed = () => {
             : event
         )
       );
-
+  
       console.log("Event liked successfully.");
+  
+      const eventOwnerId = eventData.ownerId;
+      if (eventOwnerId !== currentUser.uid) {
+        await addDoc(collection(firestore, "notifications"), {
+          eventId: eventId,
+          type: 'like',
+          userId: currentUser.uid,
+          // userName: currentUser.userName,
+          userEmail: currentUser.email,
+          timestamp: serverTimestamp(), 
+          isRead: false,  
+        });
+        console.log("Notification sent to event owner.");
+      }
     } catch (error) {
       console.error("Error liking event:", error);
     }
   };
+  
+  
 
   const handleDislike = async (eventId) => {
     if (!currentUser || !currentUser.uid) {
@@ -165,19 +183,21 @@ const EventFeed = () => {
       console.error("User is not authenticated or email is undefined.");
       return;
     }
-
+  
     try {
       const eventRef = doc(firestore, "events", eventId);
       const eventDoc = await getDoc(eventRef);
       const eventData = eventDoc.data();
-
+  
       const isAttending = eventData.attendees.includes(currentUser.email);
       const updateData = isAttending
         ? { attendees: arrayRemove(currentUser.email) }
         : { attendees: arrayUnion(currentUser.email) };
-
+  
+      // Update attendees
       await updateDoc(eventRef, updateData);
-
+  
+      // Update local state
       setEvents(prevEvents =>
         prevEvents.map(event =>
           event.id === eventId
@@ -185,12 +205,29 @@ const EventFeed = () => {
             : event
         )
       );
-
-      console.log(isAttending ? "Attendance canceled." : "Attendance confirmed.");
+  
+      console.log("Event attendance updated successfully.");
+  
+      const eventOwnerId = eventData.ownerId;
+      if (eventOwnerId !== currentUser.uid) {
+        await addDoc(collection(firestore, "notifications"), {
+          eventId: eventId,
+          type: 'attendance',  
+          userId: currentUser.uid,
+          userEmail: currentUser.email, 
+          message: isAttending
+            ? `${currentUser.email} left your event`
+            : `${currentUser.email} is attending your event`, 
+          timestamp: serverTimestamp(),
+          isRead: false,
+        });
+        console.log("Attendance notification sent to event owner.");
+      }
     } catch (error) {
-      console.error("Error updating attendance:", error);
+      console.error("Error updating event attendance:", error);
     }
   };
+  
 
   const handleReport = async (contentType, contentId) => {
     const reason = prompt("Please provide a reason for reporting this content:");
@@ -213,6 +250,7 @@ const EventFeed = () => {
       console.error('Error reporting content: ', error);
     }
   };
+
 
   return (
     <div className="event-feed">

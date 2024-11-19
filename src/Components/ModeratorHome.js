@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { database, firestore } from "../firebase";
-import { collection, query as queryFS, where, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore";  // Renombrar query de firestore
-import { ref, get, query as queryDB, orderByChild, startAt, endAt, update } from "firebase/database";  // Renombrar query de database
+import { collection, query as queryFS, where, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore";
+import { ref, get, query as queryDB, orderByChild, startAt, endAt, update } from "firebase/database";
 import { Link } from "react-router-dom";
 import Header from "./Header";
 import EventFeed from "./EventFeed";
@@ -13,14 +13,13 @@ const ModeratorHome = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
-  // State for followers and following
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = () => {
       const notificationsRef = collection(firestore, "notifications");
-      const notificationsQuery = queryFS(notificationsRef, where("isRead", "==", false));  // Usamos queryFS en lugar de query
+      const notificationsQuery = queryFS(notificationsRef, where("isRead", "==", false));
 
       const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
         const notificationsList = snapshot.docs.map((doc) => ({
@@ -37,10 +36,9 @@ const ModeratorHome = () => {
     fetchNotifications();
   }, []);
 
-  // Fetch followers and following when the moderator's data is loaded
   useEffect(() => {
     const fetchUserData = async () => {
-      const userRef = ref(database, "users/yourUserId"); // Replace with actual user ID
+      const userRef = ref(database, "users/yourUserId");
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -54,7 +52,6 @@ const ModeratorHome = () => {
     fetchUserData();
   }, []);
 
-  // Function to follow a user
   const handleFollow = async (userId) => {
     const userRef = ref(database, `users/yourUserId/following`);
     const userFollowersRef = ref(database, `users/${userId}/followers`);
@@ -67,11 +64,9 @@ const ModeratorHome = () => {
       ["yourUserId"]: true,
     });
 
-    // Actualizar el estado local
     setFollowing((prev) => [...prev, userId]);
   };
 
-  // Function to unfollow a user
   const handleUnfollow = async (userId) => {
     const userRef = ref(database, `users/yourUserId/following`);
     const userFollowersRef = ref(database, `users/${userId}/followers`);
@@ -86,7 +81,7 @@ const ModeratorHome = () => {
 
     setFollowing((prev) => prev.filter((id) => id !== userId));
 
-   
+
   };
 
   const handleSearch = async (e) => {
@@ -154,31 +149,31 @@ const ModeratorHome = () => {
             </Link>
           </h4>
         </button>
-            <div className="followers-following">
-        <h3>Followers: {followers.length}</h3>
-        <h3>Following: {following.length}</h3>
-      </div>
+        <div className="followers-following">
+          <h3>Followers: {followers.length}</h3>
+          <h3>Following: {following.length}</h3>
+        </div>
       </div>
 
-        <div className="search-results">
-          <h3> Results</h3>
-          {userResults.length > 0 ? (
-            <ul>
-              {userResults.map((user) => (
-                <li key={user.id}>
-                  {user.username} ({user.email})
-                  {following.includes(user.id) ? (
-                    <button onClick={() => handleUnfollow(user.id)}>Unfollow</button>
-                  ) : (
-                    <button onClick={() => handleFollow(user.id)}>Follow</button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No users found.</p>
-          )}
-        </div>
+      <div className="search-results">
+        <h3> Results</h3>
+        {userResults.length > 0 ? (
+          <ul>
+            {userResults.map((user) => (
+              <li key={user.id}>
+                {user.username} ({user.email})
+                {following.includes(user.id) ? (
+                  <button onClick={() => handleUnfollow(user.id)}>Unfollow</button>
+                ) : (
+                  <button onClick={() => handleFollow(user.id)}>Follow</button>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No users found.</p>
+        )}
+      </div>
 
       <div className="homeuser-content">
         <div className="homeuser-choose-options">
@@ -203,7 +198,7 @@ const ModeratorHome = () => {
           <EventFeed />
         </div>
 
-        
+
 
         <div className="Home_Notification">
           <div className="moderator-dashboard">
@@ -215,14 +210,21 @@ const ModeratorHome = () => {
           </div>
 
           <div className="notifications">
-            <h3>Notifications</h3>
-            <ul>
-              {loading ? (
-                <li>Loading notifications...</li>
-              ) : notifications.length > 0 ? (
-                notifications.map((notification) => (
+          <h3>Notifications</h3>
+            {loading ? (
+              <p>Loading notifications...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "event_report" ? (
+                    {notification.type === "like" ? (
+
+ `${notification.userEmail} liked your event`           
+         ) : notification.type === "event_report" ? (
+
+                      `${notification.userEmail} liked your event`
+                    ) : notification.type === "event_report" ? (
+
                       <>
                         <p>
                           <strong>You have a reported event</strong>
@@ -242,13 +244,18 @@ const ModeratorHome = () => {
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">VIEWED</button>
+                    <button
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="notif_viwedbtn"
+                    >
+                      VIEWED
+                    </button>
                   </li>
-                ))
-              ) : (
-                <li>No notifications</li>
-              )}
-            </ul>
+                ))}
+              </ul>
+            ) : (
+              <p>No notifications</p>
+            )}
           </div>
         </div>
       </div>

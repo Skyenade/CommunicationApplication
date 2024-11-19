@@ -1,20 +1,19 @@
-// src/hooks/useAuth.js
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase"; // Asegúrate de que esta importación sea correcta
+import { auth } from "../firebase";
 
 const useAuth = () => {
-    const [currentUser, setCurrentUser] = useState(undefined); // Estado inicial como undefined
+    const [currentUser, setCurrentUser] = useState(undefined);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("Estado de autenticación cambiado:", user); // Mensaje más descriptivo
-            setCurrentUser(user || null); // Asignar null si no hay usuario
+            console.log("Authentication state changed:", user);
+            setCurrentUser(user || null);
         });
         return unsubscribe;
     }, []);
 
-    return { currentUser }; // Devuelve el usuario autenticado
+    return { currentUser };
 };
 
-export default useAuth; // Exportación por defecto
+export default useAuth;

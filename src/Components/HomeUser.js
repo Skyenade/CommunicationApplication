@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { database } from "../firebase";
+import { database, firestore } from "../firebase";
 import Header from "../Components/Header";
 import {
   collection,
@@ -11,10 +11,14 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { ref as refDB, get, update } from "firebase/database";
+import { ref as refDB, get, update, query } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
 import "../Style.css";
+import useFollow from "../hooks/useFollow";
+import getFollowersCount from "../utils/getFollowersCount";
+
+
 
 const HomeUser = () => {
   const currentUser = useAuth();
@@ -22,68 +26,142 @@ const HomeUser = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
-  // Declare states for counters
+
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load the list of followed users for the current user
   useEffect(() => {
     const fetchUserData = async () => {
-      const userRef = refDB(database, "users/yourUserId");
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const followingArray = data.following ? Object.keys(data.following) : [];
-        setFollowing(followingArray);
+      try {
+        const userRef = refDB(database, `users/${currentUser.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          setFollowing(Object.keys(data.following || {}));
+          setFollowers(Object.keys(data.followers || {}));
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+// =======
+//       const userRef = refDB(database, "users/yourUserId");
+//       const snapshot = await get(userRef);
+//       if (snapshot.exists()) {
+//         const data = snapshot.val();
+//         const followingArray = data.following ? Object.keys(data.following) : [];
+//         setFollowing(followingArray);
 
-        const followersArray = data.followers ? Object.keys(data.followers) : [];
-        setFollowers(followersArray);
+//         const followersArray = data.followers ? Object.keys(data.followers) : [];
+//         setFollowers(followersArray);
+// >>>>>>> dev
       }
     };
-    fetchUserData();
+
+    if (currentUser?.uid) fetchUserData();
+  }, [currentUser]);
+
+  // Load notifications
+  useEffect(() => {
+    const fetchNotifications = () => {
+      try {
+        const notificationsRef = collection(firestore, "notifications");
+        const notificationsQuery = queryFS(
+          notificationsRef,
+          where("isRead", "==", false)
+        );
+
+        const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+          const notificationsList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setNotifications(notificationsList);
+          setLoading(false);
+        });
+
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    return fetchNotifications();
   }, []);
-
-  // Function to follow a user
   const handleFollow = async (userId) => {
-    const userRef = refDB(database, `users/yourUserId/following`);
-    const userFollowersRef = refDB(database, `users/${userId}/followers`);
-
-    await update(userRef, {
-      [userId]: true,
-    });
-
-    await update(userFollowersRef, {
-      ["yourUserId"]: true,
-    });
-
-    // Update local state
-    setFollowing((prev) => [...prev, userId]);
+    try {
+      // Update the following list of the current user
+      const userRef = refDB(database, `users/${currentUser.uid}/following`);
+      const userFollowersRef = refDB(database, `users/${userId}/followers`);
+  
+      await update(userRef, {
+        [userId]: true,
+      });
+  
+      await update(userFollowersRef, {
+        [currentUser.uid]: true,
+      });
+  
+      setFollowing((prev) => [...prev, userId]);
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
   };
-
-  // Function to unfollow a user
+  
+  // Fetch notifications on mount
+  useEffect(() => {
+    const fetchNotifications = () => {
+      const notificationsRef = collection(firestore, "notifications");
+      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
+  
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const notificationsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(notificationsList);
+        setLoading(false);
+      });
+  
+      return unsubscribe;
+    };
+  
+    fetchNotifications();
+  }, []);
   const handleUnfollow = async (userId) => {
+    try {
+//       const userRef = refDB(database, `users/${currentUser.uid}/following`);
+//       const userFollowersRef = refDB(database, `users/${userId}/followers`);
+// =======
     const userRef = refDB(database, `users/yourUserId/following`);
     const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
-    await update(userRef, {
-      [userId]: null,
-    });
+      await update(userRef, {
+        [userId]: null,
+      });
 
-    await update(userFollowersRef, {
-      ["yourUserId"]: null,
-    });
+      await update(userFollowersRef, {
+        [currentUser.uid]: null,
+      });
 
-    setFollowing((prev) => prev.filter((id) => id !== userId));
+      setFollowing((prev) => prev.filter((id) => id !== userId));
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    console.log("Searching for:", searchTerm);
+
 
     if (!searchTerm.trim()) {
       console.log("Search term is empty.");
       return;
     }
+
 
     try {
       const usersRef = refDB(database, "users");
@@ -98,17 +176,27 @@ const HomeUser = () => {
           );
 
         setUserResults(filteredUsers);
-
-        if (filteredUsers.length > 0) {
-          console.log("Users found:", filteredUsers);
-        } else {
-          console.log("No users found with that username.");
-        }
       } else {
         console.log("No users found in the database.");
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+    }
+  };
+
+
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+
+
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const notificationRef = doc(firestore, "notifications", notificationId);
+      await setDoc(notificationRef, { isRead: true }, { merge: true });
+    } catch (err) {
+      console.error("Error marking notification as read: ", err);
     }
   };
 
@@ -182,6 +270,38 @@ const HomeUser = () => {
         <div className="event-feed">
           <EventFeed />
         </div>
+
+
+        <div className="Home_Notification">
+      <div className="notifications">
+          <h3>Notifications</h3>
+            {loading ? (
+              <p>Loading notifications...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notification) => (
+                  <li key={notification.id}>
+                    {notification.type === "like" ? (
+ `${notification.userEmail} liked your event`           
+        
+                    ) : (
+                      <span>{notification.message}</span>
+                    )}
+                    <button
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="notif_viwedbtn"
+                    >
+                      VIEWED
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No notifications</p>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
