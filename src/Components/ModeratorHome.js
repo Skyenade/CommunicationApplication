@@ -81,7 +81,7 @@ const ModeratorHome = () => {
 
     setFollowing((prev) => prev.filter((id) => id !== userId));
 
-   
+
   };
 
   const handleSearch = async (e) => {
@@ -149,31 +149,31 @@ const ModeratorHome = () => {
             </Link>
           </h4>
         </button>
-            <div className="followers-following">
-        <h3>Followers: {followers.length}</h3>
-        <h3>Following: {following.length}</h3>
-      </div>
+        <div className="followers-following">
+          <h3>Followers: {followers.length}</h3>
+          <h3>Following: {following.length}</h3>
+        </div>
       </div>
 
-        <div className="search-results">
-          <h3> Results</h3>
-          {userResults.length > 0 ? (
-            <ul>
-              {userResults.map((user) => (
-                <li key={user.id}>
-                  {user.username} ({user.email})
-                  {following.includes(user.id) ? (
-                    <button onClick={() => handleUnfollow(user.id)}>Unfollow</button>
-                  ) : (
-                    <button onClick={() => handleFollow(user.id)}>Follow</button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No users found.</p>
-          )}
-        </div>
+      <div className="search-results">
+        <h3> Results</h3>
+        {userResults.length > 0 ? (
+          <ul>
+            {userResults.map((user) => (
+              <li key={user.id}>
+                {user.username} ({user.email})
+                {following.includes(user.id) ? (
+                  <button onClick={() => handleUnfollow(user.id)}>Unfollow</button>
+                ) : (
+                  <button onClick={() => handleFollow(user.id)}>Follow</button>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No users found.</p>
+        )}
+      </div>
 
       <div className="homeuser-content">
         <div className="homeuser-choose-options">
@@ -198,7 +198,7 @@ const ModeratorHome = () => {
           <EventFeed />
         </div>
 
-        
+
 
         <div className="Home_Notification">
           <div className="moderator-dashboard">
@@ -210,7 +210,11 @@ const ModeratorHome = () => {
           </div>
 
           <div className="notifications">
+
           <h3>Notifications</h3>
+
+            <h3>Notifications</h3>
+
             {loading ? (
               <p>Loading notifications...</p>
             ) : notifications.length > 0 ? (
@@ -218,8 +222,13 @@ const ModeratorHome = () => {
                 {notifications.map((notification) => (
                   <li key={notification.id}>
                     {notification.type === "like" ? (
+
  `${notification.userEmail} liked your event`           
          ) : notification.type === "event_report" ? (
+
+                      `${notification.userEmail} liked your event`
+                    ) : notification.type === "event_report" ? (
+
                       <>
                         <p>
                           <strong>You have a reported event</strong>

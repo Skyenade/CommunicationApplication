@@ -44,7 +44,7 @@ const Header = ({ handleSignOut }) => {
             <div className="nav-links">
                 <a className="nav-item" onClick={handleHomeNavigation}>Home</a>
                 <a className="nav-item" onClick={() => navigate("/MyEvents")}>My Events</a>
-                <a className="nav-item">My Followers</a>
+                <a className="nav-item" onClick={() => navigate("/MyFollowers")}>My Followers</a>
             </div>
 
             <div className="auth-buttons">
