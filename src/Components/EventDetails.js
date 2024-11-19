@@ -17,9 +17,9 @@ const EventDetails = () => {
             console.error("No event ID provided.");
             return;
         }
-    
+
         const eventDocRef = doc(firestore, "events", eventId);
-    
+
         const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
@@ -31,20 +31,20 @@ const EventDetails = () => {
                 setEvent(null);
             }
         });
-    
+
         const fetchComments = () => {
             if (!eventId) {
                 console.error("Event ID is still undefined in fetchComments.");
                 return;
             }
-    
+
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
                 commentsCollection,
                 where("eventId", "==", eventId),
                 orderBy("timestamp", "desc")
             );
-    
+
             const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
@@ -53,18 +53,17 @@ const EventDetails = () => {
                 console.log("Fetched comments:", commentsList);
                 setComments(commentsList);
             });
-    
+
             return unsubscribeComments;
         };
-    
+
         const unsubscribeComments = fetchComments();
-    
+
         return () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();
         };
     }, [eventId]);
-    
 
     const handleAttendanceChange = async () => {
         if (!event) return;
