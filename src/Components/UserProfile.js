@@ -259,17 +259,7 @@ const UserProfile = () => {
                   <p>No previous events found.</p>
                 )}
               </ul>
-
-              {/* <h2>Attendance History:</h2>
-              <ul>
-                {attendanceHistory.length > 0 ? (
-                  attendanceHistory.map((entry, index) => (
-                    <li key={index}>{entry}</li>
-                  ))
-                ) : (
-                  <p>No attendance history available.</p>
-                )}
-              </ul> */}
+              
               <button onClick={isFollowing ? handleUnfollow : handleFollow}>
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </button>
