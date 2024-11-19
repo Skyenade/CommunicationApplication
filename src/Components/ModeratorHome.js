@@ -210,11 +210,7 @@ const ModeratorHome = () => {
           </div>
 
           <div className="notifications">
-
           <h3>Notifications</h3>
-
-            <h3>Notifications</h3>
-
             {loading ? (
               <p>Loading notifications...</p>
             ) : notifications.length > 0 ? (
