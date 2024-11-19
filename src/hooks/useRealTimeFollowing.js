@@ -12,13 +12,13 @@ export const useRealTimeFollowing = (userId) => {
 
         const listener = onValue(followingRef, (snapshot) => {
             if (snapshot.exists()) {
-                setFollowing(Object.keys(snapshot.val())); // Get IDs of followed users
+                setFollowing(Object.keys(snapshot.val()));
             } else {
                 setFollowing([]);
             }
         });
 
-        return () => listener(); // Clear listener
+        return () => listener();
     }, [userId]);
 
     return following;

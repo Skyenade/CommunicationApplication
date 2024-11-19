@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ref, get } from 'firebase/database';
 import { database } from '../firebase';
 
-const HeaderAdmin = ({ handleSignOut, isSignedIn, userEmail }) => {
+const HeaderAdmin = () => {
     const [userType, setUserType] = useState(null);
     const navigate = useNavigate();
 

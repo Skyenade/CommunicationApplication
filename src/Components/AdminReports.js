@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { firestore } from "../firebase";
+import { firestore } from "../firebase"; 
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import HeaderAdmin from "./HeaderAdmin";
 import "../Style.css";
@@ -11,25 +11,46 @@ const AdminReports = () => {
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const querySnapshot = await getDocs(collection(firestore, "reports"));
+               
+                const reportsCollection = collection(firestore, "reports");
+                const querySnapshot = await getDocs(reportsCollection);
+
                 const reportsList = await Promise.all(
                     querySnapshot.docs.map(async (docSnapshot) => {
                         const reportData = docSnapshot.data();
+                        const reportDetails = { id: docSnapshot.id, ...reportData };
 
                        
-                        if (reportData.userId) {
-                            const reporterDocRef = doc(firestore, "users", reportData.userId);
+                        if (reportData.reportedBy) {
+                            const reporterDocRef = doc(firestore, "users", reportData.reportedBy);
                             const reporterSnapshot = await getDoc(reporterDocRef);
-                            reportData.reporterUsername = reporterSnapshot.exists()
-                                ? reporterSnapshot.data().username
-                                : "Unknown Reporter";
-                        } else {
-                            reportData.reporterUsername = "Unknown Reporter";
+                            if (reporterSnapshot.exists()) {
+                                const reporterData = reporterSnapshot.data();
+                                reportDetails.reporterUsername = reporterData.username || "Unknown";
+                                reportDetails.reporterEmail = reporterData.email || "Unknown";
+                            } else {
+                                reportDetails.reporterUsername = "Unknown User";
+                                reportDetails.reporterEmail = "Unknown Email";
+                            }
                         }
 
-                        return { id: docSnapshot.id, ...reportData };
+                        
+                        if (reportData.contentId) {
+                            const contentCollection = reportData.type === "post" ? "posts" : "comments";
+                            const contentDocRef = doc(firestore, contentCollection, reportData.contentId);
+                            const contentSnapshot = await getDoc(contentDocRef);
+                            if (contentSnapshot.exists()) {
+                                const contentData = contentSnapshot.data();
+                                reportDetails.contentDetails = contentData.text || "No content available";
+                            } else {
+                                reportDetails.contentDetails = "Content not found";
+                            }
+                        }
+
+                        return reportDetails;
                     })
                 );
+
                 setReports(reportsList);
             } catch (error) {
                 console.error("Error fetching reports:", error);
@@ -53,13 +74,23 @@ const AdminReports = () => {
                         {reports.map((report) => (
                             <li key={report.id} className="report-card">
                                 <p>
-                                    <strong>Content ID:</strong> {report.eventId || "N/A"}
+                                    <strong>Type:</strong> {report.type || "Unknown"}
                                 </p>
                                 <p>
-                                    <strong>Reported By:</strong> {report.reporterUsername || "Unknown"}
+                                    <strong>Content ID:</strong> {report.contentId || "N/A"}
                                 </p>
                                 <p>
-                                    <strong>Reason:</strong> {report.reason || "No reason provided"}
+                                    <strong>Content Details:</strong> {report.contentDetails || "Not available"}
+                                </p>
+                                <p>
+                                    <strong>Reported By:</strong> {report.reporterUsername || "Unknown"} (
+                                    {report.reporterEmail || "Unknown"})
+                                </p>
+                                <p>
+                                    <strong>Reason:</strong> {report.reportReason || "No reason provided"}
+                                </p>
+                                <p>
+                                    <strong>Status:</strong> {report.status || "Unknown"}
                                 </p>
                                 <small>
                                     Reported on:{" "}

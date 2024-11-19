@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { database, firestore } from "../firebase";
 import Header from "../Components/Header";
-import useAuth from "../hooks/useAuth";
-import EventFeed from "./EventFeed";
 import {
   collection,
   query as queryFS,
@@ -11,25 +9,32 @@ import {
   onSnapshot,
   doc,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
-import {
-  ref as refDB,
-  get,
-  update,
-} from "firebase/database";
+import { ref as refDB, get, update, query } from "firebase/database";
+import useAuth from "../hooks/useAuth";
+import EventFeed from "./EventFeed";
 import "../Style.css";
+import useFollow from "../hooks/useFollow";
+import getFollowersCount from "../utils/getFollowersCount";
+
+
 
 const HomeUser = () => {
   const currentUser = useAuth();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
+
+
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Load the list of followed users for the current user
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -42,6 +47,17 @@ const HomeUser = () => {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+// =======
+//       const userRef = refDB(database, "users/yourUserId");
+//       const snapshot = await get(userRef);
+//       if (snapshot.exists()) {
+//         const data = snapshot.val();
+//         const followingArray = data.following ? Object.keys(data.following) : [];
+//         setFollowing(followingArray);
+
+//         const followersArray = data.followers ? Object.keys(data.followers) : [];
+//         setFollowers(followersArray);
+// >>>>>>> dev
       }
     };
 
@@ -75,32 +91,53 @@ const HomeUser = () => {
 
     return fetchNotifications();
   }, []);
-
-  // Function to follow a user
   const handleFollow = async (userId) => {
     try {
+      // Update the following list of the current user
       const userRef = refDB(database, `users/${currentUser.uid}/following`);
       const userFollowersRef = refDB(database, `users/${userId}/followers`);
-
+  
       await update(userRef, {
         [userId]: true,
       });
-
+  
       await update(userFollowersRef, {
         [currentUser.uid]: true,
       });
-
+  
       setFollowing((prev) => [...prev, userId]);
     } catch (error) {
       console.error("Error following user:", error);
     }
   };
-
-  // Function to unfollow a user
+  
+  // Fetch notifications on mount
+  useEffect(() => {
+    const fetchNotifications = () => {
+      const notificationsRef = collection(firestore, "notifications");
+      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
+  
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const notificationsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(notificationsList);
+        setLoading(false);
+      });
+  
+      return unsubscribe;
+    };
+  
+    fetchNotifications();
+  }, []);
   const handleUnfollow = async (userId) => {
     try {
-      const userRef = refDB(database, `users/${currentUser.uid}/following`);
-      const userFollowersRef = refDB(database, `users/${userId}/followers`);
+//       const userRef = refDB(database, `users/${currentUser.uid}/following`);
+//       const userFollowersRef = refDB(database, `users/${userId}/followers`);
+// =======
+    const userRef = refDB(database, `users/yourUserId/following`);
+    const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
       await update(userRef, {
         [userId]: null,
@@ -119,10 +156,12 @@ const HomeUser = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
+
     if (!searchTerm.trim()) {
       console.log("Search term is empty.");
       return;
     }
+
 
     try {
       const usersRef = refDB(database, "users");
@@ -144,6 +183,13 @@ const HomeUser = () => {
       console.error("Error fetching users:", error);
     }
   };
+
+
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+
+
 
   const handleMarkAsRead = async (notificationId) => {
     try {
@@ -225,6 +271,7 @@ const HomeUser = () => {
           <EventFeed />
         </div>
 
+
         <div className="Home_Notification">
       <div className="notifications">
           <h3>Notifications</h3>
@@ -254,6 +301,7 @@ const HomeUser = () => {
             )}
           </div>
         </div>
+
       </div>
     </div>
   );
