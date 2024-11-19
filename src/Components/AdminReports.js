@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { getDatabase, ref, get } from "firebase/database"; // For Realtime Database
-import { collection, getDocs, doc, getDoc } from "firebase/firestore"; // For Firestore
+import { getDatabase, ref, get } from "firebase/database"; 
+import { collection, getDocs, doc, getDoc } from "firebase/firestore"; 
 import HeaderAdmin from "./HeaderAdmin";
 import "../Style.css";
 
@@ -27,7 +27,7 @@ const AdminReports = () => {
                         const reportData = docSnapshot.data();
                         const reportDetails = { id: docSnapshot.id, ...reportData };
 
-                        // Fetch reporter details from Realtime Database (username)
+                        
                         if (reportData.reportedBy) {
                             try {
                                 const database = getDatabase();
@@ -46,7 +46,7 @@ const AdminReports = () => {
                             }
                         }
 
-                        // Fetch email from Firestore (Firestore users collection)
+                        
                         if (reportData.reportedBy) {
                             try {
                                 const userDocRef = doc(firestore, "users", reportData.reportedBy);
@@ -64,7 +64,7 @@ const AdminReports = () => {
                             }
                         }
 
-                        // Fetch content details based on type from Firestore
+                       
                         if (reportData.contentId && reportData.type) {
                             try {
                                 const contentCollection =
