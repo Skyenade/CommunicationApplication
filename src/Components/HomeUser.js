@@ -15,13 +15,13 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { ref as refDB, get, update } from "firebase/database";
+import { ref as refDB, update } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
 
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
-import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
+import {  query,  } from "firebase/firestore";
 import '../Style.css';
 
 
@@ -54,6 +54,26 @@ const HomeUser = () => {
       }
     };
     fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotifications = () => {
+      const notificationsRef = collection(firestore, "notifications");
+      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
+
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const notificationsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(notificationsList);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    };
+
+    fetchNotifications();
   }, []);
 
   const handleFollow = async (userId) => {
@@ -96,25 +116,7 @@ const HomeUser = () => {
       return;
     }
 
-  useEffect(() => {
-    const fetchNotifications = () => {
-      const notificationsRef = collection(firestore, "notifications");
-      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
-
-      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-        const notificationsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setNotifications(notificationsList);
-        setLoading(false);
-      });
-
-      return () => unsubscribe();
-    };
-
-    fetchNotifications();
-  }, []);
+  
 
 //   const handleSearch = async () => {
 //     if (!searchTerm) return;
