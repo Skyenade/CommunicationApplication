@@ -52,7 +52,7 @@ const FirebaseManagement = () => {
                     <button onClick={() => handleLoginRealtimeDatabase()} className="firebase-management-buttons">Realtime Database Rules</button>
                 </div>
                 <div className="firebase-management-sections">
-                    <button onClick={() => handleLoginFirestore()} className="firebase-management-buttons">Firestore Database</button>
+                    <button onClick={() => handleLoginFirestore()} className="firebase-management-buttons">Firestore Database Rules</button>
                 </div>
             </div>
 

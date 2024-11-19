@@ -22,11 +22,9 @@ const HomeUser = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
-  // Declare states for counters
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
-  // Load the list of followed users for the current user
   useEffect(() => {
     const fetchUserData = async () => {
       const userRef = refDB(database, "users/yourUserId");
@@ -43,7 +41,6 @@ const HomeUser = () => {
     fetchUserData();
   }, []);
 
-  // Function to follow a user
   const handleFollow = async (userId) => {
     const userRef = refDB(database, `users/yourUserId/following`);
     const userFollowersRef = refDB(database, `users/${userId}/followers`);
@@ -56,11 +53,9 @@ const HomeUser = () => {
       ["yourUserId"]: true,
     });
 
-    // Update local state
     setFollowing((prev) => [...prev, userId]);
   };
 
-  // Function to unfollow a user
   const handleUnfollow = async (userId) => {
     const userRef = refDB(database, `users/yourUserId/following`);
     const userFollowersRef = refDB(database, `users/${userId}/followers`);
