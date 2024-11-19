@@ -251,6 +251,7 @@ const EventFeed = () => {
     }
   };
 
+
   return (
     <div className="event-feed">
       <h1 className="home-heading">Event Feed</h1>

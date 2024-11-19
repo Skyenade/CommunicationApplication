@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
-
-import { useLocation } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { ref, get } from "firebase/database";
+import { useLocation, Link } from "react-router-dom";
 import { database, firestore } from "../firebase";
-
 import Header from "../Components/Header";
 import {
   collection,
@@ -15,14 +11,13 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { ref as refDB, update } from "firebase/database";
+import { ref as refDB, get, update, query } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
-
+import "../Style.css";
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
-import {  query,  } from "firebase/firestore";
-import '../Style.css';
+
 
 
 const HomeUser = () => {
@@ -31,36 +26,97 @@ const HomeUser = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
+
   const [showFollowers, setShowFollowers] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-
 
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userRef = refDB(database, "users/yourUserId");
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const followingArray = data.following ? Object.keys(data.following) : [];
-        setFollowing(followingArray);
+      try {
+        const userRef = refDB(database, `users/${currentUser.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          setFollowing(Object.keys(data.following || {}));
+          setFollowers(Object.keys(data.followers || {}));
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+// =======
+//       const userRef = refDB(database, "users/yourUserId");
+//       const snapshot = await get(userRef);
+//       if (snapshot.exists()) {
+//         const data = snapshot.val();
+//         const followingArray = data.following ? Object.keys(data.following) : [];
+//         setFollowing(followingArray);
 
-        const followersArray = data.followers ? Object.keys(data.followers) : [];
-        setFollowers(followersArray);
+//         const followersArray = data.followers ? Object.keys(data.followers) : [];
+//         setFollowers(followersArray);
+// >>>>>>> dev
       }
     };
-    fetchUserData();
-  }, []);
 
+    if (currentUser?.uid) fetchUserData();
+  }, [currentUser]);
+
+  // Load notifications
+  useEffect(() => {
+    const fetchNotifications = () => {
+      try {
+        const notificationsRef = collection(firestore, "notifications");
+        const notificationsQuery = queryFS(
+          notificationsRef,
+          where("isRead", "==", false)
+        );
+
+        const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+          const notificationsList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setNotifications(notificationsList);
+          setLoading(false);
+        });
+
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    return fetchNotifications();
+  }, []);
+  const handleFollow = async (userId) => {
+    try {
+      // Update the following list of the current user
+      const userRef = refDB(database, `users/${currentUser.uid}/following`);
+      const userFollowersRef = refDB(database, `users/${userId}/followers`);
+  
+      await update(userRef, {
+        [userId]: true,
+      });
+  
+      await update(userFollowersRef, {
+        [currentUser.uid]: true,
+      });
+  
+      setFollowing((prev) => [...prev, userId]);
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
+  
+  // Fetch notifications on mount
   useEffect(() => {
     const fetchNotifications = () => {
       const notificationsRef = collection(firestore, "notifications");
       const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
-
+  
       const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
         const notificationsList = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -69,57 +125,42 @@ const HomeUser = () => {
         setNotifications(notificationsList);
         setLoading(false);
       });
-
-      return () => unsubscribe();
+  
+      return unsubscribe;
     };
-
+  
     fetchNotifications();
   }, []);
-
-  const handleFollow = async (userId) => {
-    const userRef = refDB(database, `users/yourUserId/following`);
-    const userFollowersRef = refDB(database, `users/${userId}/followers`);
-
-    await update(userRef, {
-      [userId]: true,
-    });
-
-    await update(userFollowersRef, {
-      ["yourUserId"]: true,
-    });
-
-    setFollowing((prev) => [...prev, userId]);
-  };
-
   const handleUnfollow = async (userId) => {
+    try {
+//       const userRef = refDB(database, `users/${currentUser.uid}/following`);
+//       const userFollowersRef = refDB(database, `users/${userId}/followers`);
+// =======
     const userRef = refDB(database, `users/yourUserId/following`);
     const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
-    await update(userRef, {
-      [userId]: null,
-    });
+      await update(userRef, {
+        [userId]: null,
+      });
 
-    await update(userFollowersRef, {
-      ["yourUserId"]: null,
-    });
+      await update(userFollowersRef, {
+        [currentUser.uid]: null,
+      });
 
-    setFollowing((prev) => prev.filter((id) => id !== userId));
+      setFollowing((prev) => prev.filter((id) => id !== userId));
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    console.log("Searching for:", searchTerm);
 
 
     if (!searchTerm.trim()) {
       console.log("Search term is empty.");
       return;
     }
-
-  
-
-//   const handleSearch = async () => {
-//     if (!searchTerm) return;
 
 
     try {
@@ -135,12 +176,6 @@ const HomeUser = () => {
           );
 
         setUserResults(filteredUsers);
-
-        if (filteredUsers.length > 0) {
-          console.log("Users found:", filteredUsers);
-        } else {
-          console.log("No users found with that username.");
-        }
       } else {
         console.log("No users found in the database.");
       }
@@ -148,6 +183,7 @@ const HomeUser = () => {
       console.error("Error fetching users:", error);
     }
   };
+
 
   if (!currentUser) {
     return <div>Loading...</div>;
@@ -159,13 +195,15 @@ const HomeUser = () => {
     try {
       const notificationRef = doc(firestore, "notifications", notificationId);
       await setDoc(notificationRef, { isRead: true }, { merge: true });
-      console.log("Notification marked as read");
     } catch (err) {
       console.error("Error marking notification as read: ", err);
     }
   };
 
-  
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="homeuser-container">
       <Header />
@@ -235,51 +273,33 @@ const HomeUser = () => {
 
 
         <div className="Home_Notification">
-        <div className="notifications">
-  <h3>Notifications</h3>
-  {loading ? (
-    <p>Loading notifications...</p>
-  ) : notifications.length > 0 ? (
-    <ul>
-      {notifications.map((notification) => (
-        <li key={notification.id}>
-          {notification.type === "like" ? (
-            // Display like notification
-            `${notification.userEmail} liked your event`
-          ) : notification.type === "comment" ? (
-            // Display comment notification
-            `${notification.userEmail} commented on your event: "${notification.commentText}"`
-          ) : notification.type === "attendance" ? (
-            // Display attendance notification
-            `${notification.userEmail} is attending your event`
-          ) : notification.type === "event_report" ? (
-            // Display event report notification
-            <>
-              <p><strong>You have a reported event</strong></p>
-              <p><strong>Reported by:</strong> {notification.userEmail}</p>
-              <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
-              <small>
-                {notification.timestamp
-                  ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                  : "No timestamp available"}
-              </small>
-            </>
-          ) : (
-            <span>{notification.message}</span>
-          )}
-          <button
-            onClick={() => handleMarkAsRead(notification.id)}
-            className="notif_viwedbtn"
-          >
-            VIEWED
-          </button>
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p>No notifications</p>
-  )}
-</div>
+      <div className="notifications">
+          <h3>Notifications</h3>
+            {loading ? (
+              <p>Loading notifications...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notification) => (
+                  <li key={notification.id}>
+                    {notification.type === "like" ? (
+ `${notification.userEmail} liked your event`           
+        
+                    ) : (
+                      <span>{notification.message}</span>
+                    )}
+                    <button
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="notif_viwedbtn"
+                    >
+                      VIEWED
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No notifications</p>
+            )}
+          </div>
         </div>
 
       </div>
