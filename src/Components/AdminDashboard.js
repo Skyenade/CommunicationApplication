@@ -43,7 +43,7 @@ const AdminDashboard = () => {
             <Link to="/ContentManagement" className='linking'>Content Management</Link>
           </div>
           <div className="section">
-            <Link to="/" className='linking'>Database Management</Link>
+            <Link to="/FirebaseManagement" className='linking'>Firebase Management</Link>
           </div>
           <div className="section">
             <Link to="/HistoryOfReportedUsers" className='linking'>
