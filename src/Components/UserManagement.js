@@ -7,8 +7,10 @@ import "./UserManagement.css";
 const UserManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
-  const [username, setUsername] = useState('');
-  const [bio, setBio] = useState('');
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
+  const [previousUsername, setPreviousUsername] = useState("");
+  const [previousBio, setPreviousBio] = useState("");
   const db = getDatabase();
 
   useEffect(() => {
@@ -32,7 +34,9 @@ const UserManagement = () => {
                 user.status = "active";
                 user.suspensionDate = null;
               })
-              .catch((error) => console.error("Error restoring user after suspension:", error));
+              .catch((error) =>
+                console.error("Error restoring user after suspension:", error)
+              );
           }
         }
         userList.push(user);
@@ -120,6 +124,70 @@ const UserManagement = () => {
       .catch((error) => console.error("Error restoring user:", error));
   };
 
+  const handleDeleteProfile = (userId) => {
+    const user = allUsers.find((user) => user.id === userId);
+    setPreviousUsername(user.username); // Save current username before deletion
+    setPreviousBio(user.bio);           // Save current bio before deletion
+
+    if (window.confirm("Are you sure you want to delete this user's profile information?")) {
+      const userRef = ref(db, `users/${userId}`);
+
+      update(userRef, {
+        username: null,
+        bio: null,
+      })
+        .then(() => {
+          setAllUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === userId ? { ...user, username: null, bio: null } : user
+            )
+          );
+          alert("User profile information deleted successfully!");
+        })
+        .catch((error) => console.error("Error deleting user profile information:", error));
+    }
+  };
+
+  const handleRestoreProfile = (userId) => {
+    if (window.confirm("Are you sure you want to restore this user's profile information?")) {
+      const userRef = ref(db, `users/${userId}`);
+      
+      // Fetch the current user data from Firebase
+      onValue(
+        userRef,
+        (snapshot) => {
+          const userData = snapshot.val();
+  
+          if (userData) {
+            const restoredUsername = userData.username || previousUsername || "Default Username";
+            const restoredBio = userData.bio || previousBio || "Default Bio";
+  
+            update(userRef, {
+              username: restoredUsername,
+              bio: restoredBio,
+            })
+              .then(() => {
+                setAllUsers((prevUsers) =>
+                  prevUsers.map((user) =>
+                    user.id === userId
+                      ? { ...user, username: restoredUsername, bio: restoredBio }
+                      : user
+                  )
+                );
+                alert("User profile restored successfully!");
+              })
+              .catch((error) => {
+                console.error("Error restoring user profile information:", error);
+              });
+          } else {
+            alert("User data not found in Firebase.");
+          }
+        },
+        { onlyOnce: true } // Use onlyOnce to fetch data once
+      );
+    }
+  };
+  
   return (
     <div>
       <HeaderAdmin />
@@ -127,7 +195,9 @@ const UserManagement = () => {
         <div className="admin-dashboard-button">
           <h1>Admin Dashboard</h1>
           <button className="create-account-button">
-            <Link to="/CreateUser" className="linking">Create a User's Account</Link>
+            <Link to="/CreateUser" className="linking">
+              Create a User's Account
+            </Link>
           </button>
         </div>
 
@@ -151,7 +221,7 @@ const UserManagement = () => {
                       {editingUser?.id === user.id ? (
                         <>
                           <label>New username:</label>
-                          <br></br>
+                          <br />
                           <input
                             type="text"
                             value={username}
@@ -159,7 +229,6 @@ const UserManagement = () => {
                             className="new-input"
                           />
                         </>
-
                       ) : (
                         user.username
                       )}
@@ -172,37 +241,58 @@ const UserManagement = () => {
                         value="User"
                         checked={user.accountType === "User"}
                         onChange={() => handleAccountTypeChange(user.id, "User")}
-                      />{" "} User
+                      />{" "}
+                      User
                       <input
                         type="radio"
                         name={`accountType-${user.id}`}
                         value="Moderator"
                         checked={user.accountType === "Moderator"}
                         onChange={() => handleAccountTypeChange(user.id, "Moderator")}
-                      />{" "} Moderator
+                      />{" "}
+                      Moderator
                     </td>
                     <td>
                       {editingUser?.id === user.id ? (
                         <>
                           <label>New bio:</label>
-                          <br></br>
+                          <br />
                           <input
                             type="text"
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                             className="new-input"
                           />
-                          <button onClick={() => handleSave(user.id)} className="save-button">Save</button>
+                          <button onClick={() => handleSave(user.id)} className="save-button">
+                            Save
+                          </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => handleEdit(user)} className="edit-button">Edit profile</button>
-                          <button onClick={() => handleSuspend(user.id)} className="suspend-button">Suspend Account</button>
-                          <button onClick={() => handleDelete(user.id)} className="delete-button">Delete Account</button>
-                          <button onClick={() => handleRestore(user.id)} className="restore-button">Restore Account</button>
-                          <button className="delete-button">Delete Profile</button>
-                          <button className="restore-button">Restore Profile</button>
-
+                          <button onClick={() => handleEdit(user)} className="edit-button">
+                            Edit profile
+                          </button>
+                          <button onClick={() => handleSuspend(user.id)} className="suspend-button">
+                            Suspend Account
+                          </button>
+                          <button onClick={() => handleDelete(user.id)} className="delete-button">
+                            Delete Account
+                          </button>
+                          <button onClick={() => handleRestore(user.id)} className="restore-button">
+                            Restore Account
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProfile(user.id)}
+                            className="delete-button"
+                          >
+                            Delete Profile
+                          </button>
+                          <button
+                            onClick={() => handleRestoreProfile(user.id)}
+                            className="restore-button"
+                          >
+                            Restore Profile
+                          </button>
                         </>
                       )}
                     </td>
@@ -211,7 +301,7 @@ const UserManagement = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4">No users found.</td>
+                  <td colSpan="5">No users found.</td>
                 </tr>
               )}
             </tbody>
