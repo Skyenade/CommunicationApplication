@@ -226,15 +226,7 @@ const HomeUser = () => {
         </div>
 
         <div className="Home_Notification">
-          <div className="moderator-dashboard">
-            <h4>
-              <Link to="/ModeratorDashboard" className="links">
-                Moderator Dashboard
-              </Link>
-            </h4>
-          </div>
-
-          <div className="notifications">
+      <div className="notifications">
           <h3>Notifications</h3>
             {loading ? (
               <p>Loading notifications...</p>
