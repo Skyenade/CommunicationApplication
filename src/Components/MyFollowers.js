@@ -1,53 +1,60 @@
 import React, { useEffect, useState } from "react";
 import { ref, get } from "firebase/database";
 import { database } from "../firebase";
+import Header from "./Header";
 
-const MyFollowers = () => {
-  const [followers, setFollowers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const MyFollowers = ({ userId }) => {
+    const [followers, setFollowers] = useState([]);
 
-  useEffect(() => {
-    const fetchFollowers = async () => {
-      try {
-          const userId = "yourUserId"; //Change this to the ID of the authenticated user
-        const followersRef = ref(database, `users/${userId}/followers`);
-        const snapshot = await get(followersRef);
+    useEffect(() => {
+        const fetchFollowers = async () => {
+            try {
+                const followersRef = ref(database, `users/${userId}/followers`);
+                const snapshot = await get(followersRef);
+                if (snapshot.exists()) {
+                    const followersData = snapshot.val();
 
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-            // We convert the object into an array of followers
-          const followersList = Object.keys(data).filter((key) => data[key]);
-          setFollowers(followersList);
-        } else {
-          console.log("No followers found.");
-          setFollowers([]);
-        }
-      } catch (error) {
-        console.error("Error fetching followers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+                    // followers details
+                    const followersArray = await Promise.all(
+                        Object.keys(followersData).map(async (followerId) => {
+                            const userRef = ref(database, `users/${followerId}`);
+                            const userSnapshot = await get(userRef);
+                            return userSnapshot.exists()
+                                ? { id: followerId, ...userSnapshot.val() }
+                                : null;
+                        })
+                    );
 
-    fetchFollowers();
-  }, []);
+                    setFollowers(followersArray.filter((follower) => follower !== null));
+                } else {
+                    setFollowers([]); // No followers
+                }
+            } catch (error) {
+                console.error("Error fetching followers:", error);
+            }
+        };
 
-  return (
-    <div>
-      <h2>My Followers</h2>
-      {loading ? (
-        <p>Loading followers...</p>
-      ) : followers.length > 0 ? (
-        <ul>
-          {followers.map((followerId) => (
-            <li key={followerId}>{followerId}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No followers yet.</p>
-      )}
-    </div>
-  );
+        fetchFollowers();
+    }, [userId]);
+
+    return (
+        <div>
+            <Header/>
+            <h1>My Followers</h1>
+            {followers.length > 0 ? (
+                <ul>
+              
+                    {followers.map((follower) => (
+                        <li key={follower.id}>
+                            {follower.username} ({follower.email})
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>You have no followers.</p>
+            )}
+        </div>
+    );
 };
 
 export default MyFollowers;
