@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserContext } from '../UserContext';
 import { ref, get } from 'firebase/database';
 import { database } from '../firebase';
+import "../Style.css";
 
 const Header = ({ handleSignOut }) => {
     const { userEmail, userUid } = useUserContext();
@@ -17,6 +18,8 @@ const Header = ({ handleSignOut }) => {
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
                         setUserType(userData.accountType);
+                    } else {
+                        console.warn("No user data found");
                     }
                 } catch (error) {
                     console.error("Error fetching user data:", error);
@@ -28,12 +31,16 @@ const Header = ({ handleSignOut }) => {
     }, [userUid]);
 
     const handleHomeNavigation = () => {
+        if (!userType) {
+            console.warn("User type not yet loaded");
+            return;
+        }
         if (userType === "Moderator") {
             navigate("/ModeratorHome");
         } else if (userType === "User") {
             navigate("/HomeUser");
         } else {
-            console.log("User type is not valid, no navigation");
+            console.warn("User type is not valid, no navigation");
         }
     };
 
@@ -42,9 +49,9 @@ const Header = ({ handleSignOut }) => {
             <h1 className="home-heading">EventUp</h1>
 
             <div className="nav-links">
-                <a className="nav-item" onClick={handleHomeNavigation}>Home</a>
-                <a className="nav-item" onClick={() => navigate("/MyEvents")}>My Events</a>
-                <a className="nav-item" onClick={() => navigate("/MyFollowers")}>My Followers</a>
+                <button className="nav-item" onClick={handleHomeNavigation}>Home</button>
+                <button className="nav-item" onClick={() => navigate("/MyEvents")}>My Events</button>
+                <button className="nav-item" onClick={() => navigate("/MyFollowers")}>My Followers</button>
             </div>
 
             <div className="auth-buttons">
@@ -56,7 +63,6 @@ const Header = ({ handleSignOut }) => {
                     User Profile
                 </button>
                 <button onClick={() => navigate("/")} className="btnSignOut">Sign Out</button>
-
             </div>
         </div>
     );
