@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Header from "./Header";
 import EventFeed from "./EventFeed";
 import "../Style.css";
+import HeaderModerator from "./HeaderModerator";
 
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
@@ -132,7 +133,7 @@ const ModeratorHome = () => {
 
   return (
     <div className="homeuser-container">
-      <Header />
+      <HeaderModerator />
       <div className="homeuser-navbar-actions">
         <input
           type="text"
@@ -217,13 +218,7 @@ const ModeratorHome = () => {
               <ul>
                 {notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "like" ? (
-
- `${notification.userEmail} liked your event`           
-         ) : notification.type === "event_report" ? (
-
-                      `${notification.userEmail} liked your event`
-                    ) : notification.type === "event_report" ? (
+                    { notification.type === "event_report" ? (
 
                       <>
                         <p>

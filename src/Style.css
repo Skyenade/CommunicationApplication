@@ -103,6 +103,12 @@ body {
     gap: 40px;
 }
 
+.links{
+    text-decoration: none;
+    color: white;
+    
+}
+
 .nav-item {
     text-decoration: none;
     color: black;
@@ -260,9 +266,26 @@ body {
     color: #333;
     padding: 10px;
     font-size: 14px;
+    font-weight: bold;
     border: 1px solid black;
     max-width: 400px;
+    margin-top: -20px;
 }
+
+.notifications li:hover{
+    background-color: rgb(217, 216, 216);
+}
+
+.notif_viwedbtn {
+    background-color: rgb(4, 4, 74); 
+    color: #ffffff; 
+    font-size: 14px; 
+    font-weight: bold; 
+    padding: 8px 12px; 
+    border: none; 
+    border-radius: 8px; 
+    margin: 8px 10px;
+  }
 
 .like_btn,
 .comment_btn,
