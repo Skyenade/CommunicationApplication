@@ -294,7 +294,7 @@ const HomeUser = () => {
       </div>
     ))
   ) : (
-    <p>No results found</p>
+    <p>username and events</p>
   )}
 </div>
       <div className="homeuser-content">
