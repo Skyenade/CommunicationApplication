@@ -124,69 +124,76 @@ const UserManagement = () => {
       .catch((error) => console.error("Error restoring user:", error));
   };
 
-  const handleDeleteProfile = (userId) => {
-    const user = allUsers.find((user) => user.id === userId);
-    setPreviousUsername(user.username); // Save current username before deletion
-    setPreviousBio(user.bio);           // Save current bio before deletion
+  const [previousUserData, setPreviousUserData] = useState({});
 
-    if (window.confirm("Are you sure you want to delete this user's profile information?")) {
-      const userRef = ref(db, `users/${userId}`);
+const handleDeleteProfile = (userId) => {
+  const user = allUsers.find((user) => user.id === userId);
 
-      update(userRef, {
-        username: null,
-        bio: null,
+  
+  setPreviousUserData((prevState) => ({
+    ...prevState,
+    [userId]: { username: user.username, bio: user.bio }
+  }));
+
+  if (window.confirm("Are you sure you want to delete this user's profile information?")) {
+    const userRef = ref(db, `users/${userId}`);
+
+    update(userRef, {
+      username: null,
+      bio: null,
+    })
+      .then(() => {
+        setAllUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === userId ? { ...user, username: null, bio: null } : user
+          )
+        );
+        alert("User profile information deleted successfully!");
       })
-        .then(() => {
-          setAllUsers((prevUsers) =>
-            prevUsers.map((user) =>
-              user.id === userId ? { ...user, username: null, bio: null } : user
-            )
-          );
-          alert("User profile information deleted successfully!");
-        })
-        .catch((error) => console.error("Error deleting user profile information:", error));
-    }
-  };
+      .catch((error) => console.error("Error deleting user profile information:", error));
+  }
+};
 
-  const handleRestoreProfile = (userId) => {
-    if (window.confirm("Are you sure you want to restore this user's profile information?")) {
-      const userRef = ref(db, `users/${userId}`);
-      
-      // Fetch the current user data from Firebase
-      onValue(
-        userRef,
-        (snapshot) => {
-          const userData = snapshot.val();
-  
-          if (userData) {
-            const restoredUsername = userData.username || previousUsername || "Default Username";
-            const restoredBio = userData.bio || previousBio || "Default Bio";
-  
-            update(userRef, {
-              username: restoredUsername,
-              bio: restoredBio,
+const handleRestoreProfile = (userId) => {
+  if (window.confirm("Are you sure you want to restore this user's profile information?")) {
+    const userRef = ref(db, `users/${userId}`);
+
+    onValue(
+      userRef,
+      (snapshot) => {
+        const userData = snapshot.val();
+
+        if (userData) {
+         
+          const previousData = previousUserData[userId] || {};
+          const restoredUsername = userData.username || previousData.username || "Default Username";
+          const restoredBio = userData.bio || previousData.bio || "Default Bio";
+
+          update(userRef, {
+            username: restoredUsername,
+            bio: restoredBio,
+          })
+            .then(() => {
+              setAllUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                  user.id === userId
+                    ? { ...user, username: restoredUsername, bio: restoredBio }
+                    : user
+                )
+              );
+              alert("User profile restored successfully!");
             })
-              .then(() => {
-                setAllUsers((prevUsers) =>
-                  prevUsers.map((user) =>
-                    user.id === userId
-                      ? { ...user, username: restoredUsername, bio: restoredBio }
-                      : user
-                  )
-                );
-                alert("User profile restored successfully!");
-              })
-              .catch((error) => {
-                console.error("Error restoring user profile information:", error);
-              });
-          } else {
-            alert("User data not found in Firebase.");
-          }
-        },
-        { onlyOnce: true } // Use onlyOnce to fetch data once
-      );
-    }
-  };
+            .catch((error) => {
+              console.error("Error restoring user profile information:", error);
+            });
+        } else {
+          alert("User data not found in Firebase.");
+        }
+      },
+      { onlyOnce: true }
+    );
+  }
+};
   
   return (
     <div>
