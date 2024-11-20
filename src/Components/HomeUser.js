@@ -159,62 +159,61 @@ const HomeUser = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-  
-    if (!searchTerm.trim()) {
-      console.log("Search term is empty.");
-      return;
-    }
-  
-    try {
-      
-      const usersRef = ref(database, "users");
-      const userSnapshot = await get(usersRef);
-  
-      let filteredUsers = [];
-      if (userSnapshot.exists()) {
-        const usersData = userSnapshot.val();
-        filteredUsers = Object.keys(usersData)
-          .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) =>
-            user.username &&
-            user.username.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-      } else {
-        console.log("No users found in the Realtime Database.");
-      }
-  
-      
-      const eventsRef = collection(firestore, "events");
-      const eventsQuery = queryFS(
-        eventsRef,
-        where("title", ">=", searchTerm),
-        where("title", "<=", searchTerm + "\uf8ff")
-      );
-      const eventsSnapshot = await getDocs(eventsQuery);
-  
-      let filteredEvents = [];
-      if (!eventsSnapshot.empty) {
-        filteredEvents = eventsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-      } else {
-        console.log("No events found in Firestore.");
-      }
-  
-      // Combine results
-      const combinedResults = [
-        ...filteredUsers.map((user) => ({ ...user, type: "user" })),
-        ...filteredEvents.map((event) => ({ ...event, type: "event" })),
-      ];
-  
-      setUserResults(combinedResults);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  
 
+    if (!searchTerm.trim()) {
+        console.log("Search term is empty.");
+        return;
+    }
+
+    try {
+        
+        const usersRef = ref(database, "users");
+        const userSnapshot = await get(usersRef);
+
+        let filteredUsers = [];
+        if (userSnapshot.exists()) {
+            const usersData = userSnapshot.val();
+            filteredUsers = Object.keys(usersData)
+                .map((key) => ({ id: key, ...usersData[key] }))
+                .filter((user) =>
+                    user.username &&
+                    user.username.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+        } else {
+            console.log("No users found in the Realtime Database.");
+        }
+
+       
+        const eventsRef = collection(firestore, "events");
+        const eventsSnapshot = await getDocs(eventsRef);
+
+        let filteredEvents = [];
+        if (!eventsSnapshot.empty) {
+            const allEvents = eventsSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+           
+            filteredEvents = allEvents.filter((event) =>
+                event.title &&
+                event.title.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        } else {
+            console.log("No events found in Firestore.");
+        }
+
+        
+        const combinedResults = [
+            ...filteredUsers.map((user) => ({ ...user, type: "user" })),
+            ...filteredEvents.map((event) => ({ ...event, type: "event" })),
+        ];
+
+        setUserResults(combinedResults);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
 
   
 
