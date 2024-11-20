@@ -103,6 +103,12 @@ body {
     gap: 40px;
 }
 
+.links{
+    text-decoration: none;
+    color: white;
+    
+}
+
 .nav-item {
     text-decoration: none;
     color: black;

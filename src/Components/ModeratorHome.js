@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Header from "./Header";
 import EventFeed from "./EventFeed";
 import "../Style.css";
+import HeaderModerator from "./HeaderModerator";
 
 const ModeratorHome = () => {
   const [notifications, setNotifications] = useState([]);
@@ -132,7 +133,7 @@ const ModeratorHome = () => {
 
   return (
     <div className="homeuser-container">
-      <Header />
+      <HeaderModerator />
       <div className="homeuser-navbar-actions">
         <input
           type="text"
