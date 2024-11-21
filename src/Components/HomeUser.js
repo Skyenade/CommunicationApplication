@@ -22,6 +22,11 @@ import "../Style.css";
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
 
+import { query, } from "firebase/firestore";
+import '../Style.css';
+
+
+
 
 
 const HomeUser = () => {
@@ -154,6 +159,15 @@ const HomeUser = () => {
         return;
     }
 
+
+
+
+    //   const handleSearch = async () => {
+    //     if (!searchTerm) return;
+
+
+
+
     try {
         
         const usersRef = ref(database, "users");
@@ -222,9 +236,12 @@ const HomeUser = () => {
     }
   };
 
+
+
   if (!currentUser) {
     return <div>Loading...</div>;
   }
+
 
   return (
     <div className="homeuser-container">
@@ -311,14 +328,38 @@ const HomeUser = () => {
 
 
         <div className="Home_Notification">
+
+          <div className="notifications">
+            <h3>Notifications</h3>
+
         <div className="notifications">
           <h3>Notifications</h3>
+
             {loading ? (
               <p>Loading notifications...</p>
             ) : notifications.length > 0 ? (
               <ul>
                 {notifications.map((notification) => (
                   <li key={notification.id}>
+
+                    {notification.type === "like" ? (
+
+                      // Display like notification
+                      `${notification.userEmail} liked your event`
+                    ) : notification.type === "comment" ? (
+                      // Display comment notification
+                      `${notification.userEmail} commented on your event: "${notification.commentText}"`
+                    ) : notification.type === "attendance" ? (
+                      // Display attendance notification
+
+                      `${notification.userEmail} is attending your event`
+                    ) : notification.type === "event_report" ? (
+                      // Display event report notification
+                      <>
+                        <p><strong>You have a reported event</strong></p>
+                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
+                        <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
+
                     { notification.type === "event_report" ? (
 
                       <>
@@ -331,6 +372,7 @@ const HomeUser = () => {
                         <p>
                           <strong>Reason:</strong> {notification.reason || "No reason provided"}
                         </p>
+
                         <small>
                           {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
