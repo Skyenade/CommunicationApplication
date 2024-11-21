@@ -21,7 +21,7 @@ import EventFeed from "./EventFeed";
 
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
-import {  query,  } from "firebase/firestore";
+import { query, } from "firebase/firestore";
 import '../Style.css';
 
 
@@ -116,10 +116,10 @@ const HomeUser = () => {
       return;
     }
 
-  
 
-//   const handleSearch = async () => {
-//     if (!searchTerm) return;
+
+    //   const handleSearch = async () => {
+    //     if (!searchTerm) return;
 
 
     try {
@@ -165,7 +165,7 @@ const HomeUser = () => {
     }
   };
 
-  
+
   return (
     <div className="homeuser-container">
       <Header />
@@ -235,51 +235,53 @@ const HomeUser = () => {
 
 
         <div className="Home_Notification">
-        <div className="notifications">
-  <h3>Notifications</h3>
-  {loading ? (
-    <p>Loading notifications...</p>
-  ) : notifications.length > 0 ? (
-    <ul>
-      {notifications.map((notification) => (
-        <li key={notification.id}>
-          {notification.type === "like" ? (
-            // Display like notification
-            `${notification.userEmail} liked your event`
-          ) : notification.type === "comment" ? (
-            // Display comment notification
-            `${notification.userEmail} commented on your event: "${notification.commentText}"`
-          ) : notification.type === "attendance" ? (
-            // Display attendance notification
-            `${notification.userEmail} is attending your event`
-          ) : notification.type === "event_report" ? (
-            // Display event report notification
-            <>
-              <p><strong>You have a reported event</strong></p>
-              <p><strong>Reported by:</strong> {notification.userEmail}</p>
-              <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
-              <small>
-                {notification.timestamp
-                  ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                  : "No timestamp available"}
-              </small>
-            </>
-          ) : (
-            <span>{notification.message}</span>
-          )}
-          <button
-            onClick={() => handleMarkAsRead(notification.id)}
-            className="notif_viwedbtn"
-          >
-            VIEWED
-          </button>
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p>No notifications</p>
-  )}
-</div>
+          <div className="notifications">
+            <h3>Notifications</h3>
+            {loading ? (
+              <p>Loading notifications...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notification) => (
+                  <li key={notification.id}>
+                    {notification.type === "like" ? (
+
+                      // Display like notification
+                      `${notification.userEmail} liked your event`
+                    ) : notification.type === "comment" ? (
+                      // Display comment notification
+                      `${notification.userEmail} commented on your event: "${notification.commentText}"`
+                    ) : notification.type === "attendance" ? (
+                      // Display attendance notification
+
+                      `${notification.userEmail} is attending your event`
+                    ) : notification.type === "event_report" ? (
+                      // Display event report notification
+                      <>
+                        <p><strong>You have a reported event</strong></p>
+                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
+                        <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : (
+                      <span>{notification.message}</span>
+                    )}
+                    <button
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="notif_viwedbtn"
+                    >
+                      VIEWED
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No notifications</p>
+            )}
+          </div>
         </div>
 
       </div>
