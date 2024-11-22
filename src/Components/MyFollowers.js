@@ -4,45 +4,49 @@ import { database } from "../firebase";
 import useAuth from "../hooks/useAuth";
 import "../Style.css";
 import Header from "./Header";
+import useFollowers from "../hooks/useFollowers"
 
 const MyFollowers = () => {
-    const currentUser = useAuth(); // Current user
-    const [followers, setFollowers] = useState([]); // List of followers with details
-    const [loading, setLoading] = useState(true); // State of charge
+    const { currentUser } = useAuth();
+    const [followers, setFollowers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!currentUser) return;
 
-        // Reference to the follower node
         const followersRef = refDB(database, `users/${currentUser.uid}/followers`);
-
-        // Listen for changes on the follower node
-        const unsubscribe = onValue(followersRef, (snapshot) => {
+        const unsubscribe = onValue(followersRef, async (snapshot) => {
             const followersData = snapshot.val();
+
             if (followersData) {
                 const followerIds = Object.keys(followersData);
-
-                Promise.all(
+                const details = await Promise.all(
                     followerIds.map(async (userId) => {
-                        const userRef = refDB(database, `users/${userId}`);
-                        const userSnapshot = await get(userRef);
-                        const userData = userSnapshot.val();
-                        return {
-                            id: userId,
-                            name: userData?.name || "Unknown",
-                        };
+                        try {
+                            const userRef = refDB(database, `users/${userId}`);
+                            const userSnapshot = await get(userRef);
+                            if (userSnapshot.exists()) {
+                                const userData = userSnapshot.val();
+                                return {
+                                    id: userId,
+                                    name: userData.username || "Unknown",
+                                };
+                            }
+                            return { id: userId, name: "Unknown" };
+                        } catch (error) {
+                            console.error(`Error fetching data for user ${userId}:`, error);
+                            return { id: userId, name: "Unknown" };
+                        }
                     })
-                ).then((details) => {
-                    setFollowers(details);
-                    setLoading(false);
-                });
+                );
+                setFollowers(details);
             } else {
-                setFollowers([]); // No followers
-                setLoading(false);
+                setFollowers([]);
             }
+            setLoading(false);
         });
 
-        return () => unsubscribe(); // Clean Listening
+        return () => unsubscribe();
     }, [currentUser]);
 
     if (loading) {
@@ -50,21 +54,28 @@ const MyFollowers = () => {
     }
 
     return (
-        <div className="myfollowers-container">
+        <div>
+
             <Header />
-            <h2>My Followers</h2>
-            <p>Total followers: {followers.length}</p> {/* Show total number */}
-            {followers.length > 0 ? (
-                <ul>
-                    {followers.map((follower) => (
-                        <li key={follower.id} className="follower-item">
-                            <span>{follower.name}</span> {/* show name*/}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>You have no followers yet.</p>
-            )}
+
+            <div className="myfollowers-container">
+
+                <h2 className="title">My Followers</h2>
+                <div className="followers-summary">
+                    <p>Total Followers: {followers.length}</p>
+                    <ul className="followers-list">
+                        {followers.length > 0 ? (
+                            followers.map((follower) => (
+                                <li key={follower.id} className="follower-item">
+                                    <span>{follower.name}</span> {/* Access the follower's name */}
+                                </li>
+                            ))
+                        ) : (
+                            <li>No followers yet.</li>
+                        )}
+                    </ul>
+                </div>
+            </div>
         </div>
     );
 };

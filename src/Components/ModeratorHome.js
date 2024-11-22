@@ -9,6 +9,7 @@ import Header from "./Header";
 import EventFeed from "./EventFeed";
 import "../Style.css";
 import HeaderModerator from "./HeaderModerator";
+import useFollowers from "../hooks/useFollowers";
 
 const ModeratorHome = () => {
   const { currentUser } = useAuth();
@@ -20,19 +21,19 @@ const ModeratorHome = () => {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const userRef = refDB(database, "users/yourUserId");
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const followingArray = data.following ? Object.keys(data.following) : [];
-        setFollowing(followingArray);
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const userRef = refDB(database, "users/yourUserId");
+  //     const snapshot = await get(userRef);
+  //     if (snapshot.exists()) {
+  //       const data = snapshot.val();
+  //       const followingArray = data.following ? Object.keys(data.following) : [];
+  //       setFollowing(followingArray);
 
-        const followersArray = data.followers ? Object.keys(data.followers) : [];
-        setFollowers(followersArray);
-      }
-    };
+  //       const followersArray = data.followers ? Object.keys(data.followers) : [];
+  //       setFollowers(followersArray);
+  //     }
+  //   };
 
 
 
@@ -53,7 +54,7 @@ const ModeratorHome = () => {
     };
 
     fetchNotifications();
-  }, []);
+ 
 
   useEffect(() => {
     if (!currentUser) return;
