@@ -101,14 +101,14 @@ const ContentManagement = () => {
   };
 
   const handleRemoveUser = async (reportId, userId) => {
-    if (!window.confirm("Are you sure you want to remove this user?")) return;
+    if (!window.confirm("Are you sure you want to remove ?")) return;
 
     try {
       const userRef = ref(db, `users/${userId}`);
       const userSnapshot = await get(userRef);
 
       if (!userSnapshot.exists()) {
-        window.alert("User does not exist.");
+        window.alert("error! Can't procced.");
         return;
       }
 
@@ -116,7 +116,7 @@ const ContentManagement = () => {
       await updateDoc(doc(firestore, "reports", reportId), { status: "user_removed" });
       window.alert("User removed.");
     } catch {
-      window.alert("Failed to remove user. Please try again.");
+      window.alert("Failed to remove event. Please try again.");
     }
   };
 
@@ -184,7 +184,7 @@ const ContentManagement = () => {
                         id="Remove"
                         onClick={() => handleRemoveUser(report.id, report.userId)}
                       >
-                        Remove User
+                        Remove 
                       </button>
                     </td>
                   </tr>
