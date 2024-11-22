@@ -13,11 +13,8 @@ const EventFeed = () => {
   const [showCommentSection, setShowCommentSection] = useState(null);
   const [loadingComments, setLoadingComments] = useState(false); 
   const { currentUser } = useAuth();
-  const [flagReason, setFlagReason] = useState('');
-  const [flaggingCommentId, setFlaggingCommentId] = useState(null);
 
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -75,24 +72,49 @@ const EventFeed = () => {
 
   const handleAddComment = async (eventId) => {
     if (!newComment.trim()) {
-      console.log('Comment cannot be empty');
+      console.log("Comment cannot be empty");
       return;
     }
-
+  
     try {
       if (currentUser) {
-        await addDoc(collection(firestore, 'comments'), {
+        const eventRef = doc(firestore, "events", eventId);
+        const eventDoc = await getDoc(eventRef);
+        
+        if (!eventDoc.exists()) {
+          console.error("Event does not exist");
+          return;
+        }
+  
+        const eventData = eventDoc.data();
+        const eventOwnerId = eventData.ownerId;
+        const eventTitle = eventData.title;
+  
+        await addDoc(collection(firestore, "comments"), {
           eventId,
           userName: currentUser.email,
           text: newComment,
           timestamp: new Date(),
         });
-        setNewComment('');
+  
+        setNewComment("");
+  
+        if (eventOwnerId !== currentUser.uid) {
+          await addDoc(collection(firestore, "notifications"), {
+            eventId,
+            type: "comment",
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            message: `${currentUser.email} commented on the event: ${eventTitle}`,
+            timestamp: serverTimestamp(),
+            isRead: false,
+          });
+        }
       } else {
-        console.log('User not logged in');
+        console.log("User not logged in");
       }
     } catch (error) {
-      console.error('Error adding comment: ', error);
+      console.error("Error adding comment: ", error);
     }
   };
 
@@ -110,46 +132,48 @@ const EventFeed = () => {
       const eventRef = doc(firestore, "events", eventId);
       const eventDoc = await getDoc(eventRef);
       const eventData = eventDoc.data();
+      const eventTitle = eventData.title;
   
-      if (eventData.likes.includes(currentUser.uid)) {
-        console.log("User has already liked this event.");
-        return;
-      }
+      const hasLiked = eventData.likes.includes(currentUser.uid);
+      const updateData = hasLiked
+        ? { likes: arrayRemove(currentUser.uid) }
+        : {
+            likes: arrayUnion(currentUser.uid),
+            dislikes: arrayRemove(currentUser.uid),
+          };
   
-      await updateDoc(eventRef, {
-        likes: arrayUnion(currentUser.uid),
-        dislikes: arrayRemove(currentUser.uid), 
-      });
+      await updateDoc(eventRef, updateData);
   
-      setEvents(prevEvents =>
-        prevEvents.map(event =>
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
           event.id === eventId
-            ? { ...event, likes: [...event.likes, currentUser.uid], dislikes: event.dislikes.filter(uid => uid !== currentUser.uid) }
+            ? {
+                ...event,
+                likes: hasLiked
+                  ? event.likes.filter((uid) => uid !== currentUser.uid)
+                  : [...event.likes, currentUser.uid],
+                dislikes: event.dislikes.filter((uid) => uid !== currentUser.uid), 
+              }
             : event
         )
       );
   
-      console.log("Event liked successfully.");
-  
       const eventOwnerId = eventData.ownerId;
-      if (eventOwnerId !== currentUser.uid) {
+      if (eventOwnerId !== currentUser.uid && !hasLiked) {
         await addDoc(collection(firestore, "notifications"), {
           eventId: eventId,
-          type: 'like',
+          type: "like",
           userId: currentUser.uid,
-          // userName: currentUser.userName,
           userEmail: currentUser.email,
-          timestamp: serverTimestamp(), 
-          isRead: false,  
+          message: `${currentUser.email} liked ${eventTitle} event `, 
+          timestamp: serverTimestamp(),
+          isRead: false,
         });
-        console.log("Notification sent to event owner.");
       }
     } catch (error) {
-      console.error("Error liking event:", error);
+      console.error("Error updating event like:", error);
     }
   };
-  
-  
 
   const handleDislike = async (eventId) => {
     if (!currentUser || !currentUser.uid) {
@@ -172,62 +196,10 @@ const EventFeed = () => {
         )
       );
 
-      console.log("Event disliked successfully.");
     } catch (error) {
       console.error("Error disliking event:", error);
     }
   };
-
-  const handleAttend = async (eventId) => {
-    if (!currentUser || !currentUser.email) {
-      console.error("User is not authenticated or email is undefined.");
-      return;
-    }
-  
-    try {
-      const eventRef = doc(firestore, "events", eventId);
-      const eventDoc = await getDoc(eventRef);
-      const eventData = eventDoc.data();
-  
-      const isAttending = eventData.attendees.includes(currentUser.email);
-      const updateData = isAttending
-        ? { attendees: arrayRemove(currentUser.email) }
-        : { attendees: arrayUnion(currentUser.email) };
-  
-      // Update attendees
-      await updateDoc(eventRef, updateData);
-  
-      // Update local state
-      setEvents(prevEvents =>
-        prevEvents.map(event =>
-          event.id === eventId
-            ? { ...event, attendees: isAttending ? event.attendees.filter(email => email !== currentUser.email) : [...event.attendees, currentUser.email] }
-            : event
-        )
-      );
-  
-      console.log("Event attendance updated successfully.");
-  
-      const eventOwnerId = eventData.ownerId;
-      if (eventOwnerId !== currentUser.uid) {
-        await addDoc(collection(firestore, "notifications"), {
-          eventId: eventId,
-          type: 'attendance',  
-          userId: currentUser.uid,
-          userEmail: currentUser.email, 
-          message: isAttending
-            ? `${currentUser.email} left your event`
-            : `${currentUser.email} is attending your event`, 
-          timestamp: serverTimestamp(),
-          isRead: false,
-        });
-        console.log("Attendance notification sent to event owner.");
-      }
-    } catch (error) {
-      console.error("Error updating event attendance:", error);
-    }
-  };
-  
 
   const handleReport = async (contentType, contentId) => {
     const reason = prompt("Please provide a reason for reporting this content:");
@@ -251,6 +223,49 @@ const EventFeed = () => {
     }
   };
 
+  const handleAttend = async (eventId) => {
+    if (!currentUser || !currentUser.email) {
+      console.error("User is not authenticated or email is undefined.");
+      return;
+    }
+
+    try {
+      const eventRef = doc(firestore, "events", eventId);
+      const eventDoc = await getDoc(eventRef);
+      const eventData = eventDoc.data();
+      const eventTitle = eventData.title; 
+
+      const isAttending = eventData.attendees.includes(currentUser.email);
+      const updateData = isAttending
+        ? { attendees: arrayRemove(currentUser.email) }
+        : { attendees: arrayUnion(currentUser.email) };
+
+      await updateDoc(eventRef, updateData);
+
+      setEvents(prevEvents =>
+        prevEvents.map(event =>
+          event.id === eventId
+            ? { ...event, attendees: isAttending ? event.attendees.filter(email => email !== currentUser.email) : [...event.attendees, currentUser.email] }
+            : event
+        )
+      );
+
+      const eventOwnerId = eventData.ownerId;
+      if (eventOwnerId !== currentUser.uid) {
+        await addDoc(collection(firestore, "notifications"), {
+          eventId: eventId,
+          type: 'attendance',
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          message: `${currentUser.email} is attending ${eventTitle} event`,
+          timestamp: serverTimestamp(),
+          isRead: false,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating event attendance:", error);
+    }
+  };
 
   return (
     <div className="event-feed">
@@ -271,6 +286,7 @@ const EventFeed = () => {
 
             <button className="like_btn" onClick={() => handleEventDetailsClick(event.id)}>EventDetails</button>
 
+
             {event.images && event.images.length > 0 && (
               <img src={event.images[0]} alt={event.title} className="event-image" />
             )}
@@ -285,12 +301,7 @@ const EventFeed = () => {
               >
                 {showCommentSection === event.id ? 'Hide Comments' : 'Comments'}
               </button>
-              <button
-                className="report_btn"
-                onClick={() => handleReport('event', event.id)}
-              >
-                Report Event
-              </button>
+            
             </div>
 
             {showCommentSection === event.id && (

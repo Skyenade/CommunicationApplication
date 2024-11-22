@@ -20,7 +20,7 @@ const HeaderAdmin = () => {
 
 
             <div className="auth-buttons">
-                <button onClick={() => navigate("/Login")} className="btnSignOut">Sign Out</button>
+                <button onClick={() => navigate("/")} className="btnSignOut">Sign Out</button>
 
 
             </div>

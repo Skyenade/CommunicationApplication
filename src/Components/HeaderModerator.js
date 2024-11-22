@@ -5,7 +5,7 @@ import { ref, get } from 'firebase/database';
 import { database } from '../firebase';
 import "../Style.css";
 
-const Header = ({ handleSignOut }) => {
+const HeaderModerator = ({ handleSignOut }) => {
     const { userEmail, userUid } = useUserContext();
     const [userType, setUserType] = useState(null);
     const navigate = useNavigate();
@@ -44,12 +44,21 @@ const Header = ({ handleSignOut }) => {
         }
     };
 
+    // const handleHomeNavigation = () => {
+    //     navigate("/ModeratorHome");
+    // }
+
     return (
         <div className="header-container">
             <h1 className="home-heading">EventUp</h1>
 
             <div className="nav-links">
-                <button className="nav-item" onClick={handleHomeNavigation}>Home</button>
+                <button className="nav-item"     onClick={() => {
+        console.log("Navigating to ModeratorHome");
+        navigate("/ModeratorHome");
+    }}
+>Home</button>
+
                 <button className="nav-item" onClick={() => navigate("/MyEvents")}>My Events</button>
                 <button className="nav-item" onClick={() => navigate("/MyFollowers")}>My Followers</button>
             </div>
@@ -68,4 +77,4 @@ const Header = ({ handleSignOut }) => {
     );
 };
 
-export default Header;
+export default HeaderModerator;
