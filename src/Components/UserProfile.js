@@ -229,7 +229,7 @@ const UserProfile = () => {
               <h1>Hello, {username || 'User'}</h1>
               <p>Your email: {user.email}</p>
 
-              <p>Followers: {followersCount}</p>
+              
 
               <p>Update your username:</p>
               <input

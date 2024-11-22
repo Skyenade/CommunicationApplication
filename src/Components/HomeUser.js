@@ -2,23 +2,13 @@ import React, { useState, useEffect } from "react";
 
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { ref, get } from "firebase/database";
+import { ref, onValue, get, remove} from "firebase/database";
 import { database, firestore } from "../firebase";
-
 import Header from "../Components/Header";
-import {
-  collection,
-  query as queryFS,
-  where,
-  onSnapshot,
-  doc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import {collection, query as queryFS, where, onSnapshot, doc, setDoc, updateDoc,} from "firebase/firestore";
 import { ref as refDB, update } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
-
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
 import { query, } from "firebase/firestore";
@@ -31,11 +21,8 @@ const HomeUser = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userResults, setUserResults] = useState([]);
 
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-
 
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
@@ -76,36 +63,53 @@ const HomeUser = () => {
     fetchNotifications();
   }, []);
 
+  // Fetch followers and following in real-time
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const userRef = ref(database, `users/${currentUser.uid}`);
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      setFollowers(data?.followers ? Object.keys(data.followers) : []);
+      setFollowing(data?.following ? Object.keys(data.following) : []);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // Debugging followers data
+  useEffect(() => {
+    console.log("Followers data:", followers);
+  }, [followers]);
+
   const handleFollow = async (userId) => {
-    const userRef = refDB(database, `users/yourUserId/following`);
-    const userFollowersRef = refDB(database, `users/${userId}/followers`);
+    if (!currentUser) return;
 
-    await update(userRef, {
-      [userId]: true,
-    });
+    const userFollowingRef = refDB(database, `users/${currentUser.uid}/following/${userId}`);
+    const userFollowersRef = refDB(database, `users/${userId}/followers/${currentUser.uid}`);
 
-    await update(userFollowersRef, {
-      ["yourUserId"]: true,
-    });
+    await update(userFollowingRef, { active: true });
+    await update(userFollowersRef, { active: true });
 
     setFollowing((prev) => [...prev, userId]);
+    setFollowers((prev) => (prev.includes(userId) ? prev : [...prev, currentUser.uid])); // Asegurar consistencia
   };
 
   const handleUnfollow = async (userId) => {
-    const userRef = refDB(database, `users/yourUserId/following`);
-    const userFollowersRef = refDB(database, `users/${userId}/followers`);
+    if (!currentUser) return;
 
-    await update(userRef, {
-      [userId]: null,
-    });
+    const userFollowingRef = refDB(database, `users/${currentUser.uid}/following/${userId}`);
+    const userFollowersRef = refDB(database, `users/${userId}/followers/${currentUser.uid}`);
 
-    await update(userFollowersRef, {
-      ["yourUserId"]: null,
-    });
+    await remove(userFollowingRef);
+    await remove(userFollowersRef);
 
     setFollowing((prev) => prev.filter((id) => id !== userId));
+    setFollowers((prev) => prev.filter((id) => id !== currentUser.uid)); // Asegurar consistencia
   };
 
+
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     console.log("Searching for:", searchTerm);
