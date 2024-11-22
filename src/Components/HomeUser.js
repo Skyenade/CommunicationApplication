@@ -22,7 +22,6 @@ import "../Style.css";
 import useFollow from "../hooks/useFollow";
 import getFollowersCount from "../utils/getFollowersCount";
 
-import { query, } from "firebase/firestore";
 import '../Style.css';
 
 
@@ -88,33 +87,33 @@ const HomeUser = () => {
 
     return fetchNotifications();
   }, []);
-  
-  
+
+
   const handleFollow = async (userId) => {
     try {
       // Update the following list of the current user
       const userRef = refDB(database, `users/${currentUser.uid}/following`);
       const userFollowersRef = refDB(database, `users/${userId}/followers`);
-  
+
       await update(userRef, {
         [userId]: true,
       });
-  
+
       await update(userFollowersRef, {
         [currentUser.uid]: true,
       });
-  
+
       setFollowing((prev) => [...prev, userId]);
     } catch (error) {
       console.error("Error following user:", error);
     }
   };
-  
+
   useEffect(() => {
     const fetchNotifications = () => {
       const notificationsRef = collection(firestore, "notifications");
       const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
-  
+
       const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
         const notificationsList = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -123,19 +122,19 @@ const HomeUser = () => {
         setNotifications(notificationsList);
         setLoading(false);
       });
-  
+
       return unsubscribe;
     };
-  
+
     fetchNotifications();
   }, []);
   const handleUnfollow = async (userId) => {
     try {
-//       const userRef = refDB(database, `users/${currentUser.uid}/following`);
-//       const userFollowersRef = refDB(database, `users/${userId}/followers`);
-// =======
-    const userRef = refDB(database, `users/yourUserId/following`);
-    const userFollowersRef = refDB(database, `users/${userId}/followers`);
+      //       const userRef = refDB(database, `users/${currentUser.uid}/following`);
+      //       const userFollowersRef = refDB(database, `users/${userId}/followers`);
+      // =======
+      const userRef = refDB(database, `users/yourUserId/following`);
+      const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
       await update(userRef, {
         [userId]: null,
@@ -155,8 +154,8 @@ const HomeUser = () => {
     e.preventDefault();
 
     if (!searchTerm.trim()) {
-        console.log("Search term is empty.");
-        return;
+      console.log("Search term is empty.");
+      return;
     }
 
 
@@ -169,56 +168,56 @@ const HomeUser = () => {
 
 
     try {
-        
-        const usersRef = ref(database, "users");
-        const userSnapshot = await get(usersRef);
 
-        let filteredUsers = [];
-        if (userSnapshot.exists()) {
-            const usersData = userSnapshot.val();
-            filteredUsers = Object.keys(usersData)
-                .map((key) => ({ id: key, ...usersData[key] }))
-                .filter((user) =>
-                    user.username &&
-                    user.username.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-        } else {
-            console.log("No users found in the Realtime Database.");
-        }
+      const usersRef = ref(database, "users");
+      const userSnapshot = await get(usersRef);
 
-       
-        const eventsRef = collection(firestore, "events");
-        const eventsSnapshot = await getDocs(eventsRef);
+      let filteredUsers = [];
+      if (userSnapshot.exists()) {
+        const usersData = userSnapshot.val();
+        filteredUsers = Object.keys(usersData)
+          .map((key) => ({ id: key, ...usersData[key] }))
+          .filter((user) =>
+            user.username &&
+            user.username.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+      } else {
+        console.log("No users found in the Realtime Database.");
+      }
 
-        let filteredEvents = [];
-        if (!eventsSnapshot.empty) {
-            const allEvents = eventsSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
 
-           
-            filteredEvents = allEvents.filter((event) =>
-                event.title &&
-                event.title.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        } else {
-            console.log("No events found in Firestore.");
-        }
+      const eventsRef = collection(firestore, "events");
+      const eventsSnapshot = await getDocs(eventsRef);
 
-        
-        const combinedResults = [
-            ...filteredUsers.map((user) => ({ ...user, type: "user" })),
-            ...filteredEvents.map((event) => ({ ...event, type: "event" })),
-        ];
+      let filteredEvents = [];
+      if (!eventsSnapshot.empty) {
+        const allEvents = eventsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-        setUserResults(combinedResults);
+
+        filteredEvents = allEvents.filter((event) =>
+          event.title &&
+          event.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      } else {
+        console.log("No events found in Firestore.");
+      }
+
+
+      const combinedResults = [
+        ...filteredUsers.map((user) => ({ ...user, type: "user" })),
+        ...filteredEvents.map((event) => ({ ...event, type: "event" })),
+      ];
+
+      setUserResults(combinedResults);
     } catch (error) {
-        console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error);
     }
-};
+  };
 
-  
+
 
 
   if (!currentUser) {
@@ -271,38 +270,39 @@ const HomeUser = () => {
       </div>
 
       <div className="search-results">
-  {userResults.length > 0 ? (
-    userResults.map((result) => (
-      <div key={result.id} className="search-result">
-        {result.type === "user" ? (
-          
-          <>
-            <span>
-              {result.username} ({result.email})
-            </span>
-            {following.includes(result.id) ? (
-              <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
-            ) : (
-              <button onClick={() => handleFollow(result.id)}>Follow</button>
-            )}
-          </>
+        {userResults.length > 0 ? (
+          userResults.map((result) => (
+            <div key={result.id} className="search-result">
+              {result.type === "user" ? (
+
+                <>
+                  <span>
+                    {result.username} ({result.email})
+                  </span>
+                  {following.includes(result.id) ? (
+                    <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
+                  ) : (
+                    <button onClick={() => handleFollow(result.id)}>Follow</button>
+                  )}
+                </>
+              ) : (
+
+                <Link to={`/event/${result.id}`} className="event-link">
+                  <span>
+                    <strong>Title:</strong> {result.title}
+                  </span>
+                  <span>
+                    <strong>Created By:</strong> {result.createdBy}
+                  </span>
+                </Link>
+              )}
+            </div>
+          ))
         ) : (
-          
-          <Link to={`/event/${result.id}`} className="event-link">
-            <span>
-              <strong>Title:</strong> {result.title}
-            </span>
-            <span>
-              <strong>Created By:</strong> {result.createdBy}
-            </span>
-          </Link>
+          <p>username and events</p>
         )}
       </div>
-    ))
-  ) : (
-    <p>username and events</p>
-  )}
-</div>
+
       <div className="homeuser-content">
         <div className="homeuser-choose-options">
           <label>
@@ -328,40 +328,15 @@ const HomeUser = () => {
 
 
         <div className="Home_Notification">
-
           <div className="notifications">
             <h3>Notifications</h3>
-
-        <div className="notifications">
-          <h3>Notifications</h3>
-
             {loading ? (
               <p>Loading notifications...</p>
             ) : notifications.length > 0 ? (
               <ul>
                 {notifications.map((notification) => (
                   <li key={notification.id}>
-
-                    {notification.type === "like" ? (
-
-                      // Display like notification
-                      `${notification.userEmail} liked your event`
-                    ) : notification.type === "comment" ? (
-                      // Display comment notification
-                      `${notification.userEmail} commented on your event: "${notification.commentText}"`
-                    ) : notification.type === "attendance" ? (
-                      // Display attendance notification
-
-                      `${notification.userEmail} is attending your event`
-                    ) : notification.type === "event_report" ? (
-                      // Display event report notification
-                      <>
-                        <p><strong>You have a reported event</strong></p>
-                        <p><strong>Reported by:</strong> {notification.userEmail}</p>
-                        <p><strong>Reason:</strong> {notification.reason || "No reason provided"}</p>
-
-                    { notification.type === "event_report" ? (
-
+                    {notification.type === "event_report" ? (
                       <>
                         <p>
                           <strong>You have a reported event</strong>
@@ -372,7 +347,40 @@ const HomeUser = () => {
                         <p>
                           <strong>Reason:</strong> {notification.reason || "No reason provided"}
                         </p>
-
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : notification.type === "like" ? (
+                      <>
+                        <p>
+                          <strong>{notification.userEmail}</strong> liked your event.
+                        </p>
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : notification.type === "comment" ? (
+                      <>
+                        <p>
+                          <strong>{notification.userEmail}</strong> commented on your event:{" "}
+                          <em>"{notification.commentText}"</em>
+                        </p>
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
+                    ) : notification.type === "attendance" ? (
+                      <>
+                        <p>
+                          <strong>{notification.userEmail}</strong> is attending your event.
+                        </p>
                         <small>
                           {notification.timestamp
                             ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
@@ -384,13 +392,13 @@ const HomeUser = () => {
                     )}
                     <button
                       onClick={() => handleMarkAsRead(notification.id)}
-                      className="notif_viwedbtn"
-                    >
+                      className="notif_viwedbtn">
                       VIEWED
                     </button>
                   </li>
                 ))}
               </ul>
+
             ) : (
               <p>No notifications</p>
             )}
