@@ -87,7 +87,7 @@ const ContentManagement = () => {
   };
 
   const handleWarning = async (reportId, currentWarningStatus, eventCreatorEmail) => {
-    if (window.confirm(currentWarningStatus ? "Remove warning from this user?" : "Issue a warning to this user?")) {
+    if (window.confirm("Issue a warning to this user?")) {
       try {
         const usersQuery = query(
           collection(firestore, "users"),
