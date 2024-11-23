@@ -31,6 +31,7 @@ const SignUpUser = () => {
                 warning: false,
                 likeCount: 0,
                 followerCount: 0,
+                followingCount: 0,
             });
 
             setEmail(email);
