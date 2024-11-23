@@ -213,6 +213,7 @@ body {
     display: flex;
     gap: 20px;
     width: 96vw;
+    margin: 15px auto;
 }
 
 .homeuser-choose-options,

@@ -87,25 +87,25 @@ const HomeUser = () => {
 
   
 
-  useEffect(() => {
-    const fetchNotifications = () => {
-      const notificationsRef = collection(firestore, "notifications");
-      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
+  // useEffect(() => {
+  //   const fetchNotifications = () => {
+  //     const notificationsRef = collection(firestore, "notifications");
+  //     const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
 
-      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-        const notificationsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setNotifications(notificationsList);
-        setLoading(false);
-      });
+  //     const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+  //       const notificationsList = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setNotifications(notificationsList);
+  //       setLoading(false);
+  //     });
 
-      return unsubscribe;
-    };
+  //     return unsubscribe;
+  //   };
 
-    fetchNotifications();
-  }, []);
+  //   fetchNotifications();
+  // }, []);
 
   const handleFollow = async (userId) => {
     if (!currentUser) return;
@@ -123,7 +123,7 @@ const HomeUser = () => {
     await update(userFollowersRef, { active: true });
 
     setFollowing((prev) => [...prev, userId]);
-    setFollowers((prev) => prev.includes(userId) ? prev : [...prev, currentUser.uid]); // Ensure consistency
+    setFollowers((prev) => prev.includes(userId) ? prev : [...prev, currentUser.uid]);
   };
 
   const handleUnfollow = async (userId) => {
@@ -136,7 +136,7 @@ const HomeUser = () => {
     await remove(userFollowersRef);
 
     setFollowing((prev) => prev.filter((id) => id !== userId));
-    setFollowers((prev) => prev.filter((id) => id !== currentUser.uid)); // Ensure consistency
+    setFollowers((prev) => prev.filter((id) => id !== currentUser.uid));
   };
 
 
@@ -310,24 +310,6 @@ const HomeUser = () => {
       </div>
 
       <div className="homeuser-content">
-        <div className="homeuser-choose-options">
-          <label>
-            <input type="radio" name="options" value="Option 1" />
-            Events by followers
-          </label>
-          <br />
-          <label>
-            <input type="radio" name="options" value="Option 2" />
-            Events by Location
-          </label>
-          <br />
-          <div className="location">
-            <label>Current Location:</label>
-            <br />
-            <input type="text" placeholder="Choose your location" />
-          </div>
-        </div>
-
         <div className="event-feed">
           <EventFeed />
         </div>
