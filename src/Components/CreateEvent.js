@@ -78,8 +78,9 @@ const CreateEvent = () => {
         coordinates: selectedLocation,
         details: eventDetails,
         images: imageBase64List,
+        // createdBy: userId,
         createdBy: auth.currentUser?.email || "Unknown",
-      ownerId: userId, // Include ownerId for the 
+      ownerId: userId, 
         report: false,
         warning: false,
         suspended: false,

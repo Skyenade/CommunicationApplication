@@ -105,25 +105,27 @@ const HomeUser = () => {
     }
   };
   
-  useEffect(() => {
-    const fetchNotifications = () => {
-      const notificationsRef = collection(firestore, "notifications");
-      const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
+  // useEffect(() => {
+  //   const fetchNotifications = () => {
+  //     const notificationsRef = collection(firestore, "notifications");
+  //     const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
   
-      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-        const notificationsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setNotifications(notificationsList);
-        setLoading(false);
-      });
+  //     const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+  //       const notificationsList = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setNotifications(notificationsList);
+  //       setLoading(false);
+  //     });
   
-      return unsubscribe;
-    };
+  //     return unsubscribe;
+  //   };
   
-    fetchNotifications();
-  }, []);
+  //   fetchNotifications();
+  // }, []);
+
+  
   const handleUnfollow = async (userId) => {
     try {
 //       const userRef = refDB(database, `users/${currentUser.uid}/following`);
