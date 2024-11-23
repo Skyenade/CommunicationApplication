@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, getDocs } from "firebase/firestore";
 import { getDatabase, ref, update, get,set } from "firebase/database";
 import Header from "./Header";
 import "./ContentManagement.css";
@@ -86,49 +86,54 @@ const ContentManagement = () => {
     }
   };
 
-  const handleWarning = async (reportId, userId, currentWarningStatus) => {
+  const handleWarning = async (reportId, currentWarningStatus, eventCreatorEmail) => {
     if (window.confirm(currentWarningStatus ? "Remove warning from this user?" : "Issue a warning to this user?")) {
       try {
-
-        // Get the user's reference in Firebase Realtime Database
+        const usersQuery = query(
+          collection(firestore, "users"),
+          where("email", "==", eventCreatorEmail)
+        );
+        const userSnapshot = await getDocs(usersQuery);
+  
+        if (userSnapshot.empty) {
+          window.alert("User not found.");
+          return;
+        }
+  
+        const userDoc = userSnapshot.docs[0];
+        const userId = userDoc.id;
+  
         const userRef = ref(db, `users/${userId}`);
+        const userSnapshotFromDb = await get(userRef);
   
-        // Fetch the user's data from Firebase Realtime Database
-        const userSnapshot = await get(userRef);
-  
-        if (!userSnapshot.exists()) {
+        if (!userSnapshotFromDb.exists()) {
           window.alert("User does not exist.");
           return;
         }
   
-        // If the warning doesn't exist in the user's data, initialize it
-        const userData = userSnapshot.val();
-        const warningStatus = userData.warning === true ? false : true; // Toggle the warning status
+        const userData = userSnapshotFromDb.val();
   
-        // Update the user's warning status in Firebase Realtime Database
         await update(userRef, {
-          warning: warningStatus,  // Set the warning status to true or false
+          warning: true,
         });
   
-        // Also update the user's warning status in Firestore
-        const userDocRef = doc(firestore, "users", userId);  // Reference the user in Firestore
+        const userDocRef = doc(firestore, "users", userId);
         await updateDoc(userDocRef, {
-          warning: warningStatus,  // Set the warning status in Firestore
+          warning: true,
         });
   
-        // Update the report's status in Firestore (optional)
-        // await updateDoc(doc(firestore, "reports", reportId), {
-        //   status: warningStatus ? "warning_issued" : "flagged",  // Update the report's status accordingly
-        // });
-        console.log(`User ID: ${userId}, Current Warning Status: ${currentWarningStatus}`);
-
-        window.alert(warningStatus ? "Warning issued to the user." : "Warning removed from the user.");
+        await updateDoc(doc(firestore, "reports", reportId), {
+          status: "warning_issued",
+        });
+  
+        window.alert("Warning issued to the user.");
       } catch (error) {
         console.error("Error handling warning:", error);
         window.alert("Failed to issue or remove warning. Please try again.");
       }
     }
   };
+  
   
   
   
@@ -213,7 +218,7 @@ const ContentManagement = () => {
                         className="actionButton"
                         id="Warning"
                         onClick={() =>
-                          handleWarning(report.id, report.userId, report.status === "warning_issued")
+                          handleWarning(report.id, report.status === "warning_issued", report.eventCreator)
                         }
                       >
                         {report.status === "warning_issued" ? "Remove Warning" : "Issue Warning"}
