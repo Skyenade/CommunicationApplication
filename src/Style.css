@@ -421,3 +421,65 @@ body {
 .search-results{
     margin-left: 2%;
 }
+
+.myfollowers-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Título */
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Resumen de seguidores */
+.followers-summary {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    margin-top: 15%;
+}
+
+/* Lista de seguidores */
+.followers-list {
+    list-style-type: none;
+    /* Quitar los puntos de la lista */
+    padding: 0;
+    margin: 10px 0px;
+}
+
+.follower-item {
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.follower-item:last-child {
+    border-bottom: none;
+    /* Quitar el borde inferior del último elemento */
+}
+
+/* Resaltar nombres */
+.follower-item span {
+    font-weight: 500;
+}
+
+/* Agregar un poco de espacio entre elementos */
+.followers-summary>p {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
