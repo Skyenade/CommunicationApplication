@@ -13,7 +13,7 @@ const Home = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const { setUserUid, setUserEmail } = useUserContext();  
+    const { setUserUid, setUserEmail } = useUserContext();
 
     const handleLogIn = async (e) => {
         e.preventDefault();
