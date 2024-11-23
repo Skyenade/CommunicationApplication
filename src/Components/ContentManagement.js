@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { getDatabase, ref, update, get } from "firebase/database";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
+import { getDatabase, ref, update, get,set } from "firebase/database";
 import Header from "./Header";
 import "./ContentManagement.css";
 import { Navigate, useNavigate } from "react-router-dom";
 import HeaderAdmin from "./HeaderAdmin";
+import { deleteDoc } from "firebase/firestore";
 
 const ContentManagement = () => {
   const [reports, setReports] = useState([]);
@@ -13,16 +14,40 @@ const ContentManagement = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchAdditionalData = async (report) => {
+      const updatedReport = { ...report };
+
+      if (report.eventId) {
+        try {
+          const eventDoc = await getDoc(doc(firestore, "events", report.eventId));
+          if (eventDoc.exists()) {
+            const eventData = eventDoc.data();
+            updatedReport.eventCreator = eventData.createdBy || "Unknown";
+            console.log(updatedReport.eventCreator);
+          }
+        } catch {
+          console.error(`Failed to fetch event creator for eventId: ${report.eventId}`);
+        }
+      }
+
+      updatedReport.reporterEmail = report.email || "Unknown";
+
+      return updatedReport;
+    };
+
     const reportsQuery = query(
       collection(firestore, "reports"),
       where("status", "==", "flagged")
     );
 
-    const unsubscribe = onSnapshot(reportsQuery, (querySnapshot) => {
-      setReports(querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })));
+    const unsubscribe = onSnapshot(reportsQuery, async (querySnapshot) => {
+      const reportsData = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const report = { id: doc.id, ...doc.data() };
+          return await fetchAdditionalData(report);
+        })
+      );
+      setReports(reportsData);
     });
 
     return () => unsubscribe();
@@ -64,38 +89,62 @@ const ContentManagement = () => {
   const handleWarning = async (reportId, userId, currentWarningStatus) => {
     if (window.confirm(currentWarningStatus ? "Remove warning from this user?" : "Issue a warning to this user?")) {
       try {
-       
-        await updateDoc(doc(firestore, "reports", reportId), {
-          status: currentWarningStatus ? "flagged" : "warning_issued",
-        });
 
+        // Get the user's reference in Firebase Realtime Database
         const userRef = ref(db, `users/${userId}`);
+  
+        // Fetch the user's data from Firebase Realtime Database
         const userSnapshot = await get(userRef);
-
+  
         if (!userSnapshot.exists()) {
           window.alert("User does not exist.");
           return;
         }
-
-        
+  
+        // If the warning doesn't exist in the user's data, initialize it
+        const userData = userSnapshot.val();
+        const warningStatus = userData.warning === true ? false : true; // Toggle the warning status
+  
+        // Update the user's warning status in Firebase Realtime Database
         await update(userRef, {
-          warning: !currentWarningStatus,  
+          warning: warningStatus,  // Set the warning status to true or false
         });
+  
+        // Also update the user's warning status in Firestore
+        const userDocRef = doc(firestore, "users", userId);  // Reference the user in Firestore
+        await updateDoc(userDocRef, {
+          warning: warningStatus,  // Set the warning status in Firestore
+        });
+  
+        // Update the report's status in Firestore (optional)
+        // await updateDoc(doc(firestore, "reports", reportId), {
+        //   status: warningStatus ? "warning_issued" : "flagged",  // Update the report's status accordingly
+        // });
+        console.log(`User ID: ${userId}, Current Warning Status: ${currentWarningStatus}`);
 
-        window.alert(currentWarningStatus ? "Warning removed from user." : "Warning issued to the user.");
-      } catch {
+        window.alert(warningStatus ? "Warning issued to the user." : "Warning removed from the user.");
+      } catch (error) {
+        console.error("Error handling warning:", error);
         window.alert("Failed to issue or remove warning. Please try again.");
       }
     }
   };
+  
+  
+  
+  
 
   const handleDismissReport = async (reportId) => {
-    if (window.confirm("Are you sure you want to dismiss this report?")) {
+    if (window.confirm("Are you sure you want to dismiss and delete this report?")) {
       try {
-        await updateDoc(doc(firestore, "reports", reportId), { status: "dismissed" });
-        window.alert("Report dismissed.");
-      } catch {
-        window.alert("Failed to dismiss report. Please try again.");
+        const reportRef = doc(firestore, "reports", reportId);
+  
+        await deleteDoc(reportRef);
+        
+        window.alert("Report dismissed and deleted.");
+      } catch (error) {
+        console.error("Error dismissing the report:", error);
+        window.alert("Failed to dismiss and delete report. Please try again.");
       }
     }
   };
@@ -120,10 +169,7 @@ const ContentManagement = () => {
     }
   };
 
-  const handleAdminAssistance = () => {
-    navigate("/RequestAssistance");
-    console.log("Admin assistance requested");
-  };
+  
 
   return (
     <div>
@@ -137,8 +183,8 @@ const ContentManagement = () => {
             <table className="flaggedPostsTable">
               <thead>
                 <tr>
-                  <th>Username</th>
-                  <th>Email</th>
+                  <th>Created the event</th>
+                  <th>Email that reported</th>
                   <th>Event ID</th>
                   <th>Reason</th>
                   <th>Status</th>
@@ -149,8 +195,8 @@ const ContentManagement = () => {
               <tbody>
                 {reports.map((report) => (
                   <tr key={report.id}>
-                    <td>{report.username}</td>
-                    <td>{report.email}</td>
+                    <td>{report.eventCreator}</td>
+                    <td>{report.reporterEmail}</td>
                     <td>{report.eventId}</td>
                     <td>{report.reason}</td>
                     <td>{report.status}</td>

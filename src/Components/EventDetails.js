@@ -93,9 +93,19 @@ const EventDetails = () => {
 
         if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
         if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
-    
+
         try {
             const user = auth.currentUser;
+
+            const userRef = doc(firestore, "users", user.uid);
+            const userSnapshot = await getDocs(query(collection(firestore, "users"), where("email", "==", user.email)));
+
+            let userData = {};
+            if (!userSnapshot.empty) {
+                userSnapshot.forEach((doc) => {
+                    userData = { ...doc };
+                });
+            }
 
             const reportData = {
                 eventId,
@@ -106,7 +116,7 @@ const EventDetails = () => {
                 timestamp: new Date(),
                 status: "flagged"
             };
-            
+
 
             if (user) {
                 const notificationRef = collection(firestore, 'notifications');
@@ -122,8 +132,8 @@ const EventDetails = () => {
                 };
                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
                 console.log("Event reported successfully");
-            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
-            
+                await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+
 
                 const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
                 const userSnapshot = await getDocs(userQuery);
@@ -140,7 +150,7 @@ const EventDetails = () => {
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
             window.alert("Event reported successfully!");
-            setReportReason(""); // Clear the reason after reporting
+            setReportReason("");
         } catch (error) {
             console.error("Error reporting event:", error);
             window.alert("Failed to report the event.");
