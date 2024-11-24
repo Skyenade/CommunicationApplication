@@ -45,7 +45,7 @@ const AdminDashboard = () => {
           <div className="section">
             <Link to="/FirebaseManagement" className='linking'>Firebase Management</Link>
           </div>
-          <div className="section">
+          {/* <div className="section">
             <Link to="/HistoryOfReportedUsers" className='linking'>
               History of Reported Users ({reportedUsers.length})
             </Link>
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
             <Link to="/HistoryOfReportedContent" className='linking'>
               History of Reported Content ({reportedContent.length})
             </Link>
-          </div>
+          </div> */}
           <div className="section">
             <Link to="/AdminAssistanceRequests" className='linking'>Assistance Requests</Link>
           </div>
