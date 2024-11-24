@@ -25,6 +25,7 @@ body {
 
 .home-heading {
     color: #0a66c2;
+    padding: 20px;
 }
 
 .home-image {
@@ -236,7 +237,7 @@ body {
 .event-card {
     display: flex;
     flex-direction: column;
-    border: 1px solid black;
+    border: 1px solid lightgray;
     padding: 20px;
     background-color: white;
     margin: 20px;
@@ -288,35 +289,85 @@ body {
     margin: 8px 10px;
   }
 
+  .event-details{
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #01497C;
+    color: white;
+    font-size: large;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .event-details:hover{
+    background-color: #013A63;
+  }
+
 .like_btn,
 .comment_btn,
-.post_btn {
+.post_btn, 
+.dislike_btn,
+.attend_btn {
     padding: 10px;
     border-radius: 10px;
     font-weight: bolder;
+    background-color: white;
+    color: white;
+    margin: 15px 7px;
+    width: 70px;
+    border: none;
 }
 
 .like_btn {
-    background-color: white;
-    color: black;
-    margin: 15px 7px;
+    background-color: #1e7891;
+}
+
+.like_btn:hover {
+    background-color: #195a6c;
+    cursor: pointer;
+}
+
+.dislike_btn {
+    background-color: #d32f2f;
+}
+
+.dislike_btn:hover {
+    background-color: #913636;
+    cursor: pointer;
+}
+
+.attend_btn {
+    background-color: #25b495;
+}
+
+.attend_btn:hover {
+    background-color: #1b7a65;
+    cursor: pointer;
 }
 
 .comment_btn {
     background-color: black;
     color: white;
     margin: 15px 7px;
+    width: 100px;
+}
+
+.comment_btn:hover {
+    background-color: rgb(89, 89, 89);
+    cursor: pointer;
 }
 
 .post_btn {
-    background-color: rgb(87, 212, 93);
+    background-color: #0a66c2;
     color: white;
     margin: 7px;
     border: none;
+    width: 100px;
 }
 
 .post_btn:hover {
-    background-color: rgb(73, 183, 79);
+    background-color: #0b5197;
+    cursor: pointer;
 }
 
 .add-comment textarea {
@@ -333,20 +384,26 @@ body {
     margin-top: 20px;
     max-width: 600px;
     padding: 10px;
-    background-color: #f7f7f7;
     border-radius: 10px;
+    width: 90%;
+}
+
+.comment-item{
+    width: 100%;
 }
 
 .comments-list p {
     font-size: 16px;
     color: #484444;
     margin-top: 20px;
+    width: 90%;
 }
 
 .comment p {
     font-size: 14px;
     line-height: 1.6;
     color: #585555;
+    width: 90%;
 }
 
 .comment:hover {
@@ -357,6 +414,18 @@ body {
 .comment strong {
     font-weight: bold;
     color: #19646b;
+}
+
+.report_btn{
+    background-color: lightgray;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.report_btn:hover{
+    background-color: gray;
+    cursor: pointer;
 }
 
 .event-title {
