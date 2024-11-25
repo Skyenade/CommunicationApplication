@@ -150,19 +150,7 @@ body {
 }
 
 .btn-user-profile {
-    background-color: #2A6F97;
-}
-
-.create-event-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    border-radius: 8px;
-    border: solid 1px gray;
-    width: 80%;
-    padding: 30px;
-    background-color: rgb(255, 255, 255);
+    background-color: #468FAF;
 }
 
 .create-event-button,
