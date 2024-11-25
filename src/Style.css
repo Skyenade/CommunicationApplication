@@ -648,3 +648,11 @@ body {
     cursor: pointer;
 }
 
+.error-message{
+    text-align: center;
+    color: red;
+    font-size: 0.9rem;
+    font-size: medium;
+    font-weight: 700;
+}
+

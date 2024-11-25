@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import '../Style.css';
+import './CreateUser.css';
 import { auth, database } from '../firebase';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";
+import HeaderAdmin from "./HeaderAdmin";
 
 const CreateUser = () => {
   const [email, setEmail] = useState('');
@@ -32,19 +33,23 @@ const CreateUser = () => {
   };
 
   return (
-    <div className="createUser">
-      <h1>Create New User</h1>
-      <form onSubmit={handleCreateUser}>
-        <label>Email:</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+    <div>
+      <HeaderAdmin />
+      <div className="createUser">
+        <h1>Create New User</h1>
+        <form onSubmit={handleCreateUser}>
+          <label>Email:</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <label>Password:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
 
-        <button type="submit">Create User</button>
-      </form>
-      {message && <p>{message}</p>}
+          <button type="submit">Create User</button>
+        </form>
+        {message && <p>{message}</p>}
+      </div>
     </div>
+
   );
 };
 
