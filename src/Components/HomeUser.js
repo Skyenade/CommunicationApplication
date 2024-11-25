@@ -118,6 +118,7 @@ const HomeUser = () => {
   };
 
 
+  
   const [filterType, setFilterType] = useState("all");
 
   const handleSearch = async (e) => {
@@ -145,31 +146,6 @@ const HomeUser = () => {
             );
           results.push(...users.map((user) => ({ ...user, type: "user" })));
         }
-
-      } else {
-        console.log("No users found in the database.");
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-
-
-    try {
-
-      const usersRef = ref(database, "users");
-      const userSnapshot = await get(usersRef);
-
-      let filteredUsers = [];
-      if (userSnapshot.exists()) {
-        const usersData = userSnapshot.val();
-        filteredUsers = Object.keys(usersData)
-          .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) =>
-            user.username &&
-            user.username.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-      } else {
-        console.log("No users found in the Realtime Database.");
       }
   
       if (filterType === "location" || filterType === "event" || filterType === "all") {
@@ -199,7 +175,6 @@ const HomeUser = () => {
       console.error("Error fetching search results:", error);
     }
   };
-  
     const handleMarkAsRead = async (notificationId) => {
       try {
         const notificationRef = doc(firestore, "notifications", notificationId);
@@ -258,6 +233,7 @@ const HomeUser = () => {
             <p>No results found for the selected filter.</p>
           )}
         </div>
+
 
         <button className="create-event-button">
           <h4>
