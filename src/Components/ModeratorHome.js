@@ -39,7 +39,8 @@ const ModeratorHome = () => {
 
     const fetchNotifications = () => {
       const notificationsRef = collection(firestore, "notifications");
-      const notificationsQuery = queryFS(notificationsRef, where("isRead", "==", false));
+      const notificationsQuery = queryFS(notificationsRef, 
+        where("isRead", "==", false));
 
       const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
         const notificationsList = snapshot.docs.map((doc) => ({
@@ -69,7 +70,6 @@ const ModeratorHome = () => {
     return () => unsubscribe();
   }, [currentUser]);
 
-  // Handle tracking
   const handleFollow = async (userId) => {
     if (!currentUser) return;
 

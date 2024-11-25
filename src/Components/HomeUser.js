@@ -38,29 +38,10 @@ const HomeUser = () => {
   const [following, setFollowing] = useState([]);
 
 
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const userRef = refDB(database, `users/${currentUser.uid}`);
-  //       const snapshot = await get(userRef);
-  //       if (snapshot.exists()) {
-  //         const data = snapshot.val();
-  //         setFollowing(Object.keys(data.following || {}));
-  //         setFollowers(Object.keys(data.followers || {}));
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-
-  //     }
-  //   };
-
-  //   if (currentUser?.uid) fetchUserData();
-  // }, [currentUser]);
-
-  // useEffect(() => {
   const fetchNotifications = () => {
     try {
       const notificationsRef = collection(firestore, "notifications");
+      
       const notificationsQuery = queryFS(
         notificationsRef,
         where("isRead", "==", false)
@@ -80,32 +61,7 @@ const HomeUser = () => {
       console.error("Error fetching notifications:", error);
     }
   };
-
-  // return fetchNotifications();
-  // }, [];
-
-
-
-
-  // useEffect(() => {
-  //   const fetchNotifications = () => {
-  //     const notificationsRef = collection(firestore, "notifications");
-  //     const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
-
-  //     const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-  //       const notificationsList = snapshot.docs.map((doc) => ({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       }));
-  //       setNotifications(notificationsList);
-  //       setLoading(false);
-  //     });
-
-  //     return unsubscribe;
-  //   };
-
   fetchNotifications();
-  // }, [];
 
   useEffect(() => {
     if (!currentUser) return;
