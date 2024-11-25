@@ -250,42 +250,6 @@ const HomeUser = () => {
       </div>
 
 
-      <div className="search-results">
-        {userResults.length > 0 ? (
-
-          userResults.map((result) => (
-            <div key={result.id} className="search-result">
-              {result.type === "user" ? (
-
-                <>
-                  <span>
-                    {result.username} ({result.email})
-                  </span>
-                  {following.includes(result.id) ? (
-                    <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
-                  ) : (
-                    <button onClick={() => handleFollow(result.id)}>Follow</button>
-                  )}
-                </>
-              ) : (
-
-                <Link to={`/event/${result.id}`} className="event-link">
-                  <span>
-                    <strong>Title:</strong> {result.title}
-                  </span>
-                  <span>
-                    <strong>Created By:</strong> {result.createdBy}
-                  </span>
-                </Link>
-
-              )}
-            </div>
-          ))
-        ) : (
-          <p>no username or events found</p>
-        )}
-      </div>
-
       <div className="homeuser-content">
         <div className="event-feed">
           <EventFeed />
