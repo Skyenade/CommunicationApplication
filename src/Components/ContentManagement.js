@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
+
 import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, getDocs, deleteDoc } from "firebase/firestore";
 import { getDatabase, ref, update, get } from "firebase/database";
 import "./ContentManagement.css";
 import { useNavigate } from "react-router-dom";
 import HeaderAdmin from "./HeaderAdmin";
+import { deleteDoc } from "firebase/firestore";
 
 const ContentManagement = () => {
   const [reports, setReports] = useState([]);
@@ -116,6 +118,7 @@ const ContentManagement = () => {
           return;
         }
 
+
         const userDoc = userSnapshot.docs[0];
         const userId = userDoc.id;
 
@@ -126,6 +129,7 @@ const ContentManagement = () => {
           window.alert("User does not exist.");
           return;
         }
+
 
         const userData = userSnapshotFromDb.val();
 
@@ -149,6 +153,11 @@ const ContentManagement = () => {
       }
     }
   };
+  
+  
+  
+  
+  
 
 
 
@@ -159,6 +168,7 @@ const ContentManagement = () => {
     if (window.confirm("Are you sure you want to dismiss and delete this report?")) {
       try {
         const reportRef = doc(firestore, "reports", reportId);
+
 
         await deleteDoc(reportRef);
 
@@ -209,7 +219,6 @@ const ContentManagement = () => {
 
     }
   };
-
 
 
 

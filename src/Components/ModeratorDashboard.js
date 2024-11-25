@@ -21,7 +21,9 @@ const ModeratorDashboard = () => {
           if (eventDoc.exists()) {
             const eventData = eventDoc.data();
             updatedReport.eventCreator = eventData.createdBy || "Unknown";
+
             console.log(updatedReport.eventCreator);
+
           }
         } catch {
           console.error(`Failed to fetch event creator for eventId: ${report.eventId}`);
@@ -101,7 +103,6 @@ const ModeratorDashboard = () => {
     }
   };
 
-
   const handleWarning = async (reportId, currentWarningStatus, eventCreatorEmail) => {
     if (window.confirm("Issue a warning to this user?")) {
       try {
@@ -129,6 +130,7 @@ const ModeratorDashboard = () => {
 
         const userData = userSnapshotFromDb.val();
 
+
         await update(userRef, {
           warning: true,
         });
@@ -136,6 +138,7 @@ const ModeratorDashboard = () => {
         const userDocRef = doc(firestore, "users", userId);
         await updateDoc(userDocRef, {
           warning: true,
+
         });
 
         await updateDoc(doc(firestore, "reports", reportId), {
@@ -149,11 +152,6 @@ const ModeratorDashboard = () => {
       }
     }
   };
-
-
-
-
-
 
   const handleDismissReport = async (reportId) => {
     if (window.confirm("Are you sure you want to dismiss and delete this report?")) {
