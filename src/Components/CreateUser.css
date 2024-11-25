@@ -1,0 +1,63 @@
+.createUser {
+    max-width: 400px;
+    margin: 50px auto; 
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.createUser h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.createUser form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+.createUser label {
+    font-weight: bold;
+    color: #555;
+}
+
+.createUser input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.createUser input:focus {
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+.createUser button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #004d83;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.createUser button:hover {
+    background-color: #013A63;
+}
+
+.createUser p {
+    text-align: center;
+    color: red;
+    font-size: 0.9rem;
+    font-size: medium;
+    font-weight: 700;
+}

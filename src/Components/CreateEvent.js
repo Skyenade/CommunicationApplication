@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../Style.css';
+import './CreateEvent.css';
 import Header from './Header';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
@@ -48,29 +48,29 @@ const CreateEvent = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     try {
       const imageBase64List = [];
-      
+
       for (const image of eventImages) {
         const base64String = await convertToBase64(image);
         imageBase64List.push(base64String);
       }
-  
+
       const userId = auth.currentUser?.uid;
       const userRef = ref(database, `users/${userId}`);
       const userSnapshot = await get(userRef);
-  
+
       if (userSnapshot.exists()) {
         console.log('User data:', userSnapshot.val());
       } else {
         console.warn('No user data found for this userId:', userId);
       }
-  
-      const createdBy = userSnapshot.exists() && userSnapshot.val().username 
-                        ? userSnapshot.val().username 
-                        : auth.currentUser?.email;
-  
+
+      const createdBy = userSnapshot.exists() && userSnapshot.val().username
+        ? userSnapshot.val().username
+        : auth.currentUser?.email;
+
       const newEvent = {
         title: eventTitle,
         dateTime,
@@ -90,9 +90,9 @@ const CreateEvent = () => {
         likeCount: 0,
         followerCount: 0,
       };
-  
+
       await addDoc(collection(firestore, "events"), newEvent);
-  
+
       alert('Event created successfully!');
       setEventTitle('');
       setDateTime('');
@@ -104,7 +104,7 @@ const CreateEvent = () => {
       console.error('Error creating event:', error);
     }
   };
-  
+
 
   return (
     <div>
@@ -123,9 +123,13 @@ const CreateEvent = () => {
               required
             />
 
-            <label className="create-event-label">Event Date and Time: </label>
+            
+          </div>
+
+          <div className='create-event-input-container'>
+          <label className="create-event-label">Event Date and Time: </label>
             <input
-              className="create-event-input"
+              className="create-event-input create-event-date"
               type="datetime-local"
               value={dateTime}
               onChange={handleDateTimeChange}
@@ -143,12 +147,14 @@ const CreateEvent = () => {
               multiple
               required
             />
+          </div>
 
+          <div className='create-event-input-container'>
             <label className="create-event-label">Event Location: </label>
             <LoadScript googleMapsApiKey="AIzaSyBqwTateOoIdBOshwiWfGVfbGMcgnAl2KM" libraries={["places"]}>
               <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                 <input
-                  className="create-event-input"
+                  className="create-event-input create-event-location"
                   type="text"
                   placeholder="Event Location"
                   value={location}
@@ -158,6 +164,8 @@ const CreateEvent = () => {
               </Autocomplete>
             </LoadScript>
           </div>
+
+
 
           <div className='create-event-input-container'>
             <label className="create-event-label">Event Details: </label>
@@ -171,7 +179,7 @@ const CreateEvent = () => {
             />
           </div>
 
-          <button className="create-event-button" type="submit">Create Event</button>
+          <button className="create-event-button-new" type="submit">Create Event</button>
         </form>
       </div>
     </div>
