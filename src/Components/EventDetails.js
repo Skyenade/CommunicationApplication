@@ -174,29 +174,7 @@ const EventDetails = () => {
                 </div>
             </div>
 
-            <div className="event-details-container-2">
-                <div className="attend-report-container">
-                    <div className="attend-event-container">
-                        <input
-                            type="checkbox"
-                            id="attendEvent"
-                            checked={isAttending}
-                            onChange={handleAttendanceChange}
-                        />
-                        <label htmlFor="attendEvent">Attend this event</label>
-                    </div>
-
-                    <div className="report-event-container">
-                        <textarea
-                            id="reportReason"
-                            placeholder="Provide reason for reporting"
-                            value={reportReason}
-                            onChange={(e) => setReportReason(e.target.value)}
-                        />
-                        <button onClick={handleReportEvent}>Report Event</button>
-                    </div>
-                </div>
-            </div>
+            
 
             <div className="attendees-image-container">
                 <div className="image-container">
@@ -213,6 +191,31 @@ const EventDetails = () => {
                             <li>No attendees yet</li>
                         )}
                     </ul>
+                </div>
+            </div>
+
+            <div className="event-details-container-2">
+                <div className="attend-report-container">
+                    <div className="attend-event-container">
+                        <input
+                            type="checkbox"
+                            id="attendEvent"
+                            checked={isAttending}
+                            onChange={handleAttendanceChange}
+                        />
+                        <label htmlFor="attendEvent">Attend this event</label>
+                    </div>
+
+                    <div className="report-event-container">
+                        <textarea
+                            className="report-textarea"
+                            id="reportReason"
+                            placeholder="Provide reason for reporting"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                        />
+                        <button className="report-button" onClick={handleReportEvent}>Report Event</button>
+                    </div>
                 </div>
             </div>
 
