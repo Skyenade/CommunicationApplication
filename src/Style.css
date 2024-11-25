@@ -12,6 +12,7 @@ body {
     padding: 20px;
     align-items: center;
     margin-top: 30px;
+    justify-content: center;
 }
 
 .home-container,
@@ -28,6 +29,7 @@ body {
 
 .home-heading {
     color: #0a66c2;
+    margin-left: 10px;
 }
 
 .home-image {
@@ -616,12 +618,23 @@ body {
     margin-bottom: 15px;
 }
 
+.home-forgot-password{
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.home-forgot-password:hover{
+    cursor: pointer;
+    color: #013A63;
+}
+
 .forgot-password-container{
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 20vh;
 }
+
 
 .enter-mail{
     padding: 10px;
@@ -646,3 +659,4 @@ body {
     background-color: #015f78;
     cursor: pointer;
 }
+
