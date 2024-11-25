@@ -118,6 +118,7 @@ const HomeUser = () => {
   };
 
 
+  
   const [filterType, setFilterType] = useState("all");
 
   const handleSearch = async (e) => {
@@ -145,31 +146,6 @@ const HomeUser = () => {
             );
           results.push(...users.map((user) => ({ ...user, type: "user" })));
         }
-
-      } else {
-        console.log("No users found in the database.");
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-
-
-    try {
-
-      const usersRef = ref(database, "users");
-      const userSnapshot = await get(usersRef);
-
-      let filteredUsers = [];
-      if (userSnapshot.exists()) {
-        const usersData = userSnapshot.val();
-        filteredUsers = Object.keys(usersData)
-          .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) =>
-            user.username &&
-            user.username.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-      } else {
-        console.log("No users found in the Realtime Database.");
       }
   
       if (filterType === "location" || filterType === "event" || filterType === "all") {
@@ -199,7 +175,6 @@ const HomeUser = () => {
       console.error("Error fetching search results:", error);
     }
   };
-  
     const handleMarkAsRead = async (notificationId) => {
       try {
         const notificationRef = doc(firestore, "notifications", notificationId);
@@ -231,7 +206,24 @@ const HomeUser = () => {
           <button className="Search-button">Search</button>
         </form>
 
-        <div className="search-results">
+        
+
+
+        <button className="create-event-button">
+          <h4>
+            <Link to="/CreateEvent" className="links">
+              Create An Event
+            </Link>
+          </h4>
+        </button>
+
+        <div className="followers-following">
+          <h3>Followers: {followers.length}</h3>
+          <h3>Following: {following.length}</h3>
+        </div>
+      </div>
+
+      <div className="search-results">
           {userResults.length > 0 ? (
             userResults.map((result) => (
               <div key={result.id} className="search-result">
@@ -259,56 +251,6 @@ const HomeUser = () => {
           )}
         </div>
 
-        <button className="create-event-button">
-          <h4>
-            <Link to="/CreateEvent" className="links">
-              Create An Event
-            </Link>
-          </h4>
-        </button>
-
-        <div className="followers-following">
-          <h3>Followers: {followers.length}</h3>
-          <h3>Following: {following.length}</h3>
-        </div>
-      </div>
-
-
-      <div className="search-results">
-        {userResults.length > 0 ? (
-
-          userResults.map((result) => (
-            <div key={result.id} className="search-result">
-              {result.type === "user" ? (
-
-                <>
-                  <span>
-                    {result.username} ({result.email})
-                  </span>
-                  {following.includes(result.id) ? (
-                    <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
-                  ) : (
-                    <button onClick={() => handleFollow(result.id)}>Follow</button>
-                  )}
-                </>
-              ) : (
-
-                <Link to={`/event/${result.id}`} className="event-link">
-                  <span>
-                    <strong>Title:</strong> {result.title}
-                  </span>
-                  <span>
-                    <strong>Created By:</strong> {result.createdBy}
-                  </span>
-                </Link>
-
-              )}
-            </div>
-          ))
-        ) : (
-          <p>no username or events found</p>
-        )}
-      </div>
 
       <div className="homeuser-content">
         <div className="event-feed">
