@@ -206,7 +206,24 @@ const HomeUser = () => {
           <button className="Search-button">Search</button>
         </form>
 
-        <div className="search-results">
+        
+
+
+        <button className="create-event-button">
+          <h4>
+            <Link to="/CreateEvent" className="links">
+              Create An Event
+            </Link>
+          </h4>
+        </button>
+
+        <div className="followers-following">
+          <h3>Followers: {followers.length}</h3>
+          <h3>Following: {following.length}</h3>
+        </div>
+      </div>
+
+      <div className="search-results">
           {userResults.length > 0 ? (
             userResults.map((result) => (
               <div key={result.id} className="search-result">
@@ -233,21 +250,6 @@ const HomeUser = () => {
             <p>No results found for the selected filter.</p>
           )}
         </div>
-
-
-        <button className="create-event-button">
-          <h4>
-            <Link to="/CreateEvent" className="links">
-              Create An Event
-            </Link>
-          </h4>
-        </button>
-
-        <div className="followers-following">
-          <h3>Followers: {followers.length}</h3>
-          <h3>Following: {following.length}</h3>
-        </div>
-      </div>
 
 
       <div className="homeuser-content">
