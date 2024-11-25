@@ -27,13 +27,13 @@ const ForgotPassword = () => {
     };
     return (
         <div>
-            <Header />
-            <div className='container'>
+            <h1 className='home-heading' onClick={() => navigate("/")}>EventUp</h1>
+            <div className='forgot-password-container'>
 
-                <h1 className="Forgot-Password"  >Forgot Password</h1>
+                <h1 className="Forgot-Password">Forgot Password</h1>
                 <form onSubmit={handleSubmit} >
                     <input className="enter-mail" name="email" type="email" placeholder="Enter your email" required /><br></br><br></br>
-                    <button type="submit">Reset</button>
+                    <button className='forgot-button' type="submit">Reset</button>
                 </form>
 
             </div>

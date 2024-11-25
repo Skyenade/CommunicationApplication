@@ -9,8 +9,6 @@ const UserManagement = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [previousUsername, setPreviousUsername] = useState("");
-  const [previousBio, setPreviousBio] = useState("");
   const db = getDatabase();
 
   useEffect(() => {

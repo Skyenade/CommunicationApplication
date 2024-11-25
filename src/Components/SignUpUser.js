@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import '../Style.css';
 import { useNavigate } from "react-router-dom";
 import { ref, set } from 'firebase/database';
-
-import { auth, database } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, database, firestore } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const SignUpUser = () => {
@@ -32,6 +32,18 @@ const SignUpUser = () => {
                 likeCount: 0,
                 followerCount: 0,
                 followingCount: 0,
+            });
+
+            await setDoc(doc(firestore, "users", userId), {
+                email,
+                username,
+                status: 'active',
+                accountType: 'User',
+                followers: [],
+                following: [],
+                warning: false,
+                likeCount: 0,
+                followerCount: 0,
             });
 
             setEmail(email);

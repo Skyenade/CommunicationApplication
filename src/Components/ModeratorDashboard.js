@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  doc,
-  updateDoc,
-  getDoc,getDocs,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDocs, deleteDoc, getDoc } from "firebase/firestore";
 import { getDatabase, ref, update, get } from "firebase/database";
 import Header from "./Header";
 import "./ModeratorDashboard.css";
@@ -30,6 +21,9 @@ const ModeratorDashboard = () => {
           if (eventDoc.exists()) {
             const eventData = eventDoc.data();
             updatedReport.eventCreator = eventData.createdBy || "Unknown";
+
+            console.log(updatedReport.eventCreator);
+
           }
         } catch {
           console.error(`Failed to fetch event creator for eventId: ${report.eventId}`);
@@ -59,19 +53,34 @@ const ModeratorDashboard = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleSuspendAccount = async (reportId, userId) => {
+  const handleSuspendAccount = async (reportId, eventCreatorEmail) => {
     if (!window.confirm("Are you sure you want to suspend this user?")) return;
 
     try {
-      const userRef = ref(db, `users/${userId}`);
-      const userSnapshot = await get(userRef);
+      const usersQuery = query(
+        collection(firestore, "users"),
+        where("email", "==", eventCreatorEmail)
+      );
+      const userSnapshot = await getDocs(usersQuery);
 
-      if (!userSnapshot.exists()) {
-        window.alert("User does not exist.");
+      if (userSnapshot.empty) {
+        window.alert("User not found.");
         return;
       }
 
-      const userData = userSnapshot.val();
+      const userDoc = userSnapshot.docs[0];
+      const userId = userDoc.id;
+
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshotFromDb = await get(userRef);
+
+      if (!userSnapshotFromDb.exists()) {
+        window.alert("User does not exist in Realtime Database.");
+        return;
+      }
+
+      const userData = userSnapshotFromDb.val();
+
       if (userData.status === "suspended") {
         const suspensionDate = userData.suspensionDate
           ? new Date(userData.suspensionDate).toLocaleString()
@@ -86,11 +95,14 @@ const ModeratorDashboard = () => {
       });
 
       await updateDoc(doc(firestore, "reports", reportId), { status: "account_suspended" });
+
       window.alert("User account suspended.");
     } catch (error) {
-      window.alert("account suspended successfully.");
+      console.error("Error suspending account:", error);
+      window.alert("Failed to suspend account. Please try again.");
     }
   };
+
   const handleWarning = async (reportId, currentWarningStatus, eventCreatorEmail) => {
     if (window.confirm("Issue a warning to this user?")) {
       try {
@@ -116,6 +128,9 @@ const ModeratorDashboard = () => {
           return;
         }
 
+        const userData = userSnapshotFromDb.val();
+
+
         await update(userRef, {
           warning: true,
         });
@@ -123,6 +138,7 @@ const ModeratorDashboard = () => {
         const userDocRef = doc(firestore, "users", userId);
         await updateDoc(userDocRef, {
           warning: true,
+
         });
 
         await updateDoc(doc(firestore, "reports", reportId), {
@@ -132,7 +148,7 @@ const ModeratorDashboard = () => {
         window.alert("Warning issued to the user.");
       } catch (error) {
         console.error("Error handling warning:", error);
-        window.alert("Failed to issue warning. Please try again.");
+        window.alert("Failed to issue or remove warning. Please try again.");
       }
     }
   };
@@ -152,22 +168,39 @@ const ModeratorDashboard = () => {
     }
   };
 
-  const handleRemoveUser = async (reportId, userId) => {
+  const handleRemoveUser = async (reportId, eventCreatorEmail) => {
     if (!window.confirm("Are you sure you want to remove this user?")) return;
 
     try {
-      const userRef = ref(db, `users/${userId}`);
-      const userSnapshot = await get(userRef);
+      const usersQuery = query(
+        collection(firestore, "users"),
+        where("email", "==", eventCreatorEmail)
+      );
+      const userSnapshot = await getDocs(usersQuery);
 
-      if (!userSnapshot.exists()) {
-        window.alert("User does not exist.");
+      if (userSnapshot.empty) {
+        window.alert("User not found.");
+        return;
+      }
+
+      const userDoc = userSnapshot.docs[0];
+      const userId = userDoc.id;
+
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshotFromDb = await get(userRef);
+
+      if (!userSnapshotFromDb.exists()) {
+        window.alert("User does not exist in Realtime Database.");
         return;
       }
 
       await update(userRef, { status: "removed" });
+
       await updateDoc(doc(firestore, "reports", reportId), { status: "user_removed" });
-      window.alert("User removed.");
-    } catch {
+
+      window.alert("User removed successfully.");
+    } catch (error) {
+      console.error("Error removing user:", error);
       window.alert("Failed to remove user. Please try again.");
     }
   };
@@ -180,15 +213,18 @@ const ModeratorDashboard = () => {
   return (
     <div>
       <Header />
-      <div className="create-event">
-        <div className="content">
+      <div className="user-management-container">
+        <div className="admin-dashboard-button">
           <h1>Moderator Dashboard</h1>
-          <button className="requestAdminAssistanceButton" onClick={handleAdminAssistance}>
+          <button className="create-account-button" onClick={handleAdminAssistance}>
             Request Admin Assistance
           </button>
+        </div>
+
+        <div className="user-table-container">
           <h2 className="table">Flagged Posts and Content</h2>
           {reports.length > 0 ? (
-            <table className="flaggedPostsTable">
+            <table className="user-requests-table">
               <thead>
                 <tr>
                   <th>Created the event</th>
@@ -211,32 +247,28 @@ const ModeratorDashboard = () => {
                     <td>{new Date(report.timestamp.seconds * 1000).toLocaleString()}</td>
                     <td>
                       <button
-                        className="actionButton"
-                        id="Suspend"
-                        onClick={() => handleSuspendAccount(report.id, report.userId)}
+                        className="suspend-button"
+                        onClick={() => handleSuspendAccount(report.id, report.eventCreator)}
                       >
                         Suspend Account
                       </button>
                       <button
-                        className="actionButton"
-                        id="Warning"
+                        className="edit-button"
                         onClick={() =>
                           handleWarning(report.id, report.status === "warning_issued", report.eventCreator)
                         }
-                      >
-                        {report.status === "warning_issued" ? "Remove Warning" : "Issue Warning"}
+                      >Issue Warning
+                        {report.status === "warning_issued"}
                       </button>
                       <button
-                        className="actionButton"
-                        id="Dismiss"
+                        className="restore-button"
                         onClick={() => handleDismissReport(report.id)}
                       >
                         Dismiss Report
                       </button>
                       <button
-                        className="actionButton"
-                        id="Remove"
-                        onClick={() => handleRemoveUser(report.id, report.userId)}
+                        className="delete-button"
+                        onClick={() => handleRemoveUser(report.id, report.eventCreator)}
                       >
                         Remove User
                       </button>

@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import './MyEvents.css';
 
 const MyEvents = () => {
-    const [username, setUsername] = useState("");
     const [createdEvents, setCreatedEvents] = useState([]);
     const [attendingEvents, setAttendingEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +14,7 @@ const MyEvents = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchUsernameAndEvents = async () => {
+        const fetchEvents = async () => {
             if (!auth.currentUser) {
                 console.log("No user signed in.");
                 setLoading(false);
@@ -34,12 +33,11 @@ const MyEvents = () => {
                         (user) => user.email === userEmail
                     );
     
-                    if (userEntry && userEntry.username) {
-                        const fetchedUsername = userEntry.username;
-                        setUsername(fetchedUsername);
+                    if (userEntry) {
+                        
     
                         const eventsRef = collection(firestore, "events");
-                        const createdQuery = query(eventsRef, where("createdBy", "==", fetchedUsername));
+                        const createdQuery = query(eventsRef, where("createdBy", "==", userEmail));
                         onSnapshot(createdQuery, (querySnapshot) => {
                             const createdList = querySnapshot.docs.map((doc) => ({
                                 id: doc.id,
@@ -69,7 +67,7 @@ const MyEvents = () => {
             setLoading(false);
         };
     
-        fetchUsernameAndEvents();
+        fetchEvents();
     }, []);
     
 

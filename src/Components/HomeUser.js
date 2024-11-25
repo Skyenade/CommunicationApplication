@@ -84,29 +84,7 @@ const HomeUser = () => {
     return fetchNotifications();
   }, []);
 
-
   
-
-  // useEffect(() => {
-  //   const fetchNotifications = () => {
-  //     const notificationsRef = collection(firestore, "notifications");
-  //     const notificationsQuery = query(notificationsRef, where("isRead", "==", false));
-
-  //     const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-  //       const notificationsList = snapshot.docs.map((doc) => ({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       }));
-  //       setNotifications(notificationsList);
-  //       setLoading(false);
-  //     });
-
-  //     return unsubscribe;
-  //   };
-
-  //   fetchNotifications();
-  // }, []);
-
   const handleFollow = async (userId) => {
     if (!currentUser) return;
 
@@ -167,6 +145,31 @@ const HomeUser = () => {
             );
           results.push(...users.map((user) => ({ ...user, type: "user" })));
         }
+
+      } else {
+        console.log("No users found in the database.");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+
+
+    try {
+
+      const usersRef = ref(database, "users");
+      const userSnapshot = await get(usersRef);
+
+      let filteredUsers = [];
+      if (userSnapshot.exists()) {
+        const usersData = userSnapshot.val();
+        filteredUsers = Object.keys(usersData)
+          .map((key) => ({ id: key, ...usersData[key] }))
+          .filter((user) =>
+            user.username &&
+            user.username.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+      } else {
+        console.log("No users found in the Realtime Database.");
       }
   
       if (filterType === "location" || filterType === "event" || filterType === "all") {
@@ -197,16 +200,6 @@ const HomeUser = () => {
     }
   };
   
-  
-
-
-    // if (!currentUser) {
-    //   return <div>Loading...</div>;
-    // }
-
-
-
-
     const handleMarkAsRead = async (notificationId) => {
       try {
         const notificationRef = doc(firestore, "notifications", notificationId);
@@ -279,6 +272,44 @@ const HomeUser = () => {
           <h3>Following: {following.length}</h3>
         </div>
       </div>
+
+
+      <div className="search-results">
+        {userResults.length > 0 ? (
+
+          userResults.map((result) => (
+            <div key={result.id} className="search-result">
+              {result.type === "user" ? (
+
+                <>
+                  <span>
+                    {result.username} ({result.email})
+                  </span>
+                  {following.includes(result.id) ? (
+                    <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
+                  ) : (
+                    <button onClick={() => handleFollow(result.id)}>Follow</button>
+                  )}
+                </>
+              ) : (
+
+                <Link to={`/event/${result.id}`} className="event-link">
+                  <span>
+                    <strong>Title:</strong> {result.title}
+                  </span>
+                  <span>
+                    <strong>Created By:</strong> {result.createdBy}
+                  </span>
+                </Link>
+
+              )}
+            </div>
+          ))
+        ) : (
+          <p>no username or events found</p>
+        )}
+      </div>
+
       <div className="homeuser-content">
         <div className="event-feed">
           <EventFeed />

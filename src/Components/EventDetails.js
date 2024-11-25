@@ -95,6 +95,18 @@ const EventDetails = () => {
         if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
 
         try {
+            const user = auth.currentUser;
+
+            const userRef = doc(firestore, "users", user.uid);
+            const userSnapshot = await getDocs(query(collection(firestore, "users"), where("email", "==", user.email)));
+
+            let userData = {};
+            if (!userSnapshot.empty) {
+                userSnapshot.forEach((doc) => {
+                    userData = { ...doc };
+                });
+            }
+
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
@@ -104,6 +116,7 @@ const EventDetails = () => {
                 timestamp: new Date(),
                 status: "flagged"
             };
+
 
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
@@ -121,10 +134,24 @@ const EventDetails = () => {
                     timestamp: new Date(),
                     isRead: false,
                     targetUserId: userDoc.id,
+                };
+                await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
+                console.log("Event reported successfully");
+                await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+
+
+                const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+                const userSnapshot = await getDocs(userQuery);
+                userSnapshot.forEach(async (userDoc) => {
+                    await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
+                        ...reportData,
+                        targetUserId: userDoc.id,
+                    });
                 });
             });
 
             window.alert("Event reported successfully!");
+
             setReportReason("");
         } catch (error) {
             console.error("Error reporting event:", error);
@@ -148,29 +175,7 @@ const EventDetails = () => {
                 </div>
             </div>
 
-            <div className="event-details-container-2">
-                <div className="attend-report-container">
-                    <div className="attend-event-container">
-                        <input
-                            type="checkbox"
-                            id="attendEvent"
-                            checked={isAttending}
-                            onChange={handleAttendanceChange}
-                        />
-                        <label htmlFor="attendEvent">Attend this event</label>
-                    </div>
-
-                    <div className="report-event-container">
-                        <textarea
-                            id="reportReason"
-                            placeholder="Provide reason for reporting"
-                            value={reportReason}
-                            onChange={(e) => setReportReason(e.target.value)}
-                        />
-                        <button onClick={handleReportEvent}>Report Event</button>
-                    </div>
-                </div>
-            </div>
+            
 
             <div className="attendees-image-container">
                 <div className="image-container">
@@ -187,6 +192,31 @@ const EventDetails = () => {
                             <li>No attendees yet</li>
                         )}
                     </ul>
+                </div>
+            </div>
+
+            <div className="event-details-container-2">
+                <div className="attend-report-container">
+                    <div className="attend-event-container">
+                        <input
+                            type="checkbox"
+                            id="attendEvent"
+                            checked={isAttending}
+                            onChange={handleAttendanceChange}
+                        />
+                        <label htmlFor="attendEvent">Attend this event</label>
+                    </div>
+
+                    <div className="report-event-container">
+                        <textarea
+                            className="report-textarea"
+                            id="reportReason"
+                            placeholder="Provide reason for reporting"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                        />
+                        <button className="report-button" onClick={handleReportEvent}>Report Event</button>
+                    </div>
                 </div>
             </div>
 

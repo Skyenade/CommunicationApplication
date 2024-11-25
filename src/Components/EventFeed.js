@@ -284,7 +284,7 @@ const EventFeed = () => {
               <p>Attendees: {event.attendees ? event.attendees.length : 0}</p>
             </div>
 
-            <button className="like_btn" onClick={() => handleEventDetailsClick(event.id)}>EventDetails</button>
+            <button className="event-details" onClick={() => handleEventDetailsClick(event.id)}>EventDetails</button>
 
 
             {event.images && event.images.length > 0 && (
@@ -312,7 +312,7 @@ const EventFeed = () => {
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
                   />
-                  <button className='post_btn' onClick={() => handleAddComment(event.id)}>Post Comment</button>
+                  <button className='post_btn' onClick={() => handleAddComment(event.id)}>Post a Comment</button>
                 </div>
 
                 <div className="comments-list">
