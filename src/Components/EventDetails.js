@@ -17,9 +17,9 @@ const EventDetails = () => {
             console.error("No event ID provided.");
             return;
         }
-
+    
         const eventDocRef = doc(firestore, "events", eventId);
-
+    
         const unsubscribeEvent = onSnapshot(eventDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const eventData = docSnapshot.data();
@@ -31,20 +31,20 @@ const EventDetails = () => {
                 setEvent(null);
             }
         });
-
+    
         const fetchComments = () => {
             if (!eventId) {
                 console.error("Event ID is still undefined in fetchComments.");
                 return;
             }
-
+    
             const commentsCollection = collection(firestore, "comments");
             const commentsQuery = query(
                 commentsCollection,
                 where("eventId", "==", eventId),
                 orderBy("timestamp", "desc")
             );
-
+    
             const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
                 const commentsList = commentsSnapshot.docs.map(doc => ({
                     id: doc.id,
@@ -53,17 +53,18 @@ const EventDetails = () => {
                 console.log("Fetched comments:", commentsList);
                 setComments(commentsList);
             });
-
+    
             return unsubscribeComments;
         };
-
+    
         const unsubscribeComments = fetchComments();
-
+    
         return () => {
             unsubscribeEvent();
             unsubscribeComments && unsubscribeComments();
         };
     }, [eventId]);
+    
 
     const handleAttendanceChange = async () => {
         if (!event) return;
@@ -90,7 +91,6 @@ const EventDetails = () => {
     };
 
     const handleReportEvent = async () => {
-
         if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
         if (reportReason.trim() === "") return window.alert("Please provide a reason for reporting the event.");
 
@@ -110,7 +110,7 @@ const EventDetails = () => {
             const reportData = {
                 eventId,
                 userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
+                username: auth.currentUser.displayName,
                 email: auth.currentUser.email,
                 reason: reportReason,
                 timestamp: new Date(),
@@ -118,17 +118,22 @@ const EventDetails = () => {
             };
 
 
-            if (user) {
-                const notificationRef = collection(firestore, 'notifications');
-                const reportData = {
+            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+
+            const notificationRef = collection(firestore, "notifications");
+            const userQuery = query(collection(firestore, "users"), where("role", "in", ["admin", "moderator"]));
+            const userSnapshot = await getDocs(userQuery);
+            userSnapshot.forEach(async (userDoc) => {
+                await setDoc(doc(notificationRef, `${userDoc.id}_${eventId}`), {
                     type: 'event_report',
                     eventId,
-                    userId: user.uid,
-                    userName: user.displayName,
-                    userEmail: user.email,
+                    userId: auth.currentUser.uid,
+                    userName: auth.currentUser.displayName,
+                    userEmail: auth.currentUser.email,
                     reason: reportReason,
                     timestamp: new Date(),
                     isRead: false,
+                    targetUserId: userDoc.id,
                 };
                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
                 console.log("Event reported successfully");
@@ -143,11 +148,7 @@ const EventDetails = () => {
                         targetUserId: userDoc.id,
                     });
                 });
-
-                window.alert("Event reported successfully!");
-                setReportReason("");
-            }
-            await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
+            });
 
             window.alert("Event reported successfully!");
 
