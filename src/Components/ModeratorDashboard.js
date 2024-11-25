@@ -149,12 +149,6 @@ const ModeratorDashboard = () => {
       }
     }
   };
-
-
-
-
-
-
   const handleDismissReport = async (reportId) => {
     if (window.confirm("Are you sure you want to dismiss and delete this report?")) {
       try {
@@ -168,42 +162,22 @@ const ModeratorDashboard = () => {
         window.alert("Failed to dismiss and delete report. Please try again.");
       }
     }
-  };
+  };  
 
-  const handleRemoveUser = async (reportId, eventCreatorEmail) => {
-    if (!window.confirm("Are you sure you want to remove this user?")) return;
-
+  const handleRemoveContent = async (reportId, eventId) => {
+    if (!window.confirm("Are you sure you want to remove this event?")) return;
+  
     try {
-      const usersQuery = query(
-        collection(firestore, "users"),
-        where("email", "==", eventCreatorEmail)
-      );
-      const userSnapshot = await getDocs(usersQuery);
-
-      if (userSnapshot.empty) {
-        window.alert("User not found.");
-        return;
-      }
-
-      const userDoc = userSnapshot.docs[0];
-      const userId = userDoc.id;
-
-      const userRef = ref(db, `users/${userId}`);
-      const userSnapshotFromDb = await get(userRef);
-
-      if (!userSnapshotFromDb.exists()) {
-        window.alert("User does not exist in Realtime Database.");
-        return;
-      }
-
-      await update(userRef, { status: "removed" });
-
-      await updateDoc(doc(firestore, "reports", reportId), { status: "user_removed" });
-
-      window.alert("User removed successfully.");
+      const eventDocRef = doc(firestore, "events", eventId);
+  
+      await deleteDoc(eventDocRef);
+  
+      await updateDoc(doc(firestore, "reports", reportId), { status: "event_removed" });
+  
+      window.alert("Event removed successfully.");
     } catch (error) {
-      console.error("Error removing user:", error);
-      window.alert("Failed to remove user. Please try again.");
+      console.error("Error removing event:", error);
+      window.alert("Failed to remove event. Please try again.");
     }
   };
 
@@ -270,9 +244,9 @@ const ModeratorDashboard = () => {
                       </button>
                       <button
                         className="delete-button"
-                        onClick={() => handleRemoveUser(report.id, report.eventCreator)}
+                        onClick={() => handleRemoveContent(report.id, report.eventId)}
                       >
-                        Remove User
+                        Remove Content
                       </button>
                     </td>
                   </tr>
