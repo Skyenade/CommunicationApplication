@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { getDatabase, ref, update, get } from "firebase/database";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, getDocs } from "firebase/firestore";
+import { getDatabase, ref, update, get,set } from "firebase/database";
 import Header from "./Header";
 import "./ContentManagement.css";
 import { Navigate, useNavigate } from "react-router-dom";
 import HeaderAdmin from "./HeaderAdmin";
+import { deleteDoc } from "firebase/firestore";
 
 const ContentManagement = () => {
   const [reports, setReports] = useState([]);
@@ -13,16 +14,40 @@ const ContentManagement = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchAdditionalData = async (report) => {
+      const updatedReport = { ...report };
+
+      if (report.eventId) {
+        try {
+          const eventDoc = await getDoc(doc(firestore, "events", report.eventId));
+          if (eventDoc.exists()) {
+            const eventData = eventDoc.data();
+            updatedReport.eventCreator = eventData.createdBy || "Unknown";
+            console.log(updatedReport.eventCreator);
+          }
+        } catch {
+          console.error(`Failed to fetch event creator for eventId: ${report.eventId}`);
+        }
+      }
+
+      updatedReport.reporterEmail = report.email || "Unknown";
+
+      return updatedReport;
+    };
+
     const reportsQuery = query(
       collection(firestore, "reports"),
       where("status", "==", "flagged")
     );
 
-    const unsubscribe = onSnapshot(reportsQuery, (querySnapshot) => {
-      setReports(querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })));
+    const unsubscribe = onSnapshot(reportsQuery, async (querySnapshot) => {
+      const reportsData = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const report = { id: doc.id, ...doc.data() };
+          return await fetchAdditionalData(report);
+        })
+      );
+      setReports(reportsData);
     });
 
     return () => unsubscribe();
@@ -61,54 +86,83 @@ const ContentManagement = () => {
     }
   };
 
-  const handleWarning = async (reportId, userId, currentWarningStatus) => {
-    if (window.confirm(currentWarningStatus ? "Remove warning from this user?" : "Issue a warning to this user?")) {
+  const handleWarning = async (reportId, currentWarningStatus, eventCreatorEmail) => {
+    if (window.confirm("Issue a warning to this user?")) {
       try {
-       
-        await updateDoc(doc(firestore, "reports", reportId), {
-          status: currentWarningStatus ? "flagged" : "warning_issued",
-        });
-
+        const usersQuery = query(
+          collection(firestore, "users"),
+          where("email", "==", eventCreatorEmail)
+        );
+        const userSnapshot = await getDocs(usersQuery);
+  
+        if (userSnapshot.empty) {
+          window.alert("User not found.");
+          return;
+        }
+  
+        const userDoc = userSnapshot.docs[0];
+        const userId = userDoc.id;
+  
         const userRef = ref(db, `users/${userId}`);
-        const userSnapshot = await get(userRef);
-
-        if (!userSnapshot.exists()) {
+        const userSnapshotFromDb = await get(userRef);
+  
+        if (!userSnapshotFromDb.exists()) {
           window.alert("User does not exist.");
           return;
         }
-
-        
+  
+        const userData = userSnapshotFromDb.val();
+  
         await update(userRef, {
-          warning: !currentWarningStatus,  
+          warning: true,
         });
-
-        window.alert(currentWarningStatus ? "Warning removed from user." : "Warning issued to the user.");
-      } catch {
+  
+        const userDocRef = doc(firestore, "users", userId);
+        await updateDoc(userDocRef, {
+          warning: true,
+        });
+  
+        await updateDoc(doc(firestore, "reports", reportId), {
+          status: "warning_issued",
+        });
+  
+        window.alert("Warning issued to the user.");
+      } catch (error) {
+        console.error("Error handling warning:", error);
         window.alert("Failed to issue or remove warning. Please try again.");
       }
     }
   };
+  
+  
+  
+  
+  
 
   const handleDismissReport = async (reportId) => {
-    if (window.confirm("Are you sure you want to dismiss this report?")) {
+    if (window.confirm("Are you sure you want to dismiss and delete this report?")) {
       try {
-        await updateDoc(doc(firestore, "reports", reportId), { status: "dismissed" });
-        window.alert("Report dismissed.");
-      } catch {
-        window.alert("Failed to dismiss report. Please try again.");
+        const reportRef = doc(firestore, "reports", reportId);
+  
+        await deleteDoc(reportRef);
+        
+        window.alert("Report dismissed and deleted.");
+      } catch (error) {
+        console.error("Error dismissing the report:", error);
+        window.alert("Failed to dismiss and delete report. Please try again.");
       }
     }
   };
 
   const handleRemoveUser = async (reportId, userId) => {
-    if (!window.confirm("Are you sure you want to remove this user?")) return;
+    if (!window.confirm("Are you sure you want to remove ?")) return;
 
     try {
       const userRef = ref(db, `users/${userId}`);
       const userSnapshot = await get(userRef);
 
       if (!userSnapshot.exists()) {
-        window.alert("User does not exist.");
+        window.alert("error! Can't procced.");
         return;
       }
 
@@ -116,14 +170,11 @@ const ContentManagement = () => {
       await updateDoc(doc(firestore, "reports", reportId), { status: "user_removed" });
       window.alert("User removed.");
     } catch {
-      window.alert("Failed to remove user. Please try again.");
+      window.alert("Failed to remove event. Please try again.");
     }
   };
 
-  const handleAdminAssistance = () => {
-    navigate("/RequestAssistance");
-    console.log("Admin assistance requested");
-  };
+  
 
   return (
     <div>
@@ -137,8 +188,8 @@ const ContentManagement = () => {
             <table className="flaggedPostsTable">
               <thead>
                 <tr>
-                  <th>Username</th>
-                  <th>Email</th>
+                  <th>Created the event</th>
+                  <th>Email that reported</th>
                   <th>Event ID</th>
                   <th>Reason</th>
                   <th>Status</th>
@@ -149,8 +200,8 @@ const ContentManagement = () => {
               <tbody>
                 {reports.map((report) => (
                   <tr key={report.id}>
-                    <td>{report.username}</td>
-                    <td>{report.email}</td>
+                    <td>{report.eventCreator}</td>
+                    <td>{report.reporterEmail}</td>
                     <td>{report.eventId}</td>
                     <td>{report.reason}</td>
                     <td>{report.status}</td>
@@ -167,7 +218,7 @@ const ContentManagement = () => {
                         className="actionButton"
                         id="Warning"
                         onClick={() =>
-                          handleWarning(report.id, report.userId, report.status === "warning_issued")
+                          handleWarning(report.id, report.status === "warning_issued", report.eventCreator)
                         }
                       >
                         {report.status === "warning_issued" ? "Remove Warning" : "Issue Warning"}
@@ -184,7 +235,7 @@ const ContentManagement = () => {
                         id="Remove"
                         onClick={() => handleRemoveUser(report.id, report.userId)}
                       >
-                        Remove User
+                        Remove 
                       </button>
                     </td>
                   </tr>
