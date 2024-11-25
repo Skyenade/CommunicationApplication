@@ -216,7 +216,7 @@ const ModeratorHome = () => {
 
                       <>
                         <p>
-                          <strong>You have a reported event</strong>
+                          <strong>there is a reported event</strong>
                         </p>
                         <p>
                           <strong>Reported by:</strong> {notification.userEmail}

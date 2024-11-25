@@ -150,6 +150,7 @@ const EventDetails = () => {
             await setDoc(doc(firestore, "reports", `${eventId}_${auth.currentUser.uid}`), reportData);
 
             window.alert("Event reported successfully!");
+
             setReportReason("");
         } catch (error) {
             console.error("Error reporting event:", error);

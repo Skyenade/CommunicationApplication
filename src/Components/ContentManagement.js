@@ -173,6 +173,7 @@ const ContentManagement = () => {
   const handleRemoveUser = async (reportId, eventCreatorEmail) => {
     if (!window.confirm("Are you sure you want to remove this user?")) return;
 
+
     try {
       const usersQuery = query(
         collection(firestore, "users"),
@@ -193,6 +194,7 @@ const ContentManagement = () => {
 
       if (!userSnapshotFromDb.exists()) {
         window.alert("User does not exist in Realtime Database.");
+
         return;
       }
 
@@ -204,6 +206,7 @@ const ContentManagement = () => {
     } catch (error) {
       console.error("Error removing user:", error);
       window.alert("Failed to remove user. Please try again.");
+
     }
   };
 
@@ -266,7 +269,7 @@ const ContentManagement = () => {
                         className="delete-button"
                         onClick={() => handleRemoveUser(report.id, report.eventCreator)}
                       >
-                        Remove User
+                        Remove 
                       </button>
                     </td>
                   </tr>
