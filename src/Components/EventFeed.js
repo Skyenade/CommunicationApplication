@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style.css';
 import { collection, getDocs, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove, doc, query, where, onSnapshot, orderBy, serverTimestamp } from 'firebase/firestore';
-import { firestore } from '../firebase';
+import { auth, firestore } from '../firebase';
 import useAuth from '../hooks/useAuth';
 import firebase from 'firebase/compat/app';
 
@@ -205,6 +205,7 @@ const EventFeed = () => {
   };
 
   const handleReport = async (contentType, contentId) => {
+    if (!auth.currentUser) return window.alert("You must be logged in to report an event.");
     const reason = prompt("Please provide a reason for reporting this content:");
 
     if (!reason) return;
@@ -216,15 +217,28 @@ const EventFeed = () => {
         reportReason: reason,
         reportedBy: currentUser.email,
         timestamp: new Date(),
-        status: 'pending' 
+        status: 'pending',
       };
 
       await addDoc(collection(firestore, 'reports'), reportData);
-      alert('Content reported successfully.');
+
+      const notificationData = {
+        type: 'report',
+        contentId: contentId,
+        reportReason: reason,
+        reportedBy: currentUser.email,
+        timestamp: serverTimestamp(),
+        isRead: false,
+      };
+
+      await addDoc(collection(firestore, 'notifications'), notificationData);
+
+      alert('Content reported successfully and notification sent.');
     } catch (error) {
       console.error('Error reporting content: ', error);
+      alert('Failed to report content.');
     }
-  };
+};
 
   const handleAttend = async (eventId) => {
     if (!currentUser || !currentUser.email) {

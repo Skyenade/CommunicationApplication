@@ -210,6 +210,20 @@ const AdminHome = () => {
                             : "No timestamp available"}
                         </small>
                       </>
+                    ):notification.type === "report" ? (
+                      <>
+                        <p>
+                          <strong>There is a Flagged comment</strong>
+                        </p>
+                        <p>
+                        <strong>{notification.userEmail}</strong> Flagged comment in<strong>{notification.eventTitle}</strong>.
+                        </p>
+                        <small>
+                          {notification.timestamp
+                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+                            : "No timestamp available"}
+                        </small>
+                      </>
                     ) : (
                       <span>{notification.message}</span>
                     )}
