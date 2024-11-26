@@ -106,7 +106,7 @@ const EventFeed = () => {
             userId: currentUser.uid,
             userEmail: currentUser.email,
             eventTitle: eventTitle, 
-            message: `${currentUser.email} commented on the event: ${eventTitle}`,
+            // message: `${currentUser.email} commented on the event: ${eventTitle}`,
             timestamp: serverTimestamp(),
             isRead: false,
           });
@@ -168,7 +168,7 @@ const EventFeed = () => {
           userEmail: currentUser.email,
           eventOwnerId: eventOwnerId,
           eventTitle: eventTitle, 
-          message: `${currentUser.email} liked ${eventTitle} event `, 
+          // message: `${currentUser.email} liked ${eventTitle} event `, 
           timestamp: serverTimestamp(),
           isRead: false,
         });
@@ -261,7 +261,6 @@ const EventFeed = () => {
           userId: currentUser.uid,
           userEmail: currentUser.email,
           eventTitle: eventTitle, 
-          message: `${currentUser.email} is attending ${eventTitle} event`,
           timestamp: serverTimestamp(),
           isRead: false,
         });
