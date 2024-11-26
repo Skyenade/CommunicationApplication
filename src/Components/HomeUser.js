@@ -50,7 +50,7 @@ const HomeUser = () => {
 
   const handleFollow = async (userId) => {
     try {
-      // Update the following list of the current user
+      
       const userRef = refDB(database, `users/${currentUser.uid}/following`);
       const userFollowersRef = refDB(database, `users/${userId}/followers`);
 
