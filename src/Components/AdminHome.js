@@ -3,13 +3,16 @@ import { Link } from "react-router-dom";
 import Header from "./Home";
 import HeaderAdmin from "./HeaderAdmin";
 import '../Style.css';
+import { ref, onValue, remove, get } from "firebase/database";
 import EventFeed from "./EventFeed";
-import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { collection, query, where, onSnapshot, doc, setDoc,getDocs } from "firebase/firestore";
+import {database, firestore } from "../firebase";
 
 const AdminHome = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [userResults, setUserResults] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -31,6 +34,64 @@ const AdminHome = () => {
     fetchNotifications();
   }, []);
 
+  const [filterType, setFilterType] = useState("all");
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+  
+    if (!searchTerm.trim()) {
+      console.log("Search term is empty.");
+      return;
+    }
+  
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+  
+    try {
+      const results = [];
+  
+      if (filterType === "user" || filterType === "all") {
+        const usersRef = ref(database, "users");
+        const userSnapshot = await get(usersRef);
+  
+        if (userSnapshot.exists()) {
+          const users = Object.keys(userSnapshot.val())
+            .map((id) => ({ id, ...userSnapshot.val()[id] }))
+            .filter((user) =>
+              user.username?.toLowerCase().includes(lowercasedSearchTerm)
+            );
+          results.push(...users.map((user) => ({ ...user, type: "user" })));
+        }
+      }
+  
+      if (filterType === "location" || filterType === "event" || filterType === "all") {
+        const eventsSnapshot = await getDocs(collection(firestore, "events"));
+  
+        if (!eventsSnapshot.empty) {
+          const events = eventsSnapshot.docs
+            .map((doc) => ({ id: doc.id, ...doc.data() }))
+            .filter((event) => {
+              if (filterType === "location") {
+                return event.location?.toLowerCase().includes(lowercasedSearchTerm);
+              } else if (filterType === "event") {
+                return event.title?.toLowerCase().includes(lowercasedSearchTerm);
+              } else {
+                return (
+                  event.location?.toLowerCase().includes(lowercasedSearchTerm) ||
+                  event.title?.toLowerCase().includes(lowercasedSearchTerm)
+                );
+              }
+            });
+          results.push(...events.map((event) => ({ ...event, type: "event" })));
+        }
+      }
+  
+      setUserResults(results);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+  
+
   const handleMarkAsRead = async (notificationId) => {
     try {
       const notificationRef = doc(firestore, "notifications", notificationId);
@@ -45,23 +106,54 @@ const AdminHome = () => {
     <div className="homeuser-container">
       <HeaderAdmin />
       <div className="homeuser-navbar-actions">
-        <div>
+      <form onSubmit={handleSearch}>
+          <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
+            <option value="all">All</option>
+            <option value="user">Users</option>
+            <option value="location">Location</option>
+            <option value="event">Event Name</option>
+          </select>
           <input
             type="text"
-            className="search-bar"
-            id="search"
-            placeholder="Search events"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="create-event-button">
+          <button className="Search-button">Search</button>
+        </form>
+    <button className="create-event-button">
             <h4>
               <Link to="/CreateEvent" className="links">
                 Create An Event
               </Link>
             </h4>
           </button>
-        </div>
 
+          </div>
+          <div className="search-results">
+  {userResults.length > 0 ? (
+    userResults.map((result) => (
+      <div key={result.id} className="search-result">
+        {result.type === "user" ? (
+          <>
+            <span>{result.username} ({result.email})</span>
+          </>
+        ) : (
+          <Link to={`/event/${result.id}`} className="event-link">
+            <span><strong>Title:</strong> {result.title}</span>
+            <span><strong>Location:</strong> {result.location}</span>
+            <span><strong>Created By:</strong> {result.createdBy}</span>
+          </Link>
+        )}
       </div>
+    ))
+  ) : (
+    <p>No results found for the selected filter.</p>
+  )}
+</div>
+
+
+      
 
       <div className="homeuser-content">
         <div className="event-feed">
