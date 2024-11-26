@@ -48,6 +48,7 @@ const HomeUser = () => {
           const notificationsList = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
+            eventTitle: doc.data().eventTitle,
           }));
           setNotifications(notificationsList);
           setLoading(false);
@@ -257,23 +258,26 @@ useEffect(() => {
             ) : notifications.length > 0 ? (
               <ul>
                 {notifications.map((notification) => (
-                  <li key={notification.id}>
-                    {notification.type === "like" ? (
-                      <>
-                        <p>
-                          <strong>{notification.userEmail}</strong> liked your event.
-                        </p>
-                        <small>
-                          {notification.timestamp
-                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                            : "No timestamp available"}
-                        </small>
+                  <li
+                  key={notification.id}
+                  onDoubleClick={() => handleMarkAsRead(notification.id)} 
+                  className={`notification-item ${notification.isRead ? 'read' : 'unread'}`}
+                >
+                  {notification.type === "like" ? (
+  <>
+    <p>
+      <strong>{notification.userEmail}</strong> liked event <strong>{notification.eventTitle}</strong>
+    </p>
+    <small>
+      {notification.timestamp
+        ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
+        : "No timestamp available"}
+    </small>
                       </>
                     ) : notification.type === "comment" ? (
                       <>
                         <p>
-                          <strong>{notification.userEmail}</strong> commented on your event:{" "}
-                          <em>"{notification.commentText}"</em>
+                        <strong>{notification.userEmail}</strong> commented on <strong>{notification.eventTitle}</strong>
                         </p>
                         <small>
                           {notification.timestamp
@@ -284,7 +288,7 @@ useEffect(() => {
                     ) : notification.type === "attendance" ? (
                       <>
                         <p>
-                          <strong>{notification.userEmail}</strong> is attending your event.
+                          <strong>{notification.userEmail}</strong> is attending <strong>{notification.eventTitle}</strong>event.
                         </p>
                         <small>
                           {notification.timestamp
@@ -295,11 +299,11 @@ useEffect(() => {
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    <button
+                    {/* <button
                       onClick={() => handleMarkAsRead(notification.id)}
                       className="notif_viwedbtn">
                       VIEWED
-                    </button>
+                    </button> */}
                   </li>
                 ))}
               </ul>

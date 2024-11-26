@@ -322,18 +322,15 @@ body {
 }
 
 .notifications li {
-    background-color: white;
     color: #333;
     padding: 10px;
     font-size: 14px;
     font-weight: bold;
-    border: 1px solid black;
     max-width: 400px;
-    margin-top: -20px;
 }
 
 .notifications li:hover{
-    background-color: rgb(217, 216, 216);
+    background-color: rgba(139, 151, 192, 0.572);
 }
 
 .notif_viwedbtn {
@@ -720,5 +717,30 @@ body {
     font-size: 0.9rem;
     font-size: medium;
     font-weight: 700;
+}
+
+/* ---------AdminReport--------- */
+
+
+.admin-reports-container h1{
+    font-size: xx-large;
+    font-weight: bolder;
+}
+.admin-reports-container{
+    text-align: center;
+}
+.admin-reports-container ul {
+    list-style-type: none; 
+    padding: 0;
+ }
+
+.report-card{
+    border: 2px solid red;
+    background-color: #0a66c227;
+    max-width: 1500px;
+    margin: 25px 55px;
+    padding: 10px 15px;
+
+    text-align: left;
 }
 
