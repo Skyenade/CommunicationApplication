@@ -32,32 +32,10 @@ const HomeUser = () => {
   const [userResults, setUserResults] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [results, setResults] = useState([]);
 
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userRef = refDB(database, `users/${currentUser.uid}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setFollowing(Object.keys(data.following || {}));
-          setFollowers(Object.keys(data.followers || {}));
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-
-      }
-    };
-
-    if (currentUser?.uid) fetchUserData();
-  }, [currentUser]);
-
-  useEffect(() => {
     const fetchNotifications = () => {
       try {
         const notificationsRef = collection(firestore, "notifications");
@@ -81,8 +59,23 @@ const HomeUser = () => {
       }
     };
 
-    return fetchNotifications();
-  }, []);
+fetchNotifications();
+
+
+
+useEffect(() => {
+  if (!currentUser) return;
+
+  const userRef = ref(database, `users/${currentUser.uid}`);
+  const unsubscribe = onValue(userRef, (snapshot) => {
+    const data = snapshot.val();
+    setFollowers(data?.followers ? Object.keys(data.followers) : []);
+    setFollowing(data?.following ? Object.keys(data.following) : []);
+  });
+
+  return () => unsubscribe();
+}, [currentUser]);
+
 
 
   const handleFollow = async (userId) => {
@@ -265,24 +258,7 @@ const HomeUser = () => {
               <ul>
                 {notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "event_report" ? (
-                      <>
-                        <p>
-                          <strong>You have a reported event</strong>
-                        </p>
-                        <p>
-                          <strong>Reported by:</strong> {notification.userEmail}
-                        </p>
-                        <p>
-                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p>
-                        <small>
-                          {notification.timestamp
-                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                            : "No timestamp available"}
-                        </small>
-                      </>
-                    ) : notification.type === "like" ? (
+                    {notification.type === "like" ? (
                       <>
                         <p>
                           <strong>{notification.userEmail}</strong> liked your event.
@@ -331,6 +307,7 @@ const HomeUser = () => {
             ) : (
               <p>No notifications</p>
             )}
+
           </div>
         </div>
 

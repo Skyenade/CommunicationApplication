@@ -165,6 +165,7 @@ const EventFeed = () => {
           type: "like",
           userId: currentUser.uid,
           userEmail: currentUser.email,
+          eventOwnerId: eventOwnerId,
           message: `${currentUser.email} liked ${eventTitle} event `, 
           timestamp: serverTimestamp(),
           isRead: false,
