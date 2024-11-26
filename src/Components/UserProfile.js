@@ -260,9 +260,9 @@ const UserProfile = () => {
                 )}
               </ul>
               
-              <button onClick={isFollowing ? handleUnfollow : handleFollow}>
+              {/* <button onClick={isFollowing ? handleUnfollow : handleFollow}>
                 {isFollowing ? 'Unfollow' : 'Follow'}
-              </button>
+              </button> */}
 
               <button className="save-changes-btn" onClick={handleSaveChanges}>Save Changes</button>
             </>

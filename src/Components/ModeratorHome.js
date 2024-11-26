@@ -81,7 +81,7 @@ const ModeratorHome = () => {
     await update(userFollowersRef, { active: true });
 
     setFollowing((prev) => [...prev, userId]);
-    setFollowers((prev) => prev.includes(userId) ? prev : [...prev, currentUser.uid]); // Ensure consistency
+    setFollowers((prev) => prev.includes(userId) ? prev : [...prev, currentUser.uid]); 
   };
 
   const handleUnfollow = async (userId) => {
@@ -94,7 +94,7 @@ const ModeratorHome = () => {
     await remove(userFollowersRef);
 
     setFollowing((prev) => prev.filter((id) => id !== userId));
-    setFollowers((prev) => prev.filter((id) => id !== currentUser.uid)); // Ensure consistency
+    setFollowers((prev) => prev.filter((id) => id !== currentUser.uid)); 
   };
 
 
@@ -198,7 +198,7 @@ const ModeratorHome = () => {
         </button>
 
         <div className="followers-following">
-          <h3>Followers: {followers.length}</h3>
+          {/* <h3>Followers: {followers.length}</h3> */}
           <h3>Following: {following.length}</h3>
         </div>
       </div>
