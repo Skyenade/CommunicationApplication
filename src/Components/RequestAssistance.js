@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../Style.css";
+import "./RequestAssistance.css"
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import { ref, get, push, set } from "firebase/database";
@@ -20,11 +21,13 @@ const RequestAssistance = () => {
                 const snapshot = await get(userRef);
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
+                    console.log("Fetched user data:", userData);
                     setUsername(userData.username);
                     setEmail(userData.email);
                 } else {
-                    console.log("User data not found");
+                    console.log("User data not found in the database");
                 }
+                
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }
@@ -44,8 +47,15 @@ const RequestAssistance = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        if (!auth.currentUser) {
+            console.error("No authenticated user found");
+            return;
+        }
+
         try {
+            console.log("Submitting assistance request...");
             const requestRef = push(ref(database, "assistanceRequests"));
+            console.log("Generated request ref:", requestRef.key);
             await set(requestRef, {
                 username,
                 email,
@@ -53,6 +63,7 @@ const RequestAssistance = () => {
                 requestText,
                 status: "active",
             });
+            console.log("Assistance request submitted successfully");
 
             const notificationData = {
                 type: "assistance_request",
@@ -65,6 +76,8 @@ const RequestAssistance = () => {
             const notificationRef = doc(collection(firestore, "notifications"), `${auth.currentUser.uid}_assistance_request`);
 
             await setDoc(notificationRef, notificationData);
+            console.log("Notification submitted to Firestore");
+            
             alert("Request submitted successfully!");
             navigate("/ModeratorDashboard");
         } catch (error) {
@@ -75,7 +88,8 @@ const RequestAssistance = () => {
     return (
         <div>
             <Header />
-            <h1>Request Assistance</h1>
+            <h1 className="request-assistance-heading">Request Assistance</h1>
+            
             <form className="request-assistance-container" onSubmit={handleSubmit}>
                 <label>Please write the request</label>
                 <textarea
@@ -85,7 +99,7 @@ const RequestAssistance = () => {
                     onChange={(e) => setRequestText(e.target.value)}
                     required
                 ></textarea>
-                <button type="submit">Submit</button>
+                <button className="request-button" type="submit">Submit</button>
             </form>
         </div>
     );

@@ -1,21 +1,14 @@
 
-h1 {
-    color: black;
-    margin-top: 50px;
-    margin-left: 60px;
-}
-
-h2 {
-    color: black;
-    margin-top: 50px;
-    float: left;
-}
 
 .content {
-    flex: 1; 
-    padding: 20px; 
-    margin-left: 250px;
-    
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+
 }
 
 .requestAdminAssistanceButton {
@@ -32,54 +25,126 @@ h2 {
     font-weight: bolder;
 }
 
-.flaggedPostsTable {
-    width: 100%;
-    border-collapse: collapse;
+.user-management-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .admin-dashboard-button {
+    display: flex;
+    flex-direction: row;
+    gap: 60px;
+    align-items: center;
+  } 
+  
+  .user-table-container {
+    display: flex;
+    justify-content: center;
     margin-top: 20px;
-}
-
-.flaggedPostsTable th {
-    background-color: #878b8b;
-}
-
-.flaggedPostsTable th,
-.flaggedPostsTable td {
-    border: 1px solid #ccc;
-    padding: 10px;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .user-requests-table {
+    width: 80%;
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+  }
+  
+  .user-requests-table th,
+  .user-requests-table td {
+    padding: 12px 15px;
     text-align: left;
-    color: black;
-}
-
-.actionButton {
-    background-color: #f44336;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .user-requests-table th {
+    background-color: #014F86;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .user-requests-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .create-account-button {
+    margin-left: 50px;
+    background-color: #013A63;
+    color: white;
+    border: none;
+    padding: 20px 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  
+  .edit-button,
+  .suspend-button,
+  .delete-button,
+  .restore-button, .save-button {
     color: white;
     border: none;
     padding: 10px 10px;
-    margin-right: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 3px;
-    font-weight: bolder;
-}
-
-#action{
-    width: 35%;
-}
-#Warning{
-    background-color: #dae078;
-    color: black;
-}
-
-
-#Suspend{
-    background-color: #794a17;
-}
-
-#Dismiss{
-    background-color: #67dea6;
-    color: black;
-}
-@media (max-width: 1200px) {
-    h1 {
-      font-size: 2rem;
-    }
+    margin: 5px;
+    font-weight: 600;
+    width: 80px;
+  }
+  
+  .edit-button {
+    background-color: #19646b;
+  }
+  
+  .suspend-button {
+    background-color: #d75e1c;
+  }
+  
+  .delete-button {
+    background-color: #d82626;
+  }
+  
+  .restore-button {
+    background-color: #193a6b;
+  }
+  
+  .save-button{
+    background-color: #013A63;
+  }
+  
+  .edit-button:hover {
+    background-color: #134b50;
+  }
+  
+  .suspend-button:hover {
+    background-color: #944215;
+  }
+  
+  .delete-button:hover {
+    background-color: #941c1c;
+  }
+  
+  .restore-button:hover {
+    background-color: #235298;
+  }
+  
+  .save-button:hover{
+    background-color: #1c4a6a;
+  }
+  
+  .new-input {
+    height: 20px;
+    width: 60%;
+    padding: 5px;
+    border-radius: 5px;
+    border: solid 1px gray;
+    margin-top: 10px ;
+    margin-right: 10px;
   }

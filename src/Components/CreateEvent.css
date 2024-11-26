@@ -1,0 +1,119 @@
+.create-event {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    margin-top: 10vh;
+}
+
+.create-event-heading {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.create-event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.create-event-input-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.create-event-label {
+    width: 150px;
+    font-weight: bold;
+    color: #555;
+    text-align: left;
+}
+
+.create-event-input,
+.create-event-textarea,
+.create-event-date,
+.create-event-location {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+.create-event-input:focus,
+.create-event-textarea:focus,
+.create-event-date:focus,
+.create-event-location:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+.create-event-textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.create-event-button-new {
+    align-self: center;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #004d83;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 80%;
+}
+
+.create-event-button-new:hover {
+    background-color: #013A63;
+}
+
+
+@media (max-width: 600px) {
+    .create-event-input-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .create-event-label {
+        flex: 1 1 auto;
+    }
+
+    .create-event-input {
+        flex: 1 1 auto;
+    }
+
+    .create-event-input-container {
+        flex-direction: column;
+    }
+
+    .create-event-location {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .create-event-input-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .create-event-label {
+        text-align: left;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .create-event-input,
+    .create-event-textarea,
+    .create-event-date,
+    .create-event-location {
+        width: 100%;
+    }
+}
