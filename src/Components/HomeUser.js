@@ -287,11 +287,6 @@ useEffect(() => {
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    {/* <button
-                      onClick={() => handleMarkAsRead(notification.id)}
-                      className="notif_viwedbtn">
-                      VIEWED
-                    </button> */}
                   </li>
                 ))}
               </ul>
