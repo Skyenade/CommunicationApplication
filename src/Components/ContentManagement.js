@@ -152,14 +152,6 @@ const ContentManagement = () => {
     }
   };
   
-  
-  
-  
-  
-
-
-
-
 
 
   const handleDismissReport = async (reportId) => {
