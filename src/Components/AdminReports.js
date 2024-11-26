@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { getDatabase, ref, get } from "firebase/database"; 
-import { collection, getDocs, doc, getDoc } from "firebase/firestore"; 
+import { getDatabase, ref, get } from "firebase/database";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import HeaderAdmin from "./HeaderAdmin";
-import "../Style.css";
+
 
 const AdminReports = () => {
     const [reports, setReports] = useState([]);
@@ -27,7 +27,6 @@ const AdminReports = () => {
                         const reportData = docSnapshot.data();
                         const reportDetails = { id: docSnapshot.id, ...reportData };
 
-                        
                         if (reportData.reportedBy) {
                             try {
                                 const database = getDatabase();
@@ -46,7 +45,6 @@ const AdminReports = () => {
                             }
                         }
 
-                        
                         if (reportData.reportedBy) {
                             try {
                                 const userDocRef = doc(firestore, "users", reportData.reportedBy);
@@ -64,7 +62,6 @@ const AdminReports = () => {
                             }
                         }
 
-                       
                         if (reportData.contentId && reportData.type) {
                             try {
                                 const contentCollection =
@@ -118,37 +115,39 @@ const AdminReports = () => {
                 {loading ? (
                     <p>Loading reports...</p>
                 ) : reports.length > 0 ? (
-                    <ul>
-                        {reports.map((report) => (
-                            <li key={report.id} className="report-card">
-                                <p>
-                                    <strong>Type:</strong> {report.type || "Unknown"}
-                                </p>
-                                <p>
-                                    <strong>Content ID:</strong> {report.contentId || "N/A"}
-                                </p>
-                                <p>
-                                    <strong>Content Details:</strong> {report.contentDetails || "Not available"}
-                                </p>
-                                <p>
-                                    <strong>Reported By:</strong> {report.reporterUsername || "Unknown"} (
-                                    {report.reporterEmail || "Unknown"})
-                                </p>
-                                <p>
-                                    <strong>Reason:</strong> {report.reportReason || "No reason provided"}
-                                </p>
-                                <p>
-                                    <strong>Status:</strong> {report.status || "Unknown"}
-                                </p>
-                                <small>
-                                    Reported on:{" "}
-                                    {report.timestamp
-                                        ? new Date(report.timestamp.seconds * 1000).toLocaleString()
-                                        : "No timestamp available"}
-                                </small>
-                            </li>
-                        ))}
-                    </ul>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Content ID</th>
+                                <th>Content Details</th>
+                                <th>Reported By</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Reported On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {reports.map((report) => (
+                                <tr key={report.id}>
+                                    <td>{report.type || "Unknown"}</td>
+                                    <td>{report.contentId || "N/A"}</td>
+                                    <td>{report.contentDetails || "Not available"}</td>
+                                    <td>
+                                        {report.reporterUsername || "Unknown"} (
+                                        {report.reporterEmail || "Unknown"})
+                                    </td>
+                                    <td>{report.reportReason || "No reason provided"}</td>
+                                    <td>{report.status || "Unknown"}</td>
+                                    <td>
+                                        {report.timestamp
+                                            ? new Date(report.timestamp.seconds * 1000).toLocaleString()
+                                            : "No timestamp available"}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 ) : (
                     <p>No reports available</p>
                 )}
