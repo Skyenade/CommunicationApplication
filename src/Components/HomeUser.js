@@ -98,15 +98,15 @@ useEffect(() => {
   return () => unsubscribe();
 }, [currentUser]);
 
-// Handle tracking
+
 
   const handleFollow = async (userId) => {
     if (!currentUser) return;
 
-    // if (!searchTerm.trim()) {
-    //   console.log("Search term is empty.");
-    //   return;
-    // }
+    if (!searchTerm.trim()) {
+      console.log("Search term is empty.");
+      return;
+    }
 
 
     const userFollowingRef = refDB(database, `users/${currentUser.uid}/following/${userId}`);
