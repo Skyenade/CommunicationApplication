@@ -3,22 +3,13 @@ import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { database, firestore } from "../firebase";
 import Header from "../Components/Header";
-import {
-  collection,
-  query as queryFS,
-  where,
-  onSnapshot,
-  doc,
-  setDoc,
-  updateDoc, getDocs
-} from "firebase/firestore";
+import { collection, query as queryFS, where, onSnapshot, doc, getDocs, setDoc, } from "firebase/firestore";
 import { ref, onValue, remove, get } from "firebase/database";
 import { ref as refDB, update } from "firebase/database";
 import useAuth from "../hooks/useAuth";
 import EventFeed from "./EventFeed";
 import useFollowers from "../hooks/useFollowers";
-import getFollowersCount from "../utils/getFollowersCount";
-import { query, } from "firebase/firestore";
+
 
 
 import '../Style.css';
@@ -80,12 +71,7 @@ useEffect(() => {
 
 
   const handleFollow = async (userId) => {
-    if (!currentUser) return;
-
-    if (!searchTerm.trim()) {
-      console.log("Search term is empty.");
-      return;
-    }
+    if (!currentUser) return;   
 
 
     const userFollowingRef = refDB(database, `users/${currentUser.uid}/following/${userId}`);
@@ -210,10 +196,12 @@ useEffect(() => {
         </button>
 
         <div className="followers-following">
-          <h3>Followers: {followers.length}</h3>
+          {/* <h3>Followers: {followers.length}</h3> */}
           <h3>Following: {following.length}</h3>
         </div>
       </div>
+
+  
 
       <div className="search-results">
         {userResults.length > 0 ? (
