@@ -67,7 +67,7 @@ const MyFollowers = () => {
                         {followers.length > 0 ? (
                             followers.map((follower) => (
                                 <li key={follower.id} className="follower-item">
-                                    <span>{follower.name}</span> {/* Access the follower's name */}
+                                    <span>{follower.name}</span> 
                                 </li>
                             ))
                         ) : (
