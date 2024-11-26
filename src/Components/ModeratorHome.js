@@ -69,7 +69,7 @@ const ModeratorHome = () => {
     return () => unsubscribe();
   }, [currentUser]);
 
-  // Handle tracking
+  
   const handleFollow = async (userId) => {
     if (!currentUser) return;
 
