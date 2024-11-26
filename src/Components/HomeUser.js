@@ -38,26 +38,26 @@ const HomeUser = () => {
   const [following, setFollowing] = useState([]);
 
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userRef = refDB(database, `users/${currentUser.uid}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setFollowing(Object.keys(data.following || {}));
-          setFollowers(Object.keys(data.followers || {}));
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const userRef = refDB(database, `users/${currentUser.uid}`);
+  //       const snapshot = await get(userRef);
+  //       if (snapshot.exists()) {
+  //         const data = snapshot.val();
+  //         setFollowing(Object.keys(data.following || {}));
+  //         setFollowers(Object.keys(data.followers || {}));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
 
-      }
-    };
+  //     }
+  //   };
 
-    if (currentUser?.uid) fetchUserData();
-  }, [currentUser]);
+  //   if (currentUser?.uid) fetchUserData();
+  // }, [currentUser]);
 
-  useEffect(() => {
+  // useEffect(() => {
     const fetchNotifications = () => {
       try {
         const notificationsRef = collection(firestore, "notifications");
@@ -81,17 +81,32 @@ const HomeUser = () => {
       }
     };
 
-    return fetchNotifications();
-  }, []);
+fetchNotifications();
 
+
+
+useEffect(() => {
+  if (!currentUser) return;
+
+  const userRef = ref(database, `users/${currentUser.uid}`);
+  const unsubscribe = onValue(userRef, (snapshot) => {
+    const data = snapshot.val();
+    setFollowers(data?.followers ? Object.keys(data.followers) : []);
+    setFollowing(data?.following ? Object.keys(data.following) : []);
+  });
+
+  return () => unsubscribe();
+}, [currentUser]);
+
+// Handle tracking
 
   const handleFollow = async (userId) => {
     if (!currentUser) return;
 
-    if (!searchTerm.trim()) {
-      console.log("Search term is empty.");
-      return;
-    }
+    // if (!searchTerm.trim()) {
+    //   console.log("Search term is empty.");
+    //   return;
+    // }
 
 
     const userFollowingRef = refDB(database, `users/${currentUser.uid}/following/${userId}`);
