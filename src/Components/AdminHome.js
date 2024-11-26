@@ -173,7 +173,11 @@ const AdminHome = () => {
                 <li>Loading notifications...</li>
               ) : notifications.length > 0 ? (
                 notifications.map((notification) => (
-                  <li key={notification.id}>
+                  <li
+                  key={notification.id}
+                  onDoubleClick={() => handleMarkAsRead(notification.id)} 
+                  className={`notification-item ${notification.isRead ? 'read' : 'unread'}`}
+                >
                     {notification.type === "comment_flag" ? (
                       <>
                         <p><strong>You have a Flagged Comment</strong></p>
@@ -209,13 +213,12 @@ const AdminHome = () => {
                     ) : (
                       <span>{notification.message}</span>
                     )}
-                    <button onClick={() => handleMarkAsRead(notification.id)} className="notif_viwedbtn">READ</button>
+                   
                   </li>
                 ))
               ) : (
                 <li>No notifications</li>
               )}
-
             </ul>
           </div>
         </div>
