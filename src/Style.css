@@ -371,7 +371,7 @@ body {
 
 .attend-event-container, .report-event-container {
     flex: 1; 
-    width: 40vw;
+    width: 100%;
 }
 
 .report-event-container{
