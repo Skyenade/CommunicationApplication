@@ -171,7 +171,7 @@ const ModeratorHome = () => {
       <Header />
       <div className="homeuser-navbar-actions">
         <form onSubmit={handleSearch}>
-          <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
+          <select className="Search-input" onChange={(e) => setFilterType(e.target.value)} value={filterType}>
             <option value="all">All</option>
             <option value="user">Users</option>
             <option value="location">Location</option>
@@ -181,6 +181,7 @@ const ModeratorHome = () => {
             type="text"
             placeholder="Search..."
             value={searchTerm}
+             className="Search-input"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button className="Search-button">Search</button>

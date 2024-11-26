@@ -98,11 +98,11 @@ const EventDetails = () => {
             const user = auth.currentUser;
 
             const userRef = doc(firestore, "users", user.uid);
-            const userSnapshot = await getDocs(query(collection(firestore, "users"), where("email", "==", user.email)));
+            const userSnapshotEmail = await getDocs(query(collection(firestore, "users"), where("email", "==", user.email)));
 
             let userData = {};
-            if (!userSnapshot.empty) {
-                userSnapshot.forEach((doc) => {
+            if (!userSnapshotEmail.empty) {
+                userSnapshotEmail.forEach((doc) => {
                     userData = { ...doc };
                 });
             }
@@ -129,6 +129,8 @@ const EventDetails = () => {
                     reason: reportReason,
                     timestamp: new Date(),
                     isRead: false,
+
+                    // targetUserId: userDoc.id,
                 };
                 await setDoc(doc(notificationRef, `${eventId}_${user.uid}`), reportData);
                 console.log("Event reported successfully");

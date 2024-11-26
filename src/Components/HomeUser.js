@@ -63,26 +63,26 @@ const HomeUser = () => {
   fetchNotifications();
 
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userRef = refDB(database, `users/${currentUser.uid}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setFollowing(Object.keys(data.following || {}));
-          setFollowers(Object.keys(data.followers || {}));
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const userRef = refDB(database, `users/${currentUser.uid}`);
+  //       const snapshot = await get(userRef);
+  //       if (snapshot.exists()) {
+  //         const data = snapshot.val();
+  //         setFollowing(Object.keys(data.following || {}));
+  //         setFollowers(Object.keys(data.followers || {}));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
 
-      }
-    };
+  //     }
+  //   };
 
-    if (currentUser?.uid) fetchUserData();
-  }, [currentUser]);
+  //   if (currentUser?.uid) fetchUserData();
+  // }, [currentUser]);
 
-  useEffect(() => {
+  // useEffect(() => {
     const fetchNotifications = () => {
       try {
         const notificationsRef = collection(firestore, "notifications");
@@ -106,10 +106,25 @@ const HomeUser = () => {
       }
     };
 
-    return fetchNotifications();
-  }, []);
+fetchNotifications();
 
-  
+
+
+useEffect(() => {
+  if (!currentUser) return;
+
+  const userRef = ref(database, `users/${currentUser.uid}`);
+  const unsubscribe = onValue(userRef, (snapshot) => {
+    const data = snapshot.val();
+    setFollowers(data?.followers ? Object.keys(data.followers) : []);
+    setFollowing(data?.following ? Object.keys(data.following) : []);
+  });
+
+  return () => unsubscribe();
+}, [currentUser]);
+
+
+
   const handleFollow = async (userId) => {
     if (!currentUser) return;
 
@@ -143,25 +158,26 @@ const HomeUser = () => {
   };
 
 
+
   const [filterType, setFilterType] = useState("all");
 
   const handleSearch = async (e) => {
     e.preventDefault();
-  
+
     if (!searchTerm.trim()) {
       console.log("Search term is empty.");
       return;
     }
-  
+
     const lowercasedSearchTerm = searchTerm.toLowerCase();
-  
+
     try {
       const results = [];
-  
+
       if (filterType === "user" || filterType === "all") {
         const usersRef = ref(database, "users");
         const userSnapshot = await get(usersRef);
-  
+
         if (userSnapshot.exists()) {
           const users = Object.keys(userSnapshot.val())
             .map((id) => ({ id, ...userSnapshot.val()[id] }))
@@ -170,36 +186,11 @@ const HomeUser = () => {
             );
           results.push(...users.map((user) => ({ ...user, type: "user" })));
         }
-
-      } else {
-        console.log("No users found in the database.");
       }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
 
-
-    try {
-
-      const usersRef = ref(database, "users");
-      const userSnapshot = await get(usersRef);
-
-      let filteredUsers = [];
-      if (userSnapshot.exists()) {
-        const usersData = userSnapshot.val();
-        filteredUsers = Object.keys(usersData)
-          .map((key) => ({ id: key, ...usersData[key] }))
-          .filter((user) =>
-            user.username &&
-            user.username.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-      } else {
-        console.log("No users found in the Realtime Database.");
-      }
-  
       if (filterType === "location" || filterType === "event" || filterType === "all") {
         const eventsSnapshot = await getDocs(collection(firestore, "events"));
-  
+
         if (!eventsSnapshot.empty) {
           const events = eventsSnapshot.docs
             .map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -218,30 +209,29 @@ const HomeUser = () => {
           results.push(...events.map((event) => ({ ...event, type: "event" })));
         }
       }
-  
+
       setUserResults(results);
     } catch (error) {
       console.error("Error fetching search results:", error);
     }
   };
-  
-    const handleMarkAsRead = async (notificationId) => {
-      try {
-        const notificationRef = doc(firestore, "notifications", notificationId);
-        await setDoc(notificationRef, { isRead: true }, { merge: true });
-        console.log("Notification marked as read");
-      } catch (err) {
-        console.error("Error marking notification as read: ", err);
-      }
-    };
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const notificationRef = doc(firestore, "notifications", notificationId);
+      await setDoc(notificationRef, { isRead: true }, { merge: true });
+      console.log("Notification marked as read");
+    } catch (err) {
+      console.error("Error marking notification as read: ", err);
+    }
+  };
 
 
-    return (
-      <div className="homeuser-container">
+  return (
+    <div className="homeuser-container">
       <Header />
       <div className="homeuser-navbar-actions">
         <form onSubmit={handleSearch}>
-          <select onChange={(e) => setFilterType(e.target.value)} value={filterType}>
+          <select className="Search-input" onChange={(e) => setFilterType(e.target.value)} value={filterType}>
             <option value="all">All</option>
             <option value="user">Users</option>
             <option value="location">Location</option>
@@ -251,38 +241,11 @@ const HomeUser = () => {
             type="text"
             placeholder="Search..."
             value={searchTerm}
+            className="Search-input" 
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button className="Search-button">Search</button>
         </form>
-
-        <div className="search-results">
-          {userResults.length > 0 ? (
-            userResults.map((result) => (
-              <div key={result.id} className="search-result">
-                {result.type === "user" ? (
-                  <>
-                    <span>{result.username} ({result.email})</span>
-                    {following.includes(result.id) ? (
-                      <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
-                    ) : (
-                      <button onClick={() => handleFollow(result.id)}>Follow</button>
-                    )}
-                  </>
-                ) : (
-                  <Link to={`/event/${result.id}`} className="event-link">
-                    <span><strong>Title:</strong> {result.title}</span>
-                    <span><strong>Location:</strong> {result.location}</span>
-                    <span><strong>Created By:</strong> {result.createdBy}</span>
-                   
-                  </Link>
-                )}
-              </div>
-            ))
-          ) : (
-            <p>No results found for the selected filter.</p>
-          )}
-        </div>
 
         <button className="create-event-button">
           <h4>
@@ -298,18 +261,13 @@ const HomeUser = () => {
         </div>
       </div>
 
-
       <div className="search-results">
         {userResults.length > 0 ? (
-
           userResults.map((result) => (
             <div key={result.id} className="search-result">
               {result.type === "user" ? (
-
                 <>
-                  <span>
-                    {result.username} ({result.email})
-                  </span>
+                  <span>{result.username} ({result.email})</span>
                   {following.includes(result.id) ? (
                     <button onClick={() => handleUnfollow(result.id)}>Unfollow</button>
                   ) : (
@@ -317,23 +275,20 @@ const HomeUser = () => {
                   )}
                 </>
               ) : (
-
                 <Link to={`/event/${result.id}`} className="event-link">
-                  <span>
-                    <strong>Title:</strong> {result.title}
-                  </span>
-                  <span>
-                    <strong>Created By:</strong> {result.createdBy}
-                  </span>
-                </Link>
+                  <span><strong>Title:</strong> {result.title}</span>
+                  <span><strong>Location:</strong> {result.location}</span>
+                  <span><strong>Created By:</strong> {result.createdBy}</span>
 
+                </Link>
               )}
             </div>
           ))
         ) : (
-          <p>no username or events found</p>
+          <p>No results found for the selected filter.</p>
         )}
       </div>
+
 
       <div className="homeuser-content">
         <div className="event-feed">
