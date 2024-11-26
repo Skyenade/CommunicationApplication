@@ -32,10 +32,9 @@ const HomeUser = () => {
   const [userResults, setUserResults] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [results, setResults] = useState([]);
 
 
   const fetchNotifications = () => {

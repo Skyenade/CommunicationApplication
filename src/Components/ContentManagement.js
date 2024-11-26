@@ -6,7 +6,7 @@ import { getDatabase, ref, update, get } from "firebase/database";
 import "./ContentManagement.css";
 import { useNavigate } from "react-router-dom";
 import HeaderAdmin from "./HeaderAdmin";
-import { deleteDoc } from "firebase/firestore";
+// import { deleteDoc } from "firebase/firestore";
 
 const ContentManagement = () => {
   const [reports, setReports] = useState([]);
