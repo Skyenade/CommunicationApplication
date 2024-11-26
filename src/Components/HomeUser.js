@@ -36,53 +36,6 @@ const HomeUser = () => {
   const [following, setFollowing] = useState([]);
   const [results, setResults] = useState([]);
 
-
-  const fetchNotifications = () => {
-    try {
-      const notificationsRef = collection(firestore, "notifications");
-      
-      const notificationsQuery = queryFS(
-        notificationsRef,
-        where("isRead", "==", false)
-      );
-
-      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-        const notificationsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setNotifications(notificationsList);
-        setLoading(false);
-      });
-
-      return unsubscribe;
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
-  fetchNotifications();
-
-
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const userRef = refDB(database, `users/${currentUser.uid}`);
-  //       const snapshot = await get(userRef);
-  //       if (snapshot.exists()) {
-  //         const data = snapshot.val();
-  //         setFollowing(Object.keys(data.following || {}));
-  //         setFollowers(Object.keys(data.followers || {}));
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-
-  //     }
-  //   };
-
-  //   if (currentUser?.uid) fetchUserData();
-  // }, [currentUser]);
-
-  // useEffect(() => {
     const fetchNotifications = () => {
       try {
         const notificationsRef = collection(firestore, "notifications");
@@ -305,24 +258,7 @@ useEffect(() => {
               <ul>
                 {notifications.map((notification) => (
                   <li key={notification.id}>
-                    {notification.type === "event_report" ? (
-                      <>
-                        <p>
-                          <strong>You have a reported event</strong>
-                        </p>
-                        <p>
-                          <strong>Reported by:</strong> {notification.userEmail}
-                        </p>
-                        <p>
-                          <strong>Reason:</strong> {notification.reason || "No reason provided"}
-                        </p>
-                        <small>
-                          {notification.timestamp
-                            ? new Date(notification.timestamp.seconds * 1000).toLocaleString()
-                            : "No timestamp available"}
-                        </small>
-                      </>
-                    ) : notification.type === "like" ? (
+                    {notification.type === "like" ? (
                       <>
                         <p>
                           <strong>{notification.userEmail}</strong> liked your event.
@@ -371,6 +307,7 @@ useEffect(() => {
             ) : (
               <p>No notifications</p>
             )}
+
           </div>
         </div>
 
