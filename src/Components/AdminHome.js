@@ -121,13 +121,6 @@ const AdminHome = () => {
           />
           <button className="Search-button">Search</button>
         </form>
-    <button className="create-event-button">
-            <h4>
-              <Link to="/CreateEvent" className="links">
-                Create An Event
-              </Link>
-            </h4>
-          </button>
 
           </div>
           <div className="search-results">
